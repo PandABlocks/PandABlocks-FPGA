@@ -293,6 +293,17 @@ def merge_coverage_data(build_dir, module, file_paths):
     return merged_path
 
 
+def cleanup_dir(test_name, build_dir):
+    test_name = test_name.replace(' ', '_').replace('/', '_')
+    (WORKING_DIR / build_dir / test_name).mkdir()
+
+    for file in (WORKING_DIR / build_dir).glob(f'{test_name}*'):
+        if file.is_file():
+            new_name = str(file).split('/')[-1].replace(test_name, '')
+            new_name = new_name.lstrip('_')
+            file.rename(WORKING_DIR / build_dir / test_name / new_name)
+
+
 def print_coverage_data(coverage_report_path):
     print('Code coverage:')
     coverage_path = coverage_report_path.parent
@@ -348,7 +359,7 @@ def test_module(module, test_name=None, simulator='nvc',
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, module))
             xml_path = sim.test(hdl_toplevel=top_level,
-                                test_module='cocotb_timing_ini_test',
+                                test_module='cocotb_simulate_test',
                                 build_dir=build_dir,
                                 test_args=get_test_args(simulator, build_args,
                                                         test_name),
@@ -372,6 +383,7 @@ def test_module(module, test_name=None, simulator='nvc',
                 failed.append(test_name)
             else:
                 raise ValueError(f'Results unclear: {results}')
+            cleanup_dir(test_name, build_dir)
     if simulator == 'nvc':
         coverage_report_path = merge_coverage_data(
             build_dir, module, coverage_file_paths)
