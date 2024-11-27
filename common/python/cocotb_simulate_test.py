@@ -2,6 +2,7 @@
 import configparser
 import os
 import logging
+import csv
 import pandas as pd
 
 from pathlib import Path
@@ -405,12 +406,12 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
 
 
 def collect_values(values, test_name):
-    file_test_name = test_name.replace(' ', '_').replace('/', '_')
+    filename = f'{test_name.replace(' ', '_').replace('/', '_')}_values'
     values_df = pd.DataFrame(values)
     values_df = values_df.transpose()
     values_df.index.name = 'tick'
-    values_df.to_csv(f'{Path.cwd()}/{file_test_name}.csv', index=True)
-    values_df.to_html(f'{Path.cwd()}/{file_test_name}.html')
+    values_df.to_csv(f'{Path.cwd()}/{filename}.csv', index=True)
+    values_df.to_html(f'{Path.cwd()}/{filename}.html')
 
 
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
@@ -439,6 +440,13 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
                                    conditions_schedule, signals_info,
                                    collect)
 
+    if timing_errors:
+        filename = f'{test_name.replace(' ', '_').replace('/', '_')}_errors.csv'
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            for tick, message in timing_errors.items():
+                writer.writerow([tick, message])
+        dut._log.info(f'Errors written to {filename}')
     if collect:
         collect_values(values, test_name)
 
