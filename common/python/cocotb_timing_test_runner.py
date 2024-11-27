@@ -6,6 +6,7 @@ import logging
 import shutil
 import time
 import subprocess
+import csv
 import pandas as pd
 
 from pathlib import Path
@@ -296,12 +297,23 @@ def merge_coverage_data(build_dir, module, file_paths):
 def cleanup_dir(test_name, build_dir):
     test_name = test_name.replace(' ', '_').replace('/', '_')
     (WORKING_DIR / build_dir / test_name).mkdir()
-
+    logger.info(f'Putting all files related to "{test_name}" in {str(
+        WORKING_DIR / build_dir / test_name)}')
     for file in (WORKING_DIR / build_dir).glob(f'{test_name}*'):
         if file.is_file():
             new_name = str(file).split('/')[-1].replace(test_name, '')
             new_name = new_name.lstrip('_')
             file.rename(WORKING_DIR / build_dir / test_name / new_name)
+
+
+def print_errors(failed_tests, build_dir):
+    for test_name in failed_tests:
+        logger.info(f'        See timing errors for "{test_name}" below')
+        test_name = test_name.replace(' ', '_').replace('/', '_')
+        with open(WORKING_DIR / build_dir / test_name / 'errors.csv') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                logger.timing_error(row[1])
 
 
 def print_coverage_data(coverage_report_path):
@@ -310,6 +322,17 @@ def print_coverage_data(coverage_report_path):
     command = ['nvc', '--cover-report', '-o', str(coverage_path),
                str(coverage_report_path)]
     subprocess.run(command)
+
+
+def setup_logger():
+    timing_error_level = 30
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(levelname)s: %(message)s")
+    logging.addLevelName(30, "TIMING_ERROR")
+    def timing_error(self, message, *args, **kwargs):
+        if self.isEnabledFor(timing_error_level):
+            self._log(timing_error_level, message, args, **kwargs)
+    logging.Logger.timing_error = timing_error
 
 
 def test_module(module, test_name=None, simulator='nvc',
@@ -323,7 +346,6 @@ def test_module(module, test_name=None, simulator='nvc',
     Returns:
         Lists of tests that passed and failed respectively.
     """
-    logging.basicConfig(level=logging.DEBUG)
     timing_ini = get_timing_ini(module)
     if not Path(MODULES_PATH / module).is_dir():
         raise FileNotFoundError('No such directory: \'{}\''.format(
@@ -405,6 +427,7 @@ def run_tests():
     """
     t_time_0 = time.time()
     args = get_args()
+    setup_logger()
     if args.module.lower() == 'all':
         modules = get_cocotb_testable_modules()
     else:
@@ -424,6 +447,7 @@ def run_tests():
     for module in modules:
         t0 = time.time()
         module = module.strip('\n')
+        build_dir = f'sim_build_{module}'
         results[module] = [[], []]
         # [[passed], [failed]]
         print()
@@ -443,6 +467,7 @@ def run_tests():
                       times[module])
         if coverage_reports[module] is not None:
             print_coverage_data(coverage_reports[module])
+        print_errors(results[module][1], build_dir)
     print('___________________________________________________')
     summarise_results(results)
     t_time_1 = time.time()

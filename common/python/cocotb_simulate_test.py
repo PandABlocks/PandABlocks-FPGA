@@ -444,8 +444,9 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
         filename = f'{test_name.replace(' ', '_').replace('/', '_')}_errors.csv'
         with open(filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            for tick, message in timing_errors.items():
-                writer.writerow([tick, message])
+            for tick, messages in timing_errors.items():
+                for message in messages:
+                    writer.writerow([tick, message])
         dut._log.info(f'Errors written to {filename}')
     if collect:
         collect_values(values, test_name)
