@@ -52,16 +52,18 @@ def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     return app_ini
 
 
-def get_timing_ini(module):
-    """Get a module's timing INI file.
+def get_timing_inis(module):
+    """Get a module's timing ini files.
 
     Args:
         module: Name of module.
     Returns:
-        Contents of timing INI.
+        Dictionary of filepath: file contents for any timing.ini files in the
+        module directory.
     """
-    ini_path = (MODULES_PATH / module / '{}.timing.ini'.format(module))
-    return read_ini(str(ini_path.resolve()))
+    ini_paths = (MODULES_PATH / module).glob('*.timing.ini')
+    return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
+
 
 def block_has_dma(block_ini):
     """Check if module requires a dma to work.
@@ -417,23 +419,10 @@ def test_module(module, test_name=None, simulator='nvc',
     Returns:
         Lists of tests that passed and failed respectively, path to coverage.
     """
-    timing_ini = get_timing_ini(module)
     if not Path(MODULES_PATH / module).is_dir():
         raise FileNotFoundError('No such directory: \'{}\''.format(
             Path(MODULES_PATH / module)))
-    if test_name:
-        sections = []
-        for test in test_name.split(',,'):   # Some test names contain a comma
-            if test in timing_ini.sections():
-                sections.append(test)
-            else:
-                print('No test called "{}" in {} INI timing file.'
-                    .format(test, module)
-                    .center(shutil.get_terminal_size().columns))
-        if not sections:
-            return [], [], None
-    else:
-        sections = timing_ini.sections()
+    
     sim = runner.get_runner(simulator)
     build_dir = f'sim_build_{module}'
     build_args = get_simulator_build_args(simulator)
@@ -449,37 +438,55 @@ def test_module(module, test_name=None, simulator='nvc',
     coverage_file_paths = []
     coverage_report_path = None
 
-    for section in sections:
-        if section.strip() != '.':
-            test_name = section
-            print()
-            print('Test: "{}" in module {}.\n'.format(test_name, module))
-            xml_path = sim.test(hdl_toplevel=top_level,
-                                test_module='cocotb_simulate_test',
-                                build_dir=build_dir,
-                                test_args=get_test_args(simulator, build_args,
-                                                        test_name),
-                                elab_args=get_elab_args(simulator),
-                                plusargs=get_plusargs(simulator, test_name),
-                                extra_env={'module': module,
-                                           'test_name': test_name,
-                                           'simulator': simulator,
-                                           'sim_build_dir': build_dir,
-                                           'panda_build_dir': panda_build_dir,
-                                           'collect': collect})
-            results = runner.get_results(xml_path)
-            if simulator == 'nvc':
-                coverage_file_paths.append(
-                    collect_coverage_file(build_dir, top_level, test_name))
-            if results == (1, 0):
-                # ran 1 test, 0 failed
-                passed.append(test_name)
-            elif results == (1, 1):
-                # ran 1 test, 1 failed
-                failed.append(test_name)
-            else:
-                raise ValueError(f'Results unclear: {results}')
-            cleanup_dir(test_name, build_dir)
+    timing_inis = get_timing_inis(module)
+    for path, timing_ini in timing_inis.items():
+        if test_name:
+            sections = []
+            for test in test_name.split(',,'):   # Some test names contain a comma
+                if test in timing_ini.sections():
+                    sections.append(test)
+                else:
+                    print('No test called "{}" in {} INI timing file.'
+                        .format(test, module)
+                        .center(shutil.get_terminal_size().columns))
+            if not sections:
+                return [], [], None
+        else:
+            sections = timing_ini.sections()
+
+        for section in sections:
+            if section.strip() != '.':
+                test_name = section
+                print()
+                print('Test: "{}" in module {}.\n'.format(test_name, module))
+                xml_path = sim.test(hdl_toplevel=top_level,
+                                    test_module='cocotb_simulate_test',
+                                    build_dir=build_dir,
+                                    test_args=get_test_args(simulator, build_args,
+                                                            test_name),
+                                    elab_args=get_elab_args(simulator),
+                                    plusargs=get_plusargs(simulator, test_name),
+                                    extra_env={'module': module,
+                                            'test_name': test_name,
+                                            'simulator': simulator,
+                                            'sim_build_dir': build_dir,
+                                            'timing_ini_path': str(path),
+                                            'panda_build_dir': panda_build_dir,
+                                            'collect': collect})
+                results = runner.get_results(xml_path)
+                if simulator == 'nvc':
+                    coverage_file_paths.append(
+                        collect_coverage_file(build_dir, top_level, test_name))
+                if results == (1, 0):
+                    # ran 1 test, 0 failed
+                    passed.append(test_name)
+                elif results == (1, 1):
+                    # ran 1 test, 1 failed
+                    failed.append(test_name)
+                else:
+                    raise ValueError(f'Results unclear: {results}')
+                cleanup_dir(test_name, build_dir)
+        test_name = None
     if simulator == 'nvc':
         coverage_report_path = merge_coverage_data(
             build_dir, module, coverage_file_paths)

@@ -36,16 +36,17 @@ def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     return app_ini
 
 
-def get_timing_ini(module):
-    """Get a module's timing INI file.
+def get_timing_inis(module):
+    """Get a module's timing ini files.
 
     Args:
         module: Name of module.
     Returns:
-        Contents of timing INI.
+        Dictionary of filepath: file contents for any timing.ini files in the
+        module directory.
     """
-    ini_path = (MODULES_PATH / module / '{}.timing.ini'.format(module))
-    return read_ini(str(ini_path.resolve()))
+    ini_paths = (MODULES_PATH / module).glob('*.timing.ini')
+    return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
 
 
 def get_block_ini(module):
@@ -485,9 +486,11 @@ async def module_timing_test(dut):
     simulator = os.getenv('simulator')
     sim_build_dir = os.getenv('sim_build_dir')
     panda_build_dir = os.getenv('panda_build_dir')
+    timing_ini_path = os.getenv('timing_ini_path')
     collect = True if os.getenv('collect') == 'True' else False
     block_ini = get_block_ini(module)
-    timing_ini = get_timing_ini(module)
+    timing_inis = get_timing_inis(module)
+    timing_ini = timing_inis[timing_ini_path]
     if test_name.strip() != '.':
         await section_timing_test(
             dut, module, test_name, block_ini, timing_ini, panda_build_dir,
