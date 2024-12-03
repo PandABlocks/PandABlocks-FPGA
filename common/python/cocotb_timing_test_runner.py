@@ -8,7 +8,7 @@ import subprocess
 import time
 from configparser import ConfigParser
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
 from cocotb_simulate_test import get_block_ini
 from cocotb_tools import runner  # type: ignore
@@ -67,7 +67,7 @@ def block_has_dma(block_ini: ConfigParser) -> bool:
     return block_ini["."].get("type", "") == "dma"
 
 
-def get_module_build_args(module: str, panda_build_dir: str | Path):
+def get_module_build_args(module: str, panda_build_dir: str | Path) -> list[str]:
     """Get simulation build arguments from a module's test config file.
 
     Args:
@@ -81,7 +81,7 @@ def get_module_build_args(module: str, panda_build_dir: str | Path):
         g = {"TOP_PATH": TOP_PATH, "BUILD_PATH": Path(panda_build_dir)}
         code = open(str(test_config_path)).read()
         exec(code, g)
-        args = g.get("EXTRA_BUILD_ARGS", [])
+        args: list[str] = g.get("EXTRA_BUILD_ARGS", [])  # type: ignore
         return args
     return []
 
@@ -159,7 +159,7 @@ def get_module_hdl_files(
     return ordered
 
 
-def get_module_top_level(module: str, panda_build_dir: str | Path):
+def get_module_top_level(module: str, panda_build_dir: str | Path) -> str:
     """Get top level entity from a module's test config file.
     If none is found, assume top level entity is the same as the module name.
 
@@ -174,7 +174,7 @@ def get_module_top_level(module: str, panda_build_dir: str | Path):
         g = {"TOP_PATH": TOP_PATH, "BUILD_PATH": Path(panda_build_dir)}
         code = open(str(test_config_path)).read()
         exec(code, g)
-        top_level = g.get("TOP_LEVEL", None)
+        top_level: str = g.get("TOP_LEVEL", None)  # type: ignore
         if top_level:
             return top_level
     return module
@@ -406,7 +406,7 @@ def print_errors(failed_tests: list[str], build_dir: str | Path):
         with open(WORKING_DIR / build_dir / test_name / "errors.csv") as file:
             reader = csv.reader(file)
             for row in reader:
-                logger.timing_error(row[1])
+                log_timing_error(row[1])
 
 
 def print_coverage_data(coverage_report_path: Path):
@@ -427,17 +427,10 @@ def print_coverage_data(coverage_report_path: Path):
     subprocess.run(command)
 
 
-def setup_logger():
-    """Setup logger to include timing error log level."""
+def log_timing_error(message: str, *args: Any, **kwargs: Any):
     timing_error_level = 30
-    logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
-    logging.addLevelName(30, "TIMING_ERROR")
-
-    def timing_error(self, message, *args, **kwargs):
-        if self.isEnabledFor(timing_error_level):
-            self._log(timing_error_level, message, args, **kwargs)
-
-    logging.Logger.timing_error = timing_error
+    if logger.isEnabledFor(timing_error_level):
+        logger._log(timing_error_level, message, *args, **kwargs)
 
 
 def test_module(
@@ -557,7 +550,6 @@ def run_tests():
     """Perform test run."""
     t_time_0 = time.time()
     args = get_args()
-    setup_logger()
     if args.module.lower() == "all":
         modules = get_cocotb_testable_modules()
     else:
