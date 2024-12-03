@@ -1,29 +1,25 @@
 #!/usr/bin/env python
-import configparser
-import os
-import logging
 import csv
-import pandas as pd
-
+import os
+from configparser import ConfigParser
 from pathlib import Path
-from typing import Dict, List
 
 import cocotb
 import cocotb.handle
-
+import pandas as pd
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge, ReadOnly
-
+from cocotb.triggers import ReadOnly, RisingEdge
 from dma_driver import DMADriver
-
-logger = logging.getLogger(__name__)
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
-MODULES_PATH = TOP_PATH / 'modules'
+MODULES_PATH = TOP_PATH / "modules"
+
+Dut = cocotb.handle.HierarchyObject
+SignalsInfo = dict[str, dict[str, str | int]]
 
 
-def read_ini(path: List[str] | str) -> configparser.ConfigParser:
+def read_ini(path: list[str] | str) -> ConfigParser:
     """Read INI file and return its contents.
 
     Args:
@@ -31,12 +27,12 @@ def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     Returns:
         ConfigParser object containing INI file.
     """
-    app_ini = configparser.ConfigParser()
+    app_ini = ConfigParser()
     app_ini.read(path)
     return app_ini
 
 
-def get_timing_inis(module):
+def get_timing_inis(module: str) -> dict[str, ConfigParser]:
     """Get a module's timing ini files.
 
     Args:
@@ -45,11 +41,11 @@ def get_timing_inis(module):
         Dictionary of filepath: file contents for any timing.ini files in the
         module directory.
     """
-    ini_paths = (MODULES_PATH / module).glob('*.timing.ini')
+    ini_paths = (MODULES_PATH / module).glob("*.timing.ini")
     return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
 
 
-def get_block_ini(module):
+def get_block_ini(module: str) -> ConfigParser:
     """Get a module's block INI file.
 
     Args:
@@ -57,11 +53,11 @@ def get_block_ini(module):
     Returns:
         Contents of block INI.
     """
-    ini_path = MODULES_PATH / module / '{}.block.ini'.format(module)
+    ini_path = MODULES_PATH / module / "{}.block.ini".format(module)
     return read_ini(str(ini_path.resolve()))
 
 
-def is_input_signal(signals_info, signal_name):
+def is_input_signal(signals_info: SignalsInfo, signal_name: str) -> bool:
     """Check if a signal is an input signal based on it's type.
 
     Args:
@@ -70,27 +66,29 @@ def is_input_signal(signals_info, signal_name):
     Returns:
         True if signal is an input signal, otherwise False.
     """
-    return not ('_out' in signals_info[signal_name]['type']
-                or 'read' in signals_info[signal_name]['type']
-                or 'valid_data' in signals_info[signal_name]['type'])
+    return not (
+        "_out" in signals_info[signal_name]["type"]
+        or "read" in signals_info[signal_name]["type"]
+        or "valid_data" in signals_info[signal_name]["type"]
+    )
 
 
-async def initialise_dut(dut, signals_info):
+async def initialise_dut(dut: Dut, signals_info: SignalsInfo):
     """Initialise input signals to 0.
     Args:
         dut: cocotb dut object.
         signals_info: Dictionary containing information about signals.
     """
     for signal_name in signals_info.keys():
-        dut_signal_name = signals_info[signal_name]['name']
+        dut_signal_name = signals_info[signal_name]["name"]
         if is_input_signal(signals_info, signal_name):
-            getattr(dut, '{}'.format(dut_signal_name)).value = 0
-            wstb_name = signals_info[signal_name].get('wstb_name', '')
+            getattr(dut, "{}".format(dut_signal_name)).value = 0
+            wstb_name: str = signals_info[signal_name].get("wstb_name", "")  # type: ignore
             if wstb_name:
                 getattr(dut, wstb_name).value = 0
 
 
-def parse_assignments(assignments):
+def parse_assignments(assignments: str) -> dict[str, int]:
     """Get assignements (or conditions) for a certain tick,
     from timing INI file format.
 
@@ -99,15 +97,15 @@ def parse_assignments(assignments):
     Returns:
         Dictionary of assignments (or conditions).
     """
-    result = {}
-    for assignment in assignments.split(','):
-        if assignment.strip() == '':
+    result: dict[str, int] = {}
+    for assignment in assignments.split(","):
+        if assignment.strip() == "":
             continue
-        signal_name, val = assignment.split('=')
+        signal_name, val = assignment.split("=")
         signal_name = signal_name.strip()
-        if val.startswith('0x') or val.startswith('0X'):
+        if val.startswith("0x") or val.startswith("0X"):
             val = int(val[2:], 16)
-        elif val.startswith('-0x') or val.startswith('-0X'):
+        elif val.startswith("-0x") or val.startswith("-0X"):
             val = int(val[0] + val[3:], 16)
         else:
             val = int(val)
@@ -115,13 +113,13 @@ def parse_assignments(assignments):
     return result
 
 
-def assign_bus(dut, name, val, index, n_bits):
+def assign_bus(dut: Dut, name: str, val: int, index: int, n_bits: int):
     # Unused
     lsb, msb = index * n_bits, (index + 1) * n_bits - 1
     getattr(dut, name).value[msb:lsb] = val
 
 
-def assign(dut, name, val):
+def assign(dut: Dut, name: str, val: int):
     """Assign value to a signal.
 
     Args:
@@ -132,7 +130,7 @@ def assign(dut, name, val):
     getattr(dut, name).set(val)
 
 
-def do_assignments(dut, assignments, signals_info):
+def do_assignments(dut: Dut, assignments: dict[str, int], signals_info: SignalsInfo):
     """Assign values to input signals.
 
     Args:
@@ -141,17 +139,23 @@ def do_assignments(dut, assignments, signals_info):
         signals_info: Dictionary containing information about signals.
     """
     for signal_name, val in assignments.items():
-        if '[' in signal_name:  # partial assignent to bus
-            index = int(signal_name.split('[')[1][:-1])
-            signal_name = signal_name.split('[')[0]
-            n_bits = signals_info[get_ini_signal_name(
-                signal_name, signals_info)]['bits']
-            val = get_bus_value(int(getattr(dut, signal_name).value),
-                                n_bits, val, index)
+        if "[" in signal_name:  # partial assignent to bus
+            index = int(signal_name.split("[")[1][:-1])
+            signal_name = signal_name.split("[")[0]
+            ini_signal_name = get_ini_signal_name(signal_name, signals_info)
+            if ini_signal_name is None:
+                raise ValueError("Could not get ini signal name", {signal_name})
+            n_bits = signals_info[ini_signal_name]["bits"]
+            assert isinstance(n_bits, int), f"{n_bits} is not an integer"
+            val = get_bus_value(
+                int(getattr(dut, signal_name).value), n_bits, val, index
+            )
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], ts):
+def check_conditions(
+    dut: Dut, conditions: dict[str, int], ts: int
+) -> tuple[list[str], dict[str, tuple[int, int]]]:
     """Check value of output signals.
 
     Args:
@@ -159,8 +163,8 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
         conditions: Dictionary of signals and their expected values.
         ts: Current tick.
     """
-    errors = []
-    values = {}
+    errors: list[str] = []
+    values: dict[str, tuple[int, int]] = {}
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
@@ -168,15 +172,15 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
             sim_val = getattr(dut, signal_name).value
         values[signal_name] = (int(val), int(sim_val))
         if sim_val != val:
-            error = 'Signal {} = {}, expecting {}. Ticks = {}'\
-            .format(signal_name, sim_val, val, ts)
+            error = "Signal {} = {}, expecting {}. Ticks = {}".format(
+                signal_name, sim_val, val, ts
+            )
             dut._log.error(error)
             errors.append(error)
     return errors, values
 
 
-
-def update_conditions(conditions, conditions_to_update, signals_info):
+def update_conditions(conditions, conditions_to_update, signals_info: SignalsInfo):
     """Update dictionary of conditions with any needed for the current tick.
     Other than for signals of type 'valid_data', old conditions are propogated
     to the next tick, unless they are overwritten by a new condition.
@@ -188,13 +192,13 @@ def update_conditions(conditions, conditions_to_update, signals_info):
     """
     for signal in dict(conditions).keys():
         ini_signal_name = get_ini_signal_name(signal, signals_info)
-        if signals_info[ini_signal_name]['type'] == 'valid_data':
+        if signals_info[ini_signal_name]["type"] == "valid_data":
             conditions.pop(signal)
     conditions.update(conditions_to_update)
     return conditions
 
 
-def get_signals(dut):
+def get_signals(dut: Dut):
     """Get the names of signals in the dut.
 
     Args:
@@ -202,13 +206,17 @@ def get_signals(dut):
     Returns:
         List of signal names.
     """
-    return [getattr(dut, signal_name) for signal_name in dir(dut)
-            if isinstance(getattr(dut, signal_name),
-                          cocotb.handle.ModifiableObject)
-            and not signal_name.startswith('_')]
+    return [
+        getattr(dut, signal_name)
+        for signal_name in dir(dut)
+        if isinstance(getattr(dut, signal_name), cocotb.handle.ModifiableObject)
+        and not signal_name.startswith("_")
+    ]
 
 
-def get_schedules(timing_ini, signals_info, test_name):
+def get_schedules(
+    timing_ini: ConfigParser, signals_info: SignalsInfo, test_name: str
+) -> tuple[dict[int, dict[str, int]], dict[int, dict[str, int]]]:
     """Get schedules for assignements and conditions for a test.
 
     Args:
@@ -219,19 +227,20 @@ def get_schedules(timing_ini, signals_info, test_name):
         Two dictionaries containing a schedule for assignments and conditions
         respectively for a certain test.
     """
-    conditions_schedule, assignments_schedule = {}, {}
+    conditions_schedule: dict[int, dict[str, int]] = {}
+    assignments_schedule: dict[int, dict[str, int]] = {}
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
             assignments_schedule.setdefault(i, {})
             conditions_schedule.setdefault(i, {})
-        parts = line.split('->')
+        parts = line.split("->")
         for sig_name, val in parse_assignments(parts[0]).items():
-            index = f'[{sig_name.split("[")[1]}' if '[' in sig_name else ''
-            sig_name = sig_name[:len(sig_name) - len(index)]
-            name = signals_info.get(sig_name)['name']
+            index = f'[{sig_name.split("[")[1]}' if "[" in sig_name else ""
+            sig_name = sig_name[: len(sig_name) - len(index)]
+            name = signals_info.get(sig_name)["name"]
             assignments_schedule[ts][name + index] = val
-            wstb_name = signals_info.get(sig_name).get('wstb_name')
+            wstb_name = signals_info.get(sig_name).get("wstb_name")
             if wstb_name is not None:
                 assignments_schedule[ts][wstb_name] = 1
                 assignments_schedule[ts + 1].update({wstb_name: 0})
@@ -239,12 +248,12 @@ def get_schedules(timing_ini, signals_info, test_name):
         if len(parts) > 1:
             conditions_schedule[ts + 1] = {}
             for sig_name, val in parse_assignments(parts[1]).items():
-                name = signals_info.get(sig_name)['name']
+                name = signals_info.get(sig_name)["name"]
                 conditions_schedule[ts + 1][name] = val
     return assignments_schedule, conditions_schedule
 
 
-def get_signals_info(block_ini):
+def get_signals_info(block_ini: ConfigParser) -> SignalsInfo:
     """Get information about signals from a module's block INI file, including
     a mapping between signal names in the INI files and VHDL files.
 
@@ -254,48 +263,50 @@ def get_signals_info(block_ini):
         Dictionary containing signals information.
     """
     signals_info = {}
-    expected_signal_names = [name for name in block_ini.sections()
-                             if name != '.']
+    expected_signal_names = [name for name in block_ini.sections() if name != "."]
     for signal_name in expected_signal_names:
-        if 'type' in block_ini[signal_name]:
-            _type = block_ini[signal_name]['type'].strip()
+        if "type" in block_ini[signal_name]:
+            _type = block_ini[signal_name]["type"].strip()
             suffixes = []
-            if _type == 'time':
-                suffixes = ['_L', '_H']
-            elif _type == 'table short':
-                suffixes = ['_START', '_DATA', '_LENGTH']
-            elif _type == 'table':
-                suffixes = ['_ADDRESS', '_LENGTH']
+            if _type == "time":
+                suffixes = ["_L", "_H"]
+            elif _type == "table short":
+                suffixes = ["_START", "_DATA", "_LENGTH"]
+            elif _type == "table":
+                suffixes = ["_ADDRESS", "_LENGTH"]
             if suffixes:
                 for suffix in suffixes:
-                    new_signal_name = f'{signal_name}{suffix}'
+                    new_signal_name = f"{signal_name}{suffix}"
                     signals_info[new_signal_name] = {}
-                    signals_info[new_signal_name].update(
-                        block_ini[signal_name])
-                    signals_info[new_signal_name]['name'] = new_signal_name
-                    if block_ini[signal_name].get('wstb', False):
-                        signals_info[new_signal_name]['wstb_name'] = \
-                            '{}_wstb'.format(new_signal_name.lower())
+                    signals_info[new_signal_name].update(block_ini[signal_name])
+                    signals_info[new_signal_name]["name"] = new_signal_name
+                    if "wstb" in block_ini[signal_name]:
+                        signals_info[new_signal_name]["wstb_name"] = "{}_wstb".format(
+                            new_signal_name.lower()
+                        )
             else:
                 signals_info[signal_name] = {}
                 signals_info[signal_name].update(block_ini[signal_name])
 
-                if _type.endswith('_mux'):
-                    signals_info[signal_name]['name'] = '{}_i'.format(
-                        signal_name.lower())
-                elif _type.endswith('_out'):
-                    signals_info[signal_name]['name'] = '{}_o'.format(
-                        signal_name.lower())
+                if _type.endswith("_mux"):
+                    signals_info[signal_name]["name"] = "{}_i".format(
+                        signal_name.lower()
+                    )
+                elif _type.endswith("_out"):
+                    signals_info[signal_name]["name"] = "{}_o".format(
+                        signal_name.lower()
+                    )
                 else:
-                    signals_info[signal_name]['name'] = signal_name
+                    signals_info[signal_name]["name"] = signal_name
 
-                if block_ini[signal_name].get('wstb', False):
-                    signals_info[signal_name]['wstb_name'] = '{}_wstb'.format(
-                        signal_name.lower())
+                if "wstb" in block_ini[signal_name]:
+                    signals_info[signal_name]["wstb_name"] = "{}_wstb".format(
+                        signal_name.lower()
+                    )
     return signals_info
 
 
-def get_ini_signal_name(name, signals_info):
+def get_ini_signal_name(name: str, signals_info: SignalsInfo) -> str | None:
     """Get signal name as seen in the INI files from the VHDL signal name.
 
     Args:
@@ -305,36 +316,35 @@ def get_ini_signal_name(name, signals_info):
         Signal name as it appears in the INI files.
     """
     for key, info in signals_info.items():
-        if info['name'] == name:
+        if info["name"] == name:
             return key
     return None
 
 
-def check_signals_info(signals_info):
+def check_signals_info(signals_info: SignalsInfo):
     """Check there are no duplicate signal names in signals_info dictionary.
 
     Args:
         signals_info: Dictionary containing information about signals.
     """
-    signal_names = []
+    signal_names: list[str] = []
     for signal_info in signals_info.values():
-        if signal_info['name'] in signal_names:
-            raise ValueError(
-                'Duplicate signal names in signals info dictionary.')
+        if signal_info["name"] in signal_names:
+            raise ValueError("Duplicate signal names in signals info dictionary.")
         else:
-            signal_names.append(signal_info['name'])
+            signal_names.append(signal_info["name"])
 
 
-def block_has_dma(block_ini):
+def block_has_dma(block_ini: ConfigParser):
     """Check if module requires a dma to work.
 
     Args:
         block_ini: INI file containing signals information about a module.
     """
-    return block_ini['.'].get('type', '') == 'dma'
+    return block_ini["."].get("type", "") == "dma"
 
 
-def get_bus_value(current_value, n_bits, value, index):
+def get_bus_value(current_value: int, n_bits: int, value: int, index: int) -> int:
     """When doing a partial assignent to a bus, get the value we need to
     assign to the entire bus. This is needed as partial assignment appears to
     not be supported.
@@ -353,14 +363,16 @@ def get_bus_value(current_value, n_bits, value, index):
     if value < 0:
         value += capacity
     if value < 0 or value >= capacity:
-        raise ValueError(f'Value {val_copy} too large in magnitude for ' +
-                         f'{n_bits} bit allocation on bus.')
-    value_at_index = ((capacity - 1) << n_bits*index) & current_value
-    new_value_at_index = value << n_bits*index
+        raise ValueError(
+            f"Value {val_copy} too large in magnitude for "
+            + f"{n_bits} bit allocation on bus."
+        )
+    value_at_index = ((capacity - 1) << n_bits * index) & current_value
+    new_value_at_index = value << n_bits * index
     return current_value - value_at_index + new_value_at_index
 
 
-def get_extra_signals_info(module, panda_build_dir):
+def get_extra_signals_info(module: str, panda_build_dir: str | Path):
     """Get extra signals information from a module's test config file.
 
     Args:
@@ -369,22 +381,26 @@ def get_extra_signals_info(module, panda_build_dir):
     Returns:
         Dictionary containing extra signals information.
     """
-    test_config_path = MODULES_PATH / module / 'test_config.py'
+    test_config_path = MODULES_PATH / module / "test_config.py"
     if test_config_path.exists():
-        g = {'TOP_PATH': TOP_PATH,
-            'BUILD_PATH': Path(panda_build_dir)}
+        g = {"TOP_PATH": TOP_PATH, "BUILD_PATH": Path(panda_build_dir)}
         with open(str(test_config_path)) as file:
             code = file.read()
         exec(code, g)
-        extra_signals_info = g.get('EXTRA_SIGNALS_INFO', {})
+        extra_signals_info = g.get("EXTRA_SIGNALS_INFO", {})
         return extra_signals_info
     return {}
 
 
-async def simulate(dut, assignments_schedule, conditions_schedule,
-                   signals_info, collect):
+async def simulate(
+    dut: Dut,
+    assignments_schedule: dict[int, dict[str, int]],
+    conditions_schedule: dict[int, dict[str, int]],
+    signals_info: SignalsInfo,
+    collect: bool,
+) -> tuple[dict[int, dict[str, tuple[int, int]]], dict[int, list[str]]]:
     """Run the simulation according to the schedule found in timing ini.
-    
+
     Args:
         dut: cocotb dut object.
         assignments_schedule: Schedule for signal assignments.
@@ -394,22 +410,18 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
     Returns:
         Dictionaries containing signal values and timing errors.
     """
-    last_ts = max(max(assignments_schedule.keys()),
-                  max(conditions_schedule.keys()))
+    last_ts = max(max(assignments_schedule.keys()), max(conditions_schedule.keys()))
     clkedge = RisingEdge(dut.clk_i)
-    cocotb.start_soon(Clock(
-        dut.clk_i, 1, units="ns").start(start_high=False))
+    cocotb.start_soon(Clock(dut.clk_i, 1, units="ns").start(start_high=False))
     ts = 0
     await initialise_dut(dut, signals_info)
     await clkedge
-    conditions = {}
-    timing_errors = {}
-    values = {}
+    conditions: dict[str, int] = {}
+    timing_errors: dict[int, list[str]] = {}
+    values: dict[int, dict[str, tuple[int, int]]] = {}
     while ts <= last_ts:
-        do_assignments(dut, assignments_schedule.get(ts, {}),
-                       signals_info)
-        update_conditions(conditions, conditions_schedule.get(ts, {}),
-                          signals_info)
+        do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
+        update_conditions(conditions, conditions_schedule.get(ts, {}), signals_info)
         await ReadOnly()
         errors, values[ts] = check_conditions(dut, conditions, ts)
         if errors:
@@ -419,23 +431,30 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
     return values, timing_errors
 
 
-def collect_values(values, test_name):
+def collect_values(values: dict[int, dict[str, tuple[int, int]]], test_name: str):
     """Saves collected signal values to csv and html.
-    
+
     Args:
         values: Dictionary of signal values to save.
         test_name: Name of test.
     """
-    filename = f'{test_name.replace(' ', '_').replace('/', '_')}_values'
+    filename = f"{test_name.replace(' ', '_').replace('/', '_')}_values"
     values_df = pd.DataFrame(values)
     values_df = values_df.transpose()
-    values_df.index.name = 'tick'
-    values_df.to_csv(f'{Path.cwd()}/{filename}.csv', index=True)
-    values_df.to_html(f'{Path.cwd()}/{filename}.html')
+    values_df.index.name = "tick"
+    values_df.to_csv(f"{Path.cwd()}/{filename}.csv", index=True)
+    values_df.to_html(f"{Path.cwd()}/{filename}.html")
 
 
-async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
-                              panda_build_dir, collect=True):
+async def section_timing_test(
+    dut: Dut,
+    module: str,
+    test_name: str,
+    block_ini: ConfigParser,
+    timing_ini: ConfigParser,
+    panda_build_dir: str | Path,
+    collect: bool = True,
+):
     """Perform one test.
 
     Args:
@@ -453,45 +472,44 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
     signals_info.update(get_extra_signals_info(module, panda_build_dir))
     check_signals_info(signals_info)
 
-    assignments_schedule, conditions_schedule = \
-        get_schedules(timing_ini, signals_info, test_name)
+    assignments_schedule, conditions_schedule = get_schedules(
+        timing_ini, signals_info, test_name
+    )
 
-    values, timing_errors = await simulate(dut, assignments_schedule,
-                                   conditions_schedule, signals_info,
-                                   collect)
+    values, timing_errors = await simulate(
+        dut, assignments_schedule, conditions_schedule, signals_info, collect
+    )
 
     if timing_errors:
-        filename = f'{test_name.replace(' ', '_').replace('/', '_')}_errors.csv'
-        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        filename = f"{test_name.replace(' ', '_').replace('/', '_')}_errors.csv"
+        with open(filename, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             for tick, messages in timing_errors.items():
                 for message in messages:
                     writer.writerow([tick, message])
-        dut._log.info(f'Errors written to {filename}')
+        dut._log.info(f"Errors written to {filename}")
     if collect:
         collect_values(values, test_name)
 
-    assert not timing_errors, 'Timing errors found, see above.'
+    assert not timing_errors, "Timing errors found, see above."
 
 
 @cocotb.test()
-async def module_timing_test(dut):
+async def module_timing_test(dut: Dut):
     """Function with cocotb test decorator that cocotb calls to run tests.
 
     Args:
         dut: cocotb dut object.
     """
-    module = os.getenv('module')
-    test_name = os.getenv('test_name')
-    simulator = os.getenv('simulator')
-    sim_build_dir = os.getenv('sim_build_dir')
-    panda_build_dir = os.getenv('panda_build_dir')
-    timing_ini_path = os.getenv('timing_ini_path')
-    collect = True if os.getenv('collect') == 'True' else False
+    module = os.getenv("module")
+    test_name = os.getenv("test_name")
+    panda_build_dir = os.getenv("panda_build_dir")
+    timing_ini_path = os.getenv("timing_ini_path")
+    collect = True if os.getenv("collect") == "True" else False
     block_ini = get_block_ini(module)
     timing_inis = get_timing_inis(module)
     timing_ini = timing_inis[timing_ini_path]
-    if test_name.strip() != '.':
+    if test_name.strip() != ".":
         await section_timing_test(
-            dut, module, test_name, block_ini, timing_ini, panda_build_dir,
-            collect)
+            dut, module, test_name, block_ini, timing_ini, panda_build_dir, collect
+        )
