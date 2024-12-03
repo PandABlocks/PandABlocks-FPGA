@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import csv
-import logging
 import os
 from configparser import ConfigParser
 from pathlib import Path
@@ -11,8 +10,6 @@ import pandas as pd
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 from dma_driver import DMADriver
-
-logger = logging.getLogger(__name__)
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
