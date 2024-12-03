@@ -650,15 +650,17 @@ def get_ip(module: str | None = None, verbose: bool = False) -> dict[str, str | 
     return ip
 
 
-def check_timing_ini(module: str | None = None, verbose: bool = False):
+def check_timing_ini(
+    module: str | None = None, verbose: bool = False
+) -> dict[str, bool]:
     if not module:
         modules = os.listdir(MODULES_PATH)
     else:
         modules = [module]
-    has_timing_ini = {}
+    has_timing_ini: dict[str, bool] = {}
     for module in modules:
-        ini = get_timing_ini(module)
-        if not ini.sections():
+        ini = get_timing_inis(module)
+        if ini:
             has_timing_ini[module] = False
             if verbose:
                 print(
@@ -673,14 +675,14 @@ def check_timing_ini(module: str | None = None, verbose: bool = False):
 
 
 def get_some_info():
-    ini_and_ip = []
-    ini_no_ip = []
-    no_ini = []
+    ini_and_ip: list[str] = []
+    ini_no_ip: list[str] = []
+    no_ini: list[str] = []
     has_timing_ini = check_timing_ini()
     has_ip = get_ip()
     for module in has_timing_ini.keys():
         if has_timing_ini[module]:
-            if has_ip[module]:
+            if module in has_ip and has_ip[module]:
                 ini_and_ip.append(module)
             else:
                 ini_no_ip.append(module)
