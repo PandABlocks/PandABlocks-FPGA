@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-import configparser
 import csv
 import logging
 import os
+from configparser import ConfigParser
 from pathlib import Path
-from typing import Dict, List
 
 import cocotb
 import cocotb.handle
@@ -19,8 +18,11 @@ SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / "modules"
 
+Dut = cocotb.handle.HierarchyObject
+SignalsInfo = dict[str, dict[str, str]]
 
-def read_ini(path: List[str] | str) -> configparser.ConfigParser:
+
+def read_ini(path: list[str] | str) -> ConfigParser:
     """Read INI file and return its contents.
 
     Args:
@@ -28,12 +30,12 @@ def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     Returns:
         ConfigParser object containing INI file.
     """
-    app_ini = configparser.ConfigParser()
+    app_ini = ConfigParser()
     app_ini.read(path)
     return app_ini
 
 
-def get_timing_inis(module):
+def get_timing_inis(module: str) -> dict[str, ConfigParser]:
     """Get a module's timing ini files.
 
     Args:
@@ -46,7 +48,7 @@ def get_timing_inis(module):
     return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
 
 
-def get_block_ini(module):
+def get_block_ini(module: str) -> ConfigParser:
     """Get a module's block INI file.
 
     Args:
@@ -58,7 +60,7 @@ def get_block_ini(module):
     return read_ini(str(ini_path.resolve()))
 
 
-def is_input_signal(signals_info, signal_name):
+def is_input_signal(signals_info: SignalsInfo, signal_name: str) -> bool:
     """Check if a signal is an input signal based on it's type.
 
     Args:
@@ -74,7 +76,7 @@ def is_input_signal(signals_info, signal_name):
     )
 
 
-async def initialise_dut(dut, signals_info):
+async def initialise_dut(dut: Dut, signals_info: SignalsInfo):
     """Initialise input signals to 0.
     Args:
         dut: cocotb dut object.
@@ -89,7 +91,7 @@ async def initialise_dut(dut, signals_info):
                 getattr(dut, wstb_name).value = 0
 
 
-def parse_assignments(assignments):
+def parse_assignments(assignments: str) -> dict[str, int]:
     """Get assignements (or conditions) for a certain tick,
     from timing INI file format.
 
@@ -98,7 +100,7 @@ def parse_assignments(assignments):
     Returns:
         Dictionary of assignments (or conditions).
     """
-    result = {}
+    result: dict[str, int] = {}
     for assignment in assignments.split(","):
         if assignment.strip() == "":
             continue
@@ -114,13 +116,13 @@ def parse_assignments(assignments):
     return result
 
 
-def assign_bus(dut, name, val, index, n_bits):
+def assign_bus(dut: Dut, name: str, val: int, index: int, n_bits: int):
     # Unused
     lsb, msb = index * n_bits, (index + 1) * n_bits - 1
     getattr(dut, name).value[msb:lsb] = val
 
 
-def assign(dut, name, val):
+def assign(dut: Dut, name: str, val: int):
     """Assign value to a signal.
 
     Args:
@@ -131,7 +133,7 @@ def assign(dut, name, val):
     getattr(dut, name).set(val)
 
 
-def do_assignments(dut, assignments, signals_info):
+def do_assignments(dut: Dut, assignments, signals_info: SignalsInfo):
     """Assign values to input signals.
 
     Args:
@@ -152,7 +154,9 @@ def do_assignments(dut, assignments, signals_info):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], ts):
+def check_conditions(
+    dut: Dut, conditions: dict[str, int], ts: int
+) -> tuple[list[str], dict[str, tuple[int, int]]]:
     """Check value of output signals.
 
     Args:
@@ -160,8 +164,8 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
         conditions: Dictionary of signals and their expected values.
         ts: Current tick.
     """
-    errors = []
-    values = {}
+    errors: list[str] = []
+    values: dict[str, tuple[int, int]] = {}
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
@@ -177,7 +181,7 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
     return errors, values
 
 
-def update_conditions(conditions, conditions_to_update, signals_info):
+def update_conditions(conditions, conditions_to_update, signals_info: SignalsInfo):
     """Update dictionary of conditions with any needed for the current tick.
     Other than for signals of type 'valid_data', old conditions are propogated
     to the next tick, unless they are overwritten by a new condition.
@@ -195,7 +199,7 @@ def update_conditions(conditions, conditions_to_update, signals_info):
     return conditions
 
 
-def get_signals(dut):
+def get_signals(dut: Dut):
     """Get the names of signals in the dut.
 
     Args:
@@ -211,7 +215,9 @@ def get_signals(dut):
     ]
 
 
-def get_schedules(timing_ini, signals_info, test_name):
+def get_schedules(
+    timing_ini: ConfigParser, signals_info: SignalsInfo, test_name: str
+) -> tuple[dict[int, dict[str, int]], dict[int, dict[str, int]]]:
     """Get schedules for assignements and conditions for a test.
 
     Args:
@@ -222,7 +228,8 @@ def get_schedules(timing_ini, signals_info, test_name):
         Two dictionaries containing a schedule for assignments and conditions
         respectively for a certain test.
     """
-    conditions_schedule, assignments_schedule = {}, {}
+    conditions_schedule: dict[int, dict[str, int]] = {}
+    assignments_schedule: dict[int, dict[str, int]] = {}
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
@@ -247,7 +254,7 @@ def get_schedules(timing_ini, signals_info, test_name):
     return assignments_schedule, conditions_schedule
 
 
-def get_signals_info(block_ini):
+def get_signals_info(block_ini: ConfigParser) -> SignalsInfo:
     """Get information about signals from a module's block INI file, including
     a mapping between signal names in the INI files and VHDL files.
 
@@ -274,7 +281,7 @@ def get_signals_info(block_ini):
                     signals_info[new_signal_name] = {}
                     signals_info[new_signal_name].update(block_ini[signal_name])
                     signals_info[new_signal_name]["name"] = new_signal_name
-                    if block_ini[signal_name].get("wstb", False):
+                    if "wstb" in block_ini[signal_name]:
                         signals_info[new_signal_name]["wstb_name"] = "{}_wstb".format(
                             new_signal_name.lower()
                         )
@@ -293,14 +300,14 @@ def get_signals_info(block_ini):
                 else:
                     signals_info[signal_name]["name"] = signal_name
 
-                if block_ini[signal_name].get("wstb", False):
+                if "wstb" in block_ini[signal_name]:
                     signals_info[signal_name]["wstb_name"] = "{}_wstb".format(
                         signal_name.lower()
                     )
     return signals_info
 
 
-def get_ini_signal_name(name, signals_info):
+def get_ini_signal_name(name: str, signals_info: SignalsInfo):
     """Get signal name as seen in the INI files from the VHDL signal name.
 
     Args:
@@ -315,13 +322,13 @@ def get_ini_signal_name(name, signals_info):
     return None
 
 
-def check_signals_info(signals_info):
+def check_signals_info(signals_info: SignalsInfo):
     """Check there are no duplicate signal names in signals_info dictionary.
 
     Args:
         signals_info: Dictionary containing information about signals.
     """
-    signal_names = []
+    signal_names: list[str] = []
     for signal_info in signals_info.values():
         if signal_info["name"] in signal_names:
             raise ValueError("Duplicate signal names in signals info dictionary.")
@@ -329,7 +336,7 @@ def check_signals_info(signals_info):
             signal_names.append(signal_info["name"])
 
 
-def block_has_dma(block_ini):
+def block_has_dma(block_ini: ConfigParser):
     """Check if module requires a dma to work.
 
     Args:
@@ -338,7 +345,7 @@ def block_has_dma(block_ini):
     return block_ini["."].get("type", "") == "dma"
 
 
-def get_bus_value(current_value, n_bits, value, index):
+def get_bus_value(current_value: int, n_bits: int, value: int, index: int) -> int:
     """When doing a partial assignent to a bus, get the value we need to
     assign to the entire bus. This is needed as partial assignment appears to
     not be supported.
@@ -366,7 +373,7 @@ def get_bus_value(current_value, n_bits, value, index):
     return current_value - value_at_index + new_value_at_index
 
 
-def get_extra_signals_info(module, panda_build_dir):
+def get_extra_signals_info(module: str, panda_build_dir: str | Path):
     """Get extra signals information from a module's test config file.
 
     Args:
@@ -387,8 +394,12 @@ def get_extra_signals_info(module, panda_build_dir):
 
 
 async def simulate(
-    dut, assignments_schedule, conditions_schedule, signals_info, collect
-):
+    dut: Dut,
+    assignments_schedule: dict[int, dict[str, int]],
+    conditions_schedule: dict[int, dict[str, int]],
+    signals_info: SignalsInfo,
+    collect: bool,
+) -> tuple[dict[int, dict[str, tuple[int, int]]], dict[int, list[str]]]:
     """Run the simulation according to the schedule found in timing ini.
 
     Args:
@@ -406,9 +417,9 @@ async def simulate(
     ts = 0
     await initialise_dut(dut, signals_info)
     await clkedge
-    conditions = {}
-    timing_errors = {}
-    values = {}
+    conditions: dict[str, int] = {}
+    timing_errors: dict[int, list[str]] = {}
+    values: dict[int, dict[str, tuple[int, int]]] = {}
     while ts <= last_ts:
         do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
         update_conditions(conditions, conditions_schedule.get(ts, {}), signals_info)
@@ -421,7 +432,7 @@ async def simulate(
     return values, timing_errors
 
 
-def collect_values(values, test_name):
+def collect_values(values: dict[int, dict[str, tuple[int, int]]], test_name: str):
     """Saves collected signal values to csv and html.
 
     Args:
@@ -437,7 +448,13 @@ def collect_values(values, test_name):
 
 
 async def section_timing_test(
-    dut, module, test_name, block_ini, timing_ini, panda_build_dir, collect=True
+    dut: Dut,
+    module: str,
+    test_name: str,
+    block_ini: ConfigParser,
+    timing_ini: ConfigParser,
+    panda_build_dir: str | Path,
+    collect: bool = True,
 ):
     """Perform one test.
 
@@ -479,7 +496,7 @@ async def section_timing_test(
 
 
 @cocotb.test()
-async def module_timing_test(dut):
+async def module_timing_test(dut: Dut):
     """Function with cocotb test decorator that cocotb calls to run tests.
 
     Args:

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 import argparse
-import configparser
 import csv
 import logging
 import os
 import shutil
 import subprocess
 import time
+from configparser import ConfigParser
 from pathlib import Path
 from typing import List
 
-from cocotb_tools import runner
+from cocotb_simulate_test import get_block_ini
+from cocotb_tools import runner  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def get_args():
     return parser.parse_args()
 
 
-def read_ini(path: List[str] | str) -> configparser.ConfigParser:
+def read_ini(path: List[str] | str) -> ConfigParser:
     """Read INI file and return its contents.
 
     Args:
@@ -39,12 +40,12 @@ def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     Returns:
         ConfigParser object containing INI file.
     """
-    app_ini = configparser.ConfigParser()
+    app_ini = ConfigParser()
     app_ini.read(path)
     return app_ini
 
 
-def get_timing_inis(module):
+def get_timing_inis(module: str) -> dict[str, ConfigParser]:
     """Get a module's timing ini files.
 
     Args:
@@ -57,7 +58,7 @@ def get_timing_inis(module):
     return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
 
 
-def block_has_dma(block_ini):
+def block_has_dma(block_ini: ConfigParser) -> bool:
     """Check if module requires a dma to work.
 
     Args:
@@ -66,7 +67,7 @@ def block_has_dma(block_ini):
     return block_ini["."].get("type", "") == "dma"
 
 
-def get_module_build_args(module, panda_build_dir):
+def get_module_build_args(module: str, panda_build_dir: str | Path):
     """Get simulation build arguments from a module's test config file.
 
     Args:
@@ -85,7 +86,9 @@ def get_module_build_args(module, panda_build_dir):
     return []
 
 
-def order_hdl_files(hdl_files, build_dir, top_level):
+def order_hdl_files(
+    hdl_files: list[Path], build_dir: str | Path, top_level: str
+) -> list[Path]:
     """Put vhdl source files in compilation order. This is neccessary for the
     nvc simulator as it does not order the files iself before compilation.
 
@@ -94,7 +97,7 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         build_dir: Build directory for simulation.
         top_level: Name of the top-level entity.
     """
-    command = [
+    command: list[str] = [
         "vhdeps",
         "dump",
         top_level,
@@ -109,7 +112,7 @@ def order_hdl_files(hdl_files, build_dir, top_level):
     try:
         with open(TOP_PATH / build_dir / "order") as order:
             ordered_hdl_files = [
-                line.strip().split(" ")[-1] for line in order.readlines()
+                Path(line.strip().split(" ")[-1]) for line in order.readlines()
             ]
         return ordered_hdl_files
     except FileNotFoundError as error:
@@ -119,7 +122,9 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         return hdl_files
 
 
-def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
+def get_module_hdl_files(
+    module: str, top_level: str, build_dir: str | Path, panda_build_dir: str | Path
+):
     """Get HDL files needed to simulate a module from its test config file.
 
     Args:
@@ -137,8 +142,8 @@ def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
         code = open(str(test_config_path)).read()
         exec(code, g)
         g.get("EXTRA_HDL_FILES", [])
-        extra_files = list(g.get("EXTRA_HDL_FILES", []))
-        extra_files_2 = []
+        extra_files: list[Path] = list(g.get("EXTRA_HDL_FILES", []))  # type: ignore
+        extra_files_2: list[Path] = []
         for my_file in extra_files:
             if str(my_file).endswith(".vhd"):
                 extra_files_2.append(my_file)
@@ -147,14 +152,14 @@ def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
     else:
         extra_files_2 = []
     result = extra_files_2 + list((module_dir_path / "hdl").glob("*.vhd"))
-    result = order_hdl_files(result, build_dir, top_level)
+    ordered = order_hdl_files(result, build_dir, top_level)
     logger.info("Gathering the following VHDL files:")
-    for my_file in result:
+    for my_file in ordered:
         logger.info(my_file)
-    return result
+    return ordered
 
 
-def get_module_top_level(module, panda_build_dir):
+def get_module_top_level(module: str, panda_build_dir: str | Path):
     """Get top level entity from a module's test config file.
     If none is found, assume top level entity is the same as the module name.
 
@@ -175,7 +180,9 @@ def get_module_top_level(module, panda_build_dir):
     return module
 
 
-def print_results(module, passed, failed, time=None):
+def print_results(
+    module: str, passed: list[str], failed: list[str], time: float | None = None
+):
     """Format and print results from a module's tests.
 
     Args:
@@ -195,7 +202,7 @@ def print_results(module, passed, failed, time=None):
                 len(passed), len(passed) + len(failed), percentage
             )
         )
-        if time:
+        if time is not None:
             print("Time taken = {}s.".format(time))
         if failed:
             print("\033[0;31m" + "Failed tests:" + "\x1b[0m", end=" ")
@@ -209,14 +216,14 @@ def print_results(module, passed, failed, time=None):
             print("\033[92m" + "ALL PASSED" + "\x1b[0m")
 
 
-def summarise_results(results):
+def summarise_results(results: dict[str, list[list[str]]]):
     """Format and print summary of results from a test run.
 
     Args:
         Results: Dictionary of all results from a test run.
     """
-    failed = [module for module in results if results[module][1]]
-    passed = [module for module in results if not results[module][1]]
+    failed: list[str] = [module for module in results if results[module][1]]
+    passed: list[str] = [module for module in results if not results[module][1]]
     total_passed, total_failed = 0, 0
     for module in results:
         total_passed += len(results[module][0])
@@ -250,7 +257,7 @@ def summarise_results(results):
             print("\033[92m" + "\033[1m" + "ALL MODULES PASSED" + "\x1b[0m")
 
 
-def get_simulator_build_args(simulator):
+def get_simulator_build_args(simulator: str) -> list[str]:
     """Get arguments for the build stage.
 
     Args:
@@ -262,9 +269,11 @@ def get_simulator_build_args(simulator):
         return ["--std=08", "-fsynopsys", "-Wno-hide"]
     elif simulator == "nvc":
         return ["--std=2008"]
+    else:
+        raise NotImplementedError(f"{simulator} is not a valid simulator")
 
 
-def get_test_args(simulator, build_args, test_name):
+def get_test_args(simulator: str, build_args: list[str], test_name: str) -> list[str]:
     """Get arguments for the test stage.
 
     Args:
@@ -279,9 +288,11 @@ def get_test_args(simulator, build_args, test_name):
         return build_args
     elif simulator == "nvc":
         return ["--ieee-warnings=off", f"--wave={test_name}.vcd"]
+    else:
+        raise NotImplementedError(f"{simulator} is not a valid simulator")
 
 
-def get_elab_args(simulator):
+def get_elab_args(simulator: str) -> list[str]:
     """Get arguments for the elaboration stage.
 
     Args:
@@ -295,7 +306,7 @@ def get_elab_args(simulator):
         return []
 
 
-def get_plusargs(simulator, test_name):
+def get_plusargs(simulator: str, test_name: str) -> list[str]:
     """Get plusargs to for the test stage.
 
     Args:
@@ -313,7 +324,9 @@ def get_plusargs(simulator, test_name):
     return []
 
 
-def collect_coverage_file(build_dir, top_level, test_name):
+def collect_coverage_file(
+    build_dir: str | Path, top_level: str, test_name: str
+) -> Path:
     """Move coverage file to the coverage directory
 
     Args:
@@ -336,7 +349,9 @@ def collect_coverage_file(build_dir, top_level, test_name):
     return new_file_path
 
 
-def merge_coverage_data(build_dir, module, file_paths):
+def merge_coverage_data(
+    build_dir: str | Path, module: str, file_paths: list[Path]
+) -> Path:
     """Merges coverage files from each test to create an overall coverage
     report for a module.
 
@@ -357,7 +372,7 @@ def merge_coverage_data(build_dir, module, file_paths):
     return merged_path
 
 
-def cleanup_dir(test_name, build_dir):
+def cleanup_dir(test_name: str, build_dir: str | Path):
     """Creates a subdirectory for a test and moves all files generated from
     that test into it.
 
@@ -378,7 +393,7 @@ def cleanup_dir(test_name, build_dir):
             file.rename(WORKING_DIR / build_dir / test_name / new_name)
 
 
-def print_errors(failed_tests, build_dir):
+def print_errors(failed_tests: list[str], build_dir: str | Path):
     """Print out timing errors.
 
     Args:
@@ -394,7 +409,7 @@ def print_errors(failed_tests, build_dir):
                 logger.timing_error(row[1])
 
 
-def print_coverage_data(coverage_report_path):
+def print_coverage_data(coverage_report_path: Path):
     """Print coverage report
 
     Args:
@@ -426,8 +441,12 @@ def setup_logger():
 
 
 def test_module(
-    module, test_name=None, simulator="nvc", panda_build_dir="/build", collect=False
-):
+    module: str,
+    test_name: str | None = None,
+    simulator: str = "nvc",
+    panda_build_dir: str | Path = "/build",
+    collect: bool = False,
+) -> tuple[list[str], list[str], Path | None]:
     """Run tests for a module.
 
     Args:
@@ -445,26 +464,27 @@ def test_module(
             "No such directory: '{}'".format(Path(MODULES_PATH / module))
         )
 
-    sim = runner.get_runner(simulator)
+    sim: runner.Simulator = runner.get_runner(simulator)  # type: ignore
     build_dir = f"sim_build_{module}"
     build_args = get_simulator_build_args(simulator)
     build_args += get_module_build_args(module, panda_build_dir)
     top_level = get_module_top_level(module, panda_build_dir)
-    sim.build(
+    sim.build(  # type: ignore
         sources=get_module_hdl_files(module, top_level, build_dir, panda_build_dir),
         build_dir=build_dir,
         hdl_toplevel=top_level,
         build_args=build_args,
         clean=True,
     )
-    passed, failed = [], []
-    coverage_file_paths = []
-    coverage_report_path = None
+    passed: list[str] = []
+    failed: list[str] = []
+    coverage_file_paths: list[Path] = []
+    coverage_report_path: Path | None = None
 
     timing_inis = get_timing_inis(module)
     for path, timing_ini in timing_inis.items():
         if test_name:
-            sections = []
+            sections: list[str] = []
             for test in test_name.split(",,"):  # Some test names contain a comma
                 if test in timing_ini.sections():
                     sections.append(test)
@@ -484,7 +504,7 @@ def test_module(
                 test_name = section
                 print()
                 print('Test: "{}" in module {}.\n'.format(test_name, module))
-                xml_path = sim.test(
+                xml_path: Path = sim.test(  # type: ignore
                     hdl_toplevel=top_level,
                     test_module="cocotb_simulate_test",
                     build_dir=build_dir,
@@ -495,13 +515,13 @@ def test_module(
                         "module": module,
                         "test_name": test_name,
                         "simulator": simulator,
-                        "sim_build_dir": build_dir,
+                        "sim_build_dir": str(build_dir),
                         "timing_ini_path": str(path),
-                        "panda_build_dir": panda_build_dir,
-                        "collect": collect,
+                        "panda_build_dir": str(panda_build_dir),
+                        "collect": str(collect),
                     },
                 )
-                results = runner.get_results(xml_path)
+                results: tuple[int, int] = runner.get_results(xml_path)  # type: ignore
                 if simulator == "nvc":
                     coverage_file_paths.append(
                         collect_coverage_file(build_dir, top_level, test_name)
@@ -542,7 +562,7 @@ def run_tests():
         modules = get_cocotb_testable_modules()
     else:
         modules = args.module.split(",")
-    skip_list = args.skip.split(",") if args.skip else []
+    skip_list: list[str] = args.skip.split(",") if args.skip else []
     for module in skip_list:
         if module in modules:
             modules.remove(module)
@@ -550,14 +570,13 @@ def run_tests():
         else:
             print(f"Cannot skip {module} as it was not going to be tested.")
     simulator = args.sim
-    collect = "True" if args.c else "False"
-    results = {}
-    times = {}
-    coverage_reports = {}
+    collect = bool(args.c)
+    results: dict[str, list[list[str]]] = {}
+    times: dict[str, float | None] = {}
+    coverage_reports: dict[str, Path | None] = {}
     for module in modules:
         t0 = time.time()
         module = module.strip("\n")
-        build_dir = f"sim_build_{module}"
         results[module] = [[], []]
         # [[passed], [failed]]
         print()
@@ -584,8 +603,10 @@ def run_tests():
     print("\nResults:")
     for module in results:
         print_results(module, results[module][0], results[module][1], times[module])
-        if coverage_reports[module] is not None:
-            print_coverage_data(coverage_reports[module])
+        path = coverage_reports[module]
+        if path is not None:
+            print_coverage_data(path)
+        build_dir = f"sim_build_{module}"
         print_errors(results[module][1], build_dir)
     print("___________________________________________________")
     summarise_results(results)
@@ -595,37 +616,37 @@ def run_tests():
     print(f"Simulator: {simulator}\n")
 
 
-def get_ip(module=None, quiet=True):
+def get_ip(module: str | None = None, verbose: bool = False) -> dict[str, str | None]:
     if not module:
-        modules = os.listdir(MODULES_PATH)
+        modules: list[str] = os.listdir(MODULES_PATH)
     else:
-        modules = [module]
-    ip = {}
+        modules: list[str] = [module]
+    ip: dict[str, str | None] = {}
     for module in modules:
         ini = get_block_ini(module)
         if not ini.sections():
-            if not quiet:
+            if verbose:
                 print("\033[1m" + f"No block INI file found in {module}!" + "\033[0m")
             continue
-        info = []
+        info = {}
         if "." in ini.keys():
             info = ini["."]
         spaces = " " + "-" * (16 - len(module)) + " "
         if "ip" in info:
             ip[module] = info["ip"]
-            if not quiet:
+            if verbose:
                 print(
                     "IP needed for module \033[1m"
                     + module
                     + "\033[0m:"
                     + spaces
                     + "\033[0;33m"
-                    + info["ip"]
+                    + str(ip[module])
                     + "\033[0m"
                 )
         else:
             ip[module] = None
-            if not quiet:
+            if verbose:
                 print(
                     "IP needed for module "
                     + "\033[1m"
@@ -637,7 +658,7 @@ def get_ip(module=None, quiet=True):
     return ip
 
 
-def check_timing_ini(module=None, quiet=True):
+def check_timing_ini(module: str | None = None, verbose: bool = False):
     if not module:
         modules = os.listdir(MODULES_PATH)
     else:
@@ -647,14 +668,14 @@ def check_timing_ini(module=None, quiet=True):
         ini = get_timing_ini(module)
         if not ini.sections():
             has_timing_ini[module] = False
-            if not quiet:
+            if verbose:
                 print(
                     "\033[0;33m"
                     + f"No timing INI file found in - \033[1m{module}\033[0m"
                 )
         else:
             has_timing_ini[module] = True
-            if not quiet:
+            if verbose:
                 print(f"Timing ini file found in ---- \033[1m{module}\033[0m")
     return has_timing_ini
 
@@ -687,9 +708,9 @@ def get_some_info():
 def main():
     args = get_args()
     if args.module.lower() == "ip":
-        get_ip(args.test_name, quiet=False)
+        get_ip(args.test_name, verbose=True)
     elif args.module.lower() == "ini":
-        check_timing_ini(quiet=False)
+        check_timing_ini(verbose=True)
     elif args.module.lower() == "info":
         get_some_info()
     else:
