@@ -10,7 +10,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import List
 
-from cocotb_tools import runner
+from cocotb_simulate_test import get_block_ini
+from cocotb_tools import runner  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def get_module_build_args(module: str, panda_build_dir: str | Path):
 
 def order_hdl_files(
     hdl_files: list[Path], build_dir: str | Path, top_level: str
-) -> list[Path] | list[str]:
+) -> list[Path]:
     """Put vhdl source files in compilation order. This is neccessary for the
     nvc simulator as it does not order the files iself before compilation.
 
@@ -111,7 +112,7 @@ def order_hdl_files(
     try:
         with open(TOP_PATH / build_dir / "order") as order:
             ordered_hdl_files = [
-                line.strip().split(" ")[-1] for line in order.readlines()
+                Path(line.strip().split(" ")[-1]) for line in order.readlines()
             ]
         return ordered_hdl_files
     except FileNotFoundError as error:
@@ -142,7 +143,7 @@ def get_module_hdl_files(
         exec(code, g)
         g.get("EXTRA_HDL_FILES", [])
         extra_files: list[Path] = list(g.get("EXTRA_HDL_FILES", []))  # type: ignore
-        extra_files_2: list[str] = []
+        extra_files_2: list[Path] = []
         for my_file in extra_files:
             if str(my_file).endswith(".vhd"):
                 extra_files_2.append(my_file)
@@ -150,14 +151,12 @@ def get_module_hdl_files(
                 extra_files_2 = extra_files_2 + list(my_file.glob("**/*.vhd"))
     else:
         extra_files_2 = []
-    result: list[Path] | list[str] = extra_files_2 + list(
-        (module_dir_path / "hdl").glob("*.vhd")
-    )
-    result = order_hdl_files(result, build_dir, top_level)
+    result = extra_files_2 + list((module_dir_path / "hdl").glob("*.vhd"))
+    ordered = order_hdl_files(result, build_dir, top_level)
     logger.info("Gathering the following VHDL files:")
-    for my_file in result:
+    for my_file in ordered:
         logger.info(my_file)
-    return result
+    return ordered
 
 
 def get_module_top_level(module: str, panda_build_dir: str | Path):
@@ -351,7 +350,7 @@ def collect_coverage_file(
 
 
 def merge_coverage_data(
-    build_dir: str | Path, module: str, file_paths: list[str | Path]
+    build_dir: str | Path, module: str, file_paths: list[Path]
 ) -> Path:
     """Merges coverage files from each test to create an overall coverage
     report for a module.
@@ -444,9 +443,9 @@ def setup_logger():
 def test_module(
     module: str,
     test_name: str | None = None,
-    simulator="nvc",
-    panda_build_dir="/build",
-    collect=False,
+    simulator: str = "nvc",
+    panda_build_dir: str | Path = "/build",
+    collect: bool = False,
 ) -> tuple[list[str], list[str], Path | None]:
     """Run tests for a module.
 
@@ -465,12 +464,12 @@ def test_module(
             "No such directory: '{}'".format(Path(MODULES_PATH / module))
         )
 
-    sim = runner.get_runner(simulator)
+    sim: runner.Simulator = runner.get_runner(simulator)  # type: ignore
     build_dir = f"sim_build_{module}"
     build_args = get_simulator_build_args(simulator)
     build_args += get_module_build_args(module, panda_build_dir)
     top_level = get_module_top_level(module, panda_build_dir)
-    sim.build(
+    sim.build(  # type: ignore
         sources=get_module_hdl_files(module, top_level, build_dir, panda_build_dir),
         build_dir=build_dir,
         hdl_toplevel=top_level,
@@ -485,7 +484,7 @@ def test_module(
     timing_inis = get_timing_inis(module)
     for path, timing_ini in timing_inis.items():
         if test_name:
-            sections = []
+            sections: list[str] = []
             for test in test_name.split(",,"):  # Some test names contain a comma
                 if test in timing_ini.sections():
                     sections.append(test)
@@ -505,7 +504,7 @@ def test_module(
                 test_name = section
                 print()
                 print('Test: "{}" in module {}.\n'.format(test_name, module))
-                xml_path = sim.test(
+                xml_path: Path = sim.test(  # type: ignore
                     hdl_toplevel=top_level,
                     test_module="cocotb_simulate_test",
                     build_dir=build_dir,
@@ -516,13 +515,13 @@ def test_module(
                         "module": module,
                         "test_name": test_name,
                         "simulator": simulator,
-                        "sim_build_dir": build_dir,
+                        "sim_build_dir": str(build_dir),
                         "timing_ini_path": str(path),
-                        "panda_build_dir": panda_build_dir,
-                        "collect": collect,
+                        "panda_build_dir": str(panda_build_dir),
+                        "collect": str(collect),
                     },
                 )
-                results = runner.get_results(xml_path)
+                results: tuple[int, int] = runner.get_results(xml_path)  # type: ignore
                 if simulator == "nvc":
                     coverage_file_paths.append(
                         collect_coverage_file(build_dir, top_level, test_name)
@@ -571,14 +570,13 @@ def run_tests():
         else:
             print(f"Cannot skip {module} as it was not going to be tested.")
     simulator = args.sim
-    collect = "True" if args.c else "False"
+    collect = bool(args.c)
     results: dict[str, list[list[str]]] = {}
-    times = {}
-    coverage_reports = {}
+    times: dict[str, float | None] = {}
+    coverage_reports: dict[str, Path | None] = {}
     for module in modules:
         t0 = time.time()
         module = module.strip("\n")
-        build_dir = f"sim_build_{module}"
         results[module] = [[], []]
         # [[passed], [failed]]
         print()
@@ -605,8 +603,10 @@ def run_tests():
     print("\nResults:")
     for module in results:
         print_results(module, results[module][0], results[module][1], times[module])
-        if coverage_reports[module] is not None:
-            print_coverage_data(coverage_reports[module])
+        path = coverage_reports[module]
+        if path is not None:
+            print_coverage_data(path)
+        build_dir = f"sim_build_{module}"
         print_errors(results[module][1], build_dir)
     print("___________________________________________________")
     summarise_results(results)
@@ -616,37 +616,37 @@ def run_tests():
     print(f"Simulator: {simulator}\n")
 
 
-def get_ip(module=None, quiet=True):
+def get_ip(module: str | None = None, verbose: bool = False) -> dict[str, str | None]:
     if not module:
-        modules = os.listdir(MODULES_PATH)
+        modules: list[str] = os.listdir(MODULES_PATH)
     else:
-        modules = [module]
-    ip = {}
+        modules: list[str] = [module]
+    ip: dict[str, str | None] = {}
     for module in modules:
         ini = get_block_ini(module)
         if not ini.sections():
-            if not quiet:
+            if verbose:
                 print("\033[1m" + f"No block INI file found in {module}!" + "\033[0m")
             continue
-        info = []
+        info = {}
         if "." in ini.keys():
             info = ini["."]
         spaces = " " + "-" * (16 - len(module)) + " "
         if "ip" in info:
             ip[module] = info["ip"]
-            if not quiet:
+            if verbose:
                 print(
                     "IP needed for module \033[1m"
                     + module
                     + "\033[0m:"
                     + spaces
                     + "\033[0;33m"
-                    + info["ip"]
+                    + str(ip[module])
                     + "\033[0m"
                 )
         else:
             ip[module] = None
-            if not quiet:
+            if verbose:
                 print(
                     "IP needed for module "
                     + "\033[1m"
@@ -658,7 +658,7 @@ def get_ip(module=None, quiet=True):
     return ip
 
 
-def check_timing_ini(module=None, quiet=True):
+def check_timing_ini(module: str | None = None, verbose: bool = False):
     if not module:
         modules = os.listdir(MODULES_PATH)
     else:
@@ -668,14 +668,14 @@ def check_timing_ini(module=None, quiet=True):
         ini = get_timing_ini(module)
         if not ini.sections():
             has_timing_ini[module] = False
-            if not quiet:
+            if verbose:
                 print(
                     "\033[0;33m"
                     + f"No timing INI file found in - \033[1m{module}\033[0m"
                 )
         else:
             has_timing_ini[module] = True
-            if not quiet:
+            if verbose:
                 print(f"Timing ini file found in ---- \033[1m{module}\033[0m")
     return has_timing_ini
 
@@ -708,9 +708,9 @@ def get_some_info():
 def main():
     args = get_args()
     if args.module.lower() == "ip":
-        get_ip(args.test_name, quiet=False)
+        get_ip(args.test_name, verbose=True)
     elif args.module.lower() == "ini":
-        check_timing_ini(quiet=False)
+        check_timing_ini(verbose=True)
     elif args.module.lower() == "info":
         get_some_info()
     else:

@@ -154,7 +154,9 @@ def do_assignments(dut: Dut, assignments, signals_info: SignalsInfo):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut: Dut, conditions: dict[str, int], ts: int):
+def check_conditions(
+    dut: Dut, conditions: dict[str, int], ts: int
+) -> tuple[list[str], dict[str, tuple[int, int]]]:
     """Check value of output signals.
 
     Args:
@@ -162,8 +164,8 @@ def check_conditions(dut: Dut, conditions: dict[str, int], ts: int):
         conditions: Dictionary of signals and their expected values.
         ts: Current tick.
     """
-    errors = []
-    values = {}
+    errors: list[str] = []
+    values: dict[str, tuple[int, int]] = {}
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
@@ -213,7 +215,9 @@ def get_signals(dut: Dut):
     ]
 
 
-def get_schedules(timing_ini: ConfigParser, signals_info: SignalsInfo, test_name: str):
+def get_schedules(
+    timing_ini: ConfigParser, signals_info: SignalsInfo, test_name: str
+) -> tuple[dict[int, dict[str, int]], dict[int, dict[str, int]]]:
     """Get schedules for assignements and conditions for a test.
 
     Args:
@@ -224,7 +228,8 @@ def get_schedules(timing_ini: ConfigParser, signals_info: SignalsInfo, test_name
         Two dictionaries containing a schedule for assignments and conditions
         respectively for a certain test.
     """
-    conditions_schedule, assignments_schedule = {}, {}
+    conditions_schedule: dict[int, dict[str, int]] = {}
+    assignments_schedule: dict[int, dict[str, int]] = {}
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
@@ -390,11 +395,11 @@ def get_extra_signals_info(module: str, panda_build_dir: str | Path):
 
 async def simulate(
     dut: Dut,
-    assignments_schedule,
-    conditions_schedule,
+    assignments_schedule: dict[int, dict[str, int]],
+    conditions_schedule: dict[int, dict[str, int]],
     signals_info: SignalsInfo,
     collect: bool,
-):
+) -> tuple[dict[int, dict[str, tuple[int, int]]], dict[int, list[str]]]:
     """Run the simulation according to the schedule found in timing ini.
 
     Args:
@@ -412,9 +417,9 @@ async def simulate(
     ts = 0
     await initialise_dut(dut, signals_info)
     await clkedge
-    conditions = {}
-    timing_errors = {}
-    values = {}
+    conditions: dict[str, int] = {}
+    timing_errors: dict[int, list[str]] = {}
+    values: dict[int, dict[str, tuple[int, int]]] = {}
     while ts <= last_ts:
         do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
         update_conditions(conditions, conditions_schedule.get(ts, {}), signals_info)
@@ -427,7 +432,7 @@ async def simulate(
     return values, timing_errors
 
 
-def collect_values(values, test_name):
+def collect_values(values: dict[int, dict[str, tuple[int, int]]], test_name: str):
     """Saves collected signal values to csv and html.
 
     Args:
