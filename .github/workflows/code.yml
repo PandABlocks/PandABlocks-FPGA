@@ -53,6 +53,13 @@ jobs:
             ghcr.io/pandablocks/pandablocks-dev-container:4.0a7 \
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make cocotb_tests"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          name: nvc-coverage
+          files: cocotb_coverage.xml
+        # env:
+        #   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen, cocotb_test ]

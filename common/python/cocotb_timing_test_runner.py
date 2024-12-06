@@ -372,6 +372,27 @@ def merge_coverage_data(
     return merged_path
 
 
+def export_coverage_data(
+    output_path: Path,
+    file_paths: list[Path],
+    format: str = "cobertura",
+):
+    """Merges merge coverage files from each module to create an overall coverage
+    report in an xml format suitable for codecov.
+
+    Args:
+        output_path: Path of the output coverage report to write
+        file_paths: List of Paths to coverage files from each module.
+        format: coverage format to pass to nvc simulator
+    """
+    command = (
+        ["nvc", "--cover-export", f"--format={format}", "-o"]
+        + [str(output_path)]
+        + [str(file_path) for file_path in file_paths]
+    )
+    subprocess.run(command)
+
+
 def cleanup_dir(test_name: str, build_dir: str | Path):
     """Creates a subdirectory for a test and moves all files generated from
     that test into it.
@@ -606,6 +627,9 @@ def run_tests():
     print("\nTime taken: {}s.".format(round(t_time_1 - t_time_0, 2)))
     print("___________________________________________________\n")
     print(f"Simulator: {simulator}\n")
+
+    report_paths = [path for path in coverage_reports.values() if path is not None]
+    export_coverage_data(Path("cocotb_coverage.xml"), report_paths)
 
 
 def get_ip(module: str | None = None, verbose: bool = False) -> dict[str, str | None]:
