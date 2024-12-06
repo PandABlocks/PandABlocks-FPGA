@@ -312,6 +312,13 @@ jobs:
             ghcr.io/pandablocks/pandablocks-dev-container:4.0a7 \
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make cocotb_tests"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          name: nvc-coverage
+          files: cocotb_coverage.xml
+        # env:
+        #   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository

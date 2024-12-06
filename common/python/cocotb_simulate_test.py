@@ -16,7 +16,7 @@ TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / "modules"
 
 Dut = cocotb.handle.HierarchyObject
-SignalsInfo = dict[str, dict[str, str]]
+SignalsInfo = dict[str, dict[str, str | int]]
 
 
 def read_ini(path: list[str] | str) -> ConfigParser:
@@ -83,7 +83,7 @@ async def initialise_dut(dut: Dut, signals_info: SignalsInfo):
         dut_signal_name = signals_info[signal_name]["name"]
         if is_input_signal(signals_info, signal_name):
             getattr(dut, "{}".format(dut_signal_name)).value = 0
-            wstb_name = signals_info[signal_name].get("wstb_name", "")
+            wstb_name: str = signals_info[signal_name].get("wstb_name", "")  # type: ignore
             if wstb_name:
                 getattr(dut, wstb_name).value = 0
 
@@ -130,7 +130,7 @@ def assign(dut: Dut, name: str, val: int):
     getattr(dut, name).set(val)
 
 
-def do_assignments(dut: Dut, assignments, signals_info: SignalsInfo):
+def do_assignments(dut: Dut, assignments: dict[str, int], signals_info: SignalsInfo):
     """Assign values to input signals.
 
     Args:
@@ -142,9 +142,11 @@ def do_assignments(dut: Dut, assignments, signals_info: SignalsInfo):
         if "[" in signal_name:  # partial assignent to bus
             index = int(signal_name.split("[")[1][:-1])
             signal_name = signal_name.split("[")[0]
-            n_bits = signals_info[get_ini_signal_name(signal_name, signals_info)][
-                "bits"
-            ]
+            ini_signal_name = get_ini_signal_name(signal_name, signals_info)
+            if ini_signal_name is None:
+                raise ValueError("Could not get ini signal name", {signal_name})
+            n_bits = signals_info[ini_signal_name]["bits"]
+            assert isinstance(n_bits, int), f"{n_bits} is not an integer"
             val = get_bus_value(
                 int(getattr(dut, signal_name).value), n_bits, val, index
             )
@@ -304,7 +306,7 @@ def get_signals_info(block_ini: ConfigParser) -> SignalsInfo:
     return signals_info
 
 
-def get_ini_signal_name(name: str, signals_info: SignalsInfo):
+def get_ini_signal_name(name: str, signals_info: SignalsInfo) -> str | None:
     """Get signal name as seen in the INI files from the VHDL signal name.
 
     Args:
