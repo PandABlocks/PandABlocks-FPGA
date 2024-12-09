@@ -20,11 +20,6 @@ jobs:
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
 
-  # Optional revert on failed push workflow
-  undo:
-    needs: [ make_boot, make_zpkg, test_hdl ]
-    uses: ./.github/workflows/_undo.yml
-  
   # Release on push to tag
   release:
     needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen ]

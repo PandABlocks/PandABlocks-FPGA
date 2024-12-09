@@ -31,6 +31,7 @@ jobs:
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Generate bootable image
+      # The Xvfb process causes the job to hang, so is killed after the image is generated 
       - name: Make boot
         id: make_boot
         run: |
