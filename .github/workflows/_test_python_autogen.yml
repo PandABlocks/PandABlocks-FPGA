@@ -1,0 +1,30 @@
+on:
+    workflow_call:
+
+jobs:
+    test_python_autogen:
+      runs-on:
+        group: iris_runners
+      container:
+          image: ghcr.io/pandablocks/pandablocks-ci-container:latest
+          options: --privileged
+  
+      steps:
+        # Necessary to find action.yml
+        - name: Checkout Source
+          uses: actions/checkout@v4
+          with:
+            path: repos/PandABlocks-fpga
+            fetch-depth: 0
+  
+        - name: Checkout rootfs and Give Directory Perms
+          uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+      
+        # Run tests
+        - name: Make Python Tests
+          run: |
+            cd repos/PandABlocks-fpga
+            ln -s CONFIG.example CONFIG
+            make python_tests
+            make python_timing
+            make autogen
