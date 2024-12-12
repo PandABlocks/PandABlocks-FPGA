@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 3.1b1-47-g5b15630
+  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 4.0-1-gd4e8f30
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -42,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.1b1-47-g5b15630
+                4.0-1-gd4e8f30
 
               </div>
 <div role="search">
@@ -349,15 +349,11 @@ pulse edge:</p>
 <div class="figure align-default">
 <img alt="../_images/counter_doc-4.png" src="../_images/counter_doc-4.png" />
 </div>
+<p>When the OUT_MODE is set to On-Disable, the OUT output will only be changed to
+the internal counter value on ENABLE’s falling edge:</p>
 <p>(<a class="reference external" href="../build/counter_doc-5.py">Source code</a>, <a class="reference external" href="../build/counter_doc-5.png">png</a>, <a class="reference external" href="../build/counter_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-5.pdf">pdf</a>)</p>
 <div class="figure align-default">
 <img alt="../_images/counter_doc-5.png" src="../_images/counter_doc-5.png" />
-</div>
-<p>When the OUT_MODE is set to On-Disable, the OUT output will only be changed to
-the internal counter value on ENABLE’s falling edge:</p>
-<p>(<a class="reference external" href="../build/counter_doc-6.py">Source code</a>, <a class="reference external" href="../build/counter_doc-6.png">png</a>, <a class="reference external" href="../build/counter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-6.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="../_images/counter_doc-6.png" src="../_images/counter_doc-6.png" />
 </div>
 </div>
 <div class="section" id="rollover">
@@ -365,35 +361,35 @@ the internal counter value on ENABLE’s falling edge:</p>
 <p>If the count goes higher than the max value for an int32 (2147483647) the CARRY
 output gets set high and the counter rolls. The CARRY output stays high for as
 long as the trigger input stays high.</p>
+<p>(<a class="reference external" href="../build/counter_doc-6.py">Source code</a>, <a class="reference external" href="../build/counter_doc-6.png">png</a>, <a class="reference external" href="../build/counter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-6.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-6.png" src="../_images/counter_doc-6.png" />
+</div>
+<p>A similar thing happens for a negative overflow:</p>
 <p>(<a class="reference external" href="../build/counter_doc-7.py">Source code</a>, <a class="reference external" href="../build/counter_doc-7.png">png</a>, <a class="reference external" href="../build/counter_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-7.pdf">pdf</a>)</p>
 <div class="figure align-default">
 <img alt="../_images/counter_doc-7.png" src="../_images/counter_doc-7.png" />
 </div>
-<p>A similar thing happens for a negative overflow:</p>
+<p>When the OUT_MODE is set to On-Disable, the CARRY output will get set to high
+on ENABLE’s falling edge if any overflow produced while the counter was enabled:</p>
 <p>(<a class="reference external" href="../build/counter_doc-8.py">Source code</a>, <a class="reference external" href="../build/counter_doc-8.png">png</a>, <a class="reference external" href="../build/counter_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-8.pdf">pdf</a>)</p>
 <div class="figure align-default">
 <img alt="../_images/counter_doc-8.png" src="../_images/counter_doc-8.png" />
-</div>
-<p>When the OUT_MODE is set to On-Disable, the CARRY output will get set to high
-on ENABLE’s falling edge if any overflow produced while the counter was enabled:</p>
-<p>(<a class="reference external" href="../build/counter_doc-9.py">Source code</a>, <a class="reference external" href="../build/counter_doc-9.png">png</a>, <a class="reference external" href="../build/counter_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-9.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="../_images/counter_doc-9.png" src="../_images/counter_doc-9.png" />
 </div>
 </div>
 <div class="section" id="edge-cases">
 <h2>Edge cases<a class="headerlink" href="#edge-cases" title="Permalink to this heading"></a></h2>
 <p>If the Enable input goes low at the same time as a trigger, there will be no
 output value on the next clock tick.</p>
-<p>(<a class="reference external" href="../build/counter_doc-10.py">Source code</a>, <a class="reference external" href="../build/counter_doc-10.png">png</a>, <a class="reference external" href="../build/counter_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-10.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/counter_doc-9.py">Source code</a>, <a class="reference external" href="../build/counter_doc-9.png">png</a>, <a class="reference external" href="../build/counter_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-9.pdf">pdf</a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-10.png" src="../_images/counter_doc-10.png" />
+<img alt="../_images/counter_doc-9.png" src="../_images/counter_doc-9.png" />
 </div>
 <p>If the step size is changed at the same time as a trigger input edge,
 the output value for that trigger will be the new step size.</p>
-<p>(<a class="reference external" href="../build/counter_doc-11.py">Source code</a>, <a class="reference external" href="../build/counter_doc-11.png">png</a>, <a class="reference external" href="../build/counter_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-11.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/counter_doc-10.py">Source code</a>, <a class="reference external" href="../build/counter_doc-10.png">png</a>, <a class="reference external" href="../build/counter_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-10.pdf">pdf</a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-111.png" src="../_images/counter_doc-111.png" />
+<img alt="../_images/counter_doc-10.png" src="../_images/counter_doc-10.png" />
 </div>
 </div>
 </div>
