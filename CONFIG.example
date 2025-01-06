@@ -27,8 +27,7 @@ export ROOTFS_TOP = /rootfs
 export TAR_FILES = /tar-files
 
 # Path to root filesystem
-# WORK_DIR can be ignored for local builds, explicitly set in CI 
-PANDA_ROOTFS = $(WORK_DIR)/repos/PandABlocks-rootfs
+PANDA_ROOTFS = /repos/PandABlocks-rootfs
 # MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 # Python interpreter for running scripts

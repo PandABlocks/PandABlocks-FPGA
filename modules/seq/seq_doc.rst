@@ -57,7 +57,7 @@ that is repeated 3 times. When enabled it will become active and immediately
 start producing pulses, remaining active until the pulses have been produced:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: 3 evenly spaced pulses
 
 We can also use it to generate irregular streams of pulses on different outputs
@@ -65,20 +65,20 @@ by adding more lines to the table. Note that OUTB which was high at the end
 of Phase2 of the first line remains high in Phase1 of the second line:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Irregular pulses
 
 And we can set repeats on the entire table too. Note that in the second line of
 this table we have suppressed phase1 by setting its time to 0:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Table repeats
 
 There are 6 outputs which allow for complex patterns to be generated:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Using all 6 outputs
 
 Statemachine
@@ -126,14 +126,14 @@ see when the Block is waiting for a trigger signal as it will enter the
 WAIT_TRIGGER(2) state:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Waiting on bit inputs
 
 You can also use a position field as a trigger condition in the same way, this
 is useful to do a table based position compare:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Table based position compare
 
 
@@ -145,7 +145,7 @@ scaled with a block wide prescaler to allow a frame to be longer than
 2**32 * 8e-9 = about 34 seconds. For example:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Prescaled pulses
 
 
@@ -156,20 +156,20 @@ Setting the repeats on a table row to 0 will cause it to iterate until
 interrupted by a falling ENABLE signal:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Infinite repeats of a row interrupted
 
 In a similar way, REPEATS=0 on a table will cause the whole table to be
 iterated until interrupted by a falling ENABLE signal:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Infinite repeats of a table interrupted
 
 And a rising edge of the ENABLE will re-run the same table from the start:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Restarting the same table
 
 
@@ -180,7 +180,7 @@ If a table is written while enabled, the outputs and table state are reset and
 operation begins again from the first repeat of the first line of the table:
 
 .. timing_plot::
-   :path: modules/seq/seq_documentation.timing.ini
+   :path: modules/seq/seq.timing.ini
    :section: Rewriting a table
 
 Double table mode
@@ -194,5 +194,5 @@ that will be repeated according to the REPEATS register.
 
 
 .. timing_plot::
-   :path: modules/seq/seq_double_table_documentation.timing.ini
+   :path: modules/seq/seq_double_table.timing.ini
    :section: Test case for double table writting while running
