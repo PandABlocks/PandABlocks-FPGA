@@ -43,7 +43,7 @@ jobs:
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }}
-          make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
+          tini -s -- make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
 
       # Artifacts
       - name: Upload zpkg
