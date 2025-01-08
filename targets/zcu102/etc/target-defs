@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# LED daemon definitions
+#LED_GPIO_BASE=334
+#STA_LED_OFFSET=23
+#DIA_LED_OFFSET=
+
+# Disable led-daemon
+LED_GPIO_BASE=
+
+get_mac_address() { :; }
+

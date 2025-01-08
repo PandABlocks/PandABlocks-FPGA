@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Script to load Panda FPGA image
+
+# This is called directly by the /opt/etc/init.d/panda-server script and relies
+# on panda-server being installed
+
+# File locations
+carrier_firmware=/opt/share/panda-fpga/panda_top.bin
+check_ipmi=/opt/bin/check_ipmi
+
+fail()
+{
+    echo >&2 "$@"
+    exit 1
+}
+
+load_fpga()
+{
+    local bitstream="$1"
+    local name="$(basename $bitstream)"
+    # Set flags for loading full bitstream
+    echo 0 > /sys/class/fpga_manager/fpga0/flags
+    ln -sf $bitstream /opt/firmware/$name
+    echo $name > /sys/class/fpga_manager/fpga0/firmware
+}
+
+[ -e $carrier_firmware ]  ||
+    fail "Firmware not installed"
+
+# Check whether the FMC IPMI configuration matches that expected by the FPGA
+$check_ipmi  &&
+
+# If FMC passes then load the carrier firmware
+load_fpga $carrier_firmware
+
