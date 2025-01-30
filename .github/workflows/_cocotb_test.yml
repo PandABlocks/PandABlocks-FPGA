@@ -3,8 +3,7 @@ on:
 
 jobs:
   cocotb_test:
-    runs-on:
-      group: iris_runners
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/pandablocks/pandablocks-ci-container:latest
       options: --privileged
