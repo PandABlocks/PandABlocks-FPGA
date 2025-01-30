@@ -45,8 +45,8 @@ end pcap_core_wrapper;
 
 architecture rtl of pcap_core_wrapper is
 
-signal pos_bus          : pos_bus_t;
-signal extbus           : extbus_t;
+signal pos_bus          : pos_bus_t := (others => (others => '0'));
+signal extbus           : extbus_t := (others => (others => '0'));
 signal count            : integer := 0;
 
 begin
