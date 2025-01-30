@@ -20,8 +20,10 @@ jobs:
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       - name: Run cocotb tests
+        # run tests, create coverage file and make coverage xml paths relative
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make cocotb_tests
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && \
+          make cocotb_tests && sed -i 's/\/repos\/PandABlocks-FPGA\///' cocotb_coverage.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
