@@ -22,7 +22,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN  }}
       - name: Run cocotb tests
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a7
           docker run \
             --net=host \
             -v "${{ github.workspace }}:/repos" \
