@@ -9,6 +9,8 @@ constant c_UNSIGNED_GRAY_ENCODING    : std_logic_vector(1 downto 0) := "01";
 constant c_SIGNED_BINARY_ENCODING    : std_logic_vector(1 downto 0) := "10";
 constant c_SIGNED_GRAY_ENCODING      : std_logic_vector(1 downto 0) := "11";
 
+type vector_array is array(natural range <>) of std_logic_vector;
+
 --
 -- Functions
 --
@@ -95,5 +97,6 @@ begin
     end loop;
     return index;
 end function;
+
 
 end support;

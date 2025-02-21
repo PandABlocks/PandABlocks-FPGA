@@ -1,0 +1,39 @@
+on:
+  workflow_call:
+
+jobs:
+  cocotb_test:
+    runs-on: ubuntu-latest
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
+
+      # Login into ghcr
+      - name: login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Run cocotb tests
+        run: |
+          docker run \
+            --net=host \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            ghcr.io/pandablocks/pandablocks-dev-container:coco-rb \
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make cocotb_tests && sed -i 's/\/repos\/pandablocks-fpga\///i' cocotb_coverage.xml"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          name: nvc-coverage
+          files: cocotb_coverage.xml
+        # env:
+        #   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+

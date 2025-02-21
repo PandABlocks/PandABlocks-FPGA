@@ -14,3 +14,6 @@
 
 # For mac
 *.DS_Store
+
+# cocotb build dir
+sim_build*

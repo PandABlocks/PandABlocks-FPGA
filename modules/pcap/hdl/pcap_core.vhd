@@ -68,7 +68,7 @@ signal pcap_buffer_error: std_logic;
 signal pcap_error       : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
-signal pcap_armed       : std_logic;
+signal pcap_armed       : std_logic := '0';
 signal trig_en          : std_logic;
 
 
