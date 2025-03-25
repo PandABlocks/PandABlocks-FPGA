@@ -4,7 +4,7 @@ import select
 import struct
 import time
 import bisect
-import imp
+import importlib
 import os
 import sys
 from collections import namedtuple, deque
