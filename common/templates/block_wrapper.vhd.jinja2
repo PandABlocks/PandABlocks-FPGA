@@ -43,6 +43,8 @@ port (
     dma_len_o           : out std8_array(NUM-1 downto 0);
     dma_data_i          : in  std_logic_vector(31 downto 0);
     dma_valid_i         : in  std_logic_vector(NUM-1 downto 0);
+    dma_irq_o           : out std_logic_vector(NUM-1 downto 0);
+    dma_done_irq_o      : out std_logic_vector(NUM-1 downto 0);
 {% endif %}
     -- Memory Interface
     read_strobe_i       : in  std_logic := '0';
@@ -159,6 +161,8 @@ begin
             dma_len_o           => dma_len_o(I),
             dma_data_i          => dma_data_i,
             dma_valid_i         => dma_valid_i(I),
+            dma_irq_o           => dma_irq_o(I),
+            dma_done_irq_o      => dma_done_irq_o(I),
 {% endif %}
             clk_i               => clk_i
         );

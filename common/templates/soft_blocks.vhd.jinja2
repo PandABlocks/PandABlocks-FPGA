@@ -36,6 +36,8 @@ port (
     rdma_len            : out   std8_array(DMA_USERS_COUNT-1 downto 0);
     rdma_data           : in    std_logic_vector(31 downto 0);
     rdma_valid          : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_irq            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_done_irq       : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     --
     {% for site in target_sites %}
     {{pad(site.name)}} : view  {{site.type}}_MOD_ARR;
@@ -79,6 +81,8 @@ port map (
     dma_len_o           => rdma_len({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_irq_o           => rdma_irq({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_done_irq_o      => rdma_done_irq({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
         {% set ns.dma_index = ns.dma_index + block.number %}
     {% elif block.interfaces %}
         {% for interface in block.interfaces %}

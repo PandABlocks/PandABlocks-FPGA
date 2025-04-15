@@ -305,7 +305,7 @@ signal S_AXI_HP1_rready     : STD_LOGIC;
 signal S_AXI_HP1_rresp      : STD_LOGIC_VECTOR ( 1 downto 0 );
 signal S_AXI_HP1_rvalid     : STD_LOGIC;
 
-signal IRQ_F2P              : std_logic_vector(0 downto 0);
+signal IRQ_F2P              : std_logic_vector(1 downto 0);
 
 -- Configuration and Status Interface Block
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
@@ -480,6 +480,9 @@ signal rdma_addr            : std32_array(DMA_USERS_COUNT-1 downto 0);
 signal rdma_len             : std8_array(DMA_USERS_COUNT-1 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
 
 -- Hard-wiring DCARD_MODE to x"00000002" (CONTROL MODE)
 -- This needs to be set by an appropiate block register and tied to corresponding relay setting
@@ -757,6 +760,10 @@ table_engine : entity work.table_read_engine generic map(
     dma_data_o          => rdma_data,
     dma_valid_o         => rdma_valid
 );
+
+dma_irq_events(DMA_USERS_COUNT-1 downto 0) <= rdma_irq;
+dma_irq_events(DMA_USERS_COUNT+15 downto 16) <= rdma_done_irq;
+IRQ_F2P(1) <= or dma_irq_events;
 
 ---------------------------------------------------------------------------
 -- REG (System, Position Bus and Special Register Readbacks)
@@ -1566,6 +1573,8 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
+    rdma_irq => rdma_irq,
+    rdma_done_irq => rdma_done_irq,
     SFP => SFP_MGT
 );
 

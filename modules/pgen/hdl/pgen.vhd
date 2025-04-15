@@ -45,7 +45,9 @@ port (
     dma_addr_o          : out std_logic_vector(31 downto 0);
     dma_len_o           : out std_logic_vector(7 downto 0);
     dma_data_i          : in  std_logic_vector(31 downto 0);
-    dma_valid_i         : in  std_logic
+    dma_valid_i         : in  std_logic;
+    dma_irq_o           : out std_logic := '0';
+    dma_done_irq_o      : out std_logic := '0'
 );
 end pgen;
 

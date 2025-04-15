@@ -36,6 +36,8 @@ port (
     rdma_len            : out   std8_array(DMA_USERS_COUNT-1 downto 0);
     rdma_data           : in    std_logic_vector(31 downto 0);
     rdma_valid          : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_irq            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_done_irq       : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     --
     FCLK_CLK0           : in    std_logic
 );
