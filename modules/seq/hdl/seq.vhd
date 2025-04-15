@@ -44,21 +44,29 @@ port (
     outf_o              : out std_logic;
     active_o            : out std_logic;
     -- Block Parameters
-    HEALTH              : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0) := (others => '0');
     PRESCALE            : in  std_logic_vector(31 downto 0);
-    TABLE_START         : in  std_logic_vector(31 downto 0);
-    TABLE_START_WSTB    : in  std_logic;
-    TABLE_DATA          : in  std_logic_vector(31 downto 0);
-    TABLE_DATA_WSTB     : in  std_logic;
     REPEATS             : in  std_logic_vector(31 downto 0);
-    TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
-    TABLE_LENGTH_WSTB   : in  std_logic;
     -- Block Status
     TABLE_LINE          : out std_logic_vector(31 downto 0);
     LINE_REPEAT         : out std_logic_vector(31 downto 0);
     TABLE_REPEAT        : out std_logic_vector(31 downto 0);
-    CAN_WRITE_NEXT      : out std_logic_vector(31 downto 0);
-    STATE               : out std_logic_vector(31 downto 0)
+    STATE               : out std_logic_vector(31 downto 0);
+    -- DMA configuration
+    TABLE_ADDRESS       : in  std_logic_vector(31 downto 0);
+    TABLE_ADDRESS_WSTB  : in  std_logic;
+    TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
+    TABLE_LENGTH_WSTB   : in  std_logic;
+    -- DMA Engine Interface
+    dma_req_o           : out std_logic;
+    dma_ack_i           : in  std_logic;
+    dma_done_i          : in  std_logic;
+    dma_addr_o          : out std_logic_vector(31 downto 0);
+    dma_len_o           : out std_logic_vector(7 downto 0);
+    dma_data_i          : in  std_logic_vector(31 downto 0);
+    dma_valid_i         : in  std_logic;
+    dma_irq_o           : out std_logic;
+    dma_done_irq_o      : out std_logic
 );
 end seq;
 
@@ -67,24 +75,19 @@ architecture rtl of seq is
 ----constant SEQ_FRAMES         : positive := 1024;
 constant SEQ_FRAMES         : positive := 4096;
 
-signal TABLE_FRAMES         : std_logic_vector(15 downto 0);
+signal TABLE_FRAMES         : std_logic_vector(18 downto 0);
 
 signal next_frame           : seq_t;
 signal current_frame        : seq_t;
-signal can_write_next_val   : std_logic;
-signal next_table_expected  : std_logic;
-signal last_frame_in_table  : std_logic;
--- this is aligned to current frame
-signal current_next_table_expected : std_logic := '0';
-signal current_last_frame_in_table : std_logic := '0';
 signal load_next            : std_logic;
 
 signal tframe_counter       : unsigned(31 downto 0);
 signal LINE_REPEAT_OUT      : unsigned(31 downto 0);
-signal TABLE_LINE_OUT       : unsigned(15 downto 0);
+signal TABLE_LINE_OUT       : unsigned(18 downto 0);
 signal TABLE_REPEAT_OUT     : unsigned(31 downto 0);
 
-type state_t is (UNREADY, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
+type state_t is (UNREADY, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER,
+                 RESETTING);
 signal seq_sm               : state_t;
 
 signal next_inp_val         : std_logic_vector(2 downto 0);
@@ -101,12 +104,6 @@ signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
 signal enable_rise          : std_logic;
 signal table_ready          : std_logic;
-signal table_error          : std_logic;
-signal table_error_prev     : std_logic;
-signal table_error_rise     : std_logic;
-signal table_error_type     : std_logic_vector(3 downto 0);
-signal reset_tables         : std_logic := '0';
-signal reset_error          : std_logic := '0';
 
 signal last_table_line      : std_logic := '0';
 signal last_line_repeat     : std_logic := '0';
@@ -118,71 +115,89 @@ signal next_pos_en          : std_logic_vector(2 downto 0);
 signal current_pos_inp      : std_logic;
 signal next_pos_inp         : std_logic;
 
-signal enable_mem_reset     : std_logic;
 signal next_ts              : unsigned(31 downto 0);
-signal health_val           : std_logic_vector(31 downto 0) := (others => '0');
-signal start_not_expected   : std_logic;
-signal running              : std_logic;
-signal sudden_next_table_event : std_logic;
-signal sudden_next_table_event_dly : std_logic := '0';
+
+signal start : std_logic := '0';
+signal table_done : std_logic;
+signal frame_valid : std_logic;
+signal transfer_busy : std_logic;
+signal frames_room : std_logic_vector(11 downto 0);
+signal error_event : std_logic := '0';
+signal length_reg : std_logic_vector(31 downto 0) := (others => '0');
+signal length_reg_taken : std_logic := '0';
+signal last_table : std_logic := '0';
+signal underrun_event : std_logic := '0';
+signal overrun_event : std_logic := '0';
+signal reset_by_table_length : std_logic := '0';
+signal abort_dma : std_logic := '0';
+signal table_more : std_logic;
+signal reset_table : std_logic := '0';
 
 begin
 
 -- Block inputs.
 enable_val <= enable_i;
 
-CAN_WRITE_NEXT(0) <= can_write_next_val and next_table_expected;
-CAN_WRITE_NEXT(31 downto 1) <= (others => '0');
-
-delay : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        sudden_next_table_event_dly <= sudden_next_table_event;
-    end if;
-end process;
-
 -- Input register and edge detection.
 Registers : process(clk_i)
 begin
     if rising_edge(clk_i) then
         enable_prev <= enable_val;
-        table_error_prev <= table_error;
     end if;
 end process;
 
 enable_fall <= not enable_val and enable_prev;
 enable_rise <= enable_val and not enable_prev;
-table_error_rise <= table_error and not table_error_prev;
-
--- Table length is written in terms of DWORDs, and a frame is composed
--- of 4x DWORDs
-TABLE_FRAMES <= "00" & TABLE_LENGTH(15 downto 2);
 
 --------------------------------------------------------------------------
 -- Sequencer TABLE keeps frame configuration data
 --------------------------------------------------------------------------
-sequencer_table : entity work.sequencer_double_table
-generic map (
-    SEQ_LEN             => SEQ_FRAMES
+sequencer_ring_table : entity work.sequencer_ring_table generic map (
+    SEQ_LEN => SEQ_FRAMES
 ) port map (
-    clk_i               => clk_i,
-    reset_tables_i      => reset_tables,
-    reset_error_i       => reset_error,
+    clk_i => clk_i,
+    reset_i => reset_table,
+    frame_ready_i => load_next,
+    frame_valid_o => frame_valid,
+    frame_o  => next_frame,
+    available_o => frames_room,
+    data_i  => dma_data_i,
+    data_valid_i => dma_valid_i,
+    -- we always have room because we push based on available space
+    data_ready_o => open,
+    nframes_o => open
+);
+reset_table <= '1' when reset_by_table_length = '1' or seq_sm = RESETTING else
+               '0';
 
-    load_next_i         => load_next,
-    table_ready_o       => table_ready,
-    frame_o             => next_frame,
-    last_o              => last_frame_in_table,
-    can_write_next_o    => can_write_next_val,
-    next_expected_o     => next_table_expected,
-    error_o             => table_error,
-    error_type_o        => table_error_type,
+error_event <= underrun_event or overrun_event;
+underrun_event <= load_next and not frame_valid;
 
-    TABLE_START         => TABLE_START_WSTB,
-    TABLE_DATA          => TABLE_DATA,
-    TABLE_WSTB          => TABLE_DATA_WSTB,
-    TABLE_FRAMES        => TABLE_FRAMES,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
+tre_client: entity work.table_read_engine_client port map (
+    clk_i => clk_i,
+    abort_i => abort_dma,
+    address_i => TABLE_ADDRESS,
+    length_i => TABLE_LENGTH,
+    length_wstb_i => TABLE_LENGTH_WSTB,
+    length_o => length_reg,
+    more_o => table_more,
+    length_taken_i => length_reg_taken,
+    length_zero_event_o => reset_by_table_length,
+    completed_o => open,
+    available_beats_i => x"0000" & "00" & frames_room & "00",
+    overflow_error_o => overrun_event,
+    repeat_i => REPEATS,
+    busy_o => transfer_busy,
+    -- DMA Engine Interface
+    dma_req_o => dma_req_o,
+    dma_ack_i => dma_ack_i,
+    dma_done_i => dma_done_i,
+    dma_addr_o => dma_addr_o,
+    dma_len_o => dma_len_o,
+    dma_data_i => dma_data_i,
+    dma_valid_i => dma_valid_i,
+    dma_irq_o => dma_irq_o,
+    dma_done_irq_o => dma_done_irq_o
 );
 
 --------------------------------------------------------------------------
@@ -265,39 +280,24 @@ STATE(2 downto 0)   <= c_state_idle when seq_sm = UNREADY else
                        c_state_wait_trigger when seq_sm = WAIT_TRIGGER else
                        c_state_phase1 when seq_sm = PHASE_1 else
                        c_state_phase2 when seq_sm = phase_2 else
+                       c_state_resetting when seq_sm = RESETTING else
                        c_state_wait_enable;
 STATE(31 downto 3) <= (others => '0');
-
--- we only need the 4 least significant bits to report errors
-HEALTH <= health_val;
-
-enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
-
 
 -- combinatorial logic so we can load a new row in 1 clock tick
 -- comments in SEQ_FSM shows where this logically sits
 load_next <= '1' when
     (seq_sm = WAIT_ENABLE and enable_rise = '1')
     or (seq_sm = PHASE_2 and presc_ce = '1' and tframe_counter = next_ts - 1
-        and last_line_repeat = '1')
-    or sudden_next_table_event_dly = '1' else '0';
+        and last_line_repeat = '1' and last_table_repeat = '0') else '0';
 
-reset_tables <= enable_fall;
-reset_error <= table_error_rise;
-
-start_not_expected <=  TABLE_START_WSTB and running and not can_write_next_val;
-
-running <= to_std_logic(seq_sm /= UNREADY and seq_sm /= WAIT_ENABLE);
--- detects when we are reading a LAST table and suddenly the next table
--- gets written
-sudden_next_table_event <=
-    not current_next_table_expected and TABLE_LENGTH_WSTB and running;
+table_ready <= frame_valid;
 
 SEQ_FSM : process(clk_i)
     procedure reset_repeat_count(val: integer) is
     begin
         TABLE_REPEAT_OUT <= to_unsigned(val, 32);
-        TABLE_LINE_OUT <= to_unsigned(val, 16);
+        TABLE_LINE_OUT <= to_unsigned(val, TABLE_LINE_OUT'length);
         LINE_REPEAT_OUT <= to_unsigned(val, 32);
     end procedure;
 
@@ -328,8 +328,6 @@ SEQ_FSM : process(clk_i)
             frame := next_frame;
             triggered := next_trig_valid;
             current_frame <= next_frame;
-            current_next_table_expected <= next_table_expected;
-            current_last_frame_in_table <= last_frame_in_table;
         else
             frame := current_frame;
             triggered := current_trig_valid;
@@ -344,66 +342,51 @@ SEQ_FSM : process(clk_i)
         end if;
 
     end procedure;
-
 begin
 if rising_edge(clk_i) then
     --
     -- Sequencer State Machine
     --
-
-    if enable_fall = '1' then
+    length_reg_taken <= '0';
+    abort_dma <= '0';
+    if enable_fall or error_event then
         out_val <= (others => '0');
         active <= '0';
-        if table_ready = '1' then
-            seq_sm <= WAIT_ENABLE;
-        else
-            seq_sm <= UNREADY;
+        if seq_sm /= UNREADY and seq_sm /= WAIT_ENABLE then
+            seq_sm <= RESETTING;
+            abort_dma <= '1';
         end if;
-    elsif table_error_rise = '1' then
-        out_val <= (others => '0');
-        active <= '0';
-        seq_sm <= UNREADY;
-        health_val(3 downto 0) <=  table_error_type;
-    elsif start_not_expected = '1' then
-        out_val <= (others => '0');
-        active <= '0';
-        seq_sm <= UNREADY;
-        health_val(3 downto 0) <=  c_table_error_overrun;
         reset_repeat_count(0);
-    elsif sudden_next_table_event_dly = '1' then
-        -- go to next state loading next frame and considering triggers
-        goto_next_state(true, true);
-        reset_repeat_count(1);
     else
         -- State Machine
         case seq_sm is
-            -- State 0
             when UNREADY =>
                 out_val <= (others => '0');
-                if table_ready = '1' then
+                if table_ready then
                     seq_sm <= WAIT_ENABLE;
                 end if;
 
-                if TABLE_START_WSTB = '1' then
-                    reset_repeat_count(0);
+            when RESETTING =>
+                out_val <= (others => '0');
+                if not transfer_busy then
+                    seq_sm <= UNREADY;
                 end if;
 
             when WAIT_ENABLE =>
-                if table_ready = '0' then
+                if not table_ready then
                     seq_sm <= UNREADY;
-                elsif TABLE_START_WSTB = '1' and can_write_next_val = '0' then
-                    reset_repeat_count(0);
                 -- load_next fires here
-                elsif enable_rise = '1' then
+                elsif enable_rise then
                     -- go to next state loading next frame and considering
                     -- triggers
                     goto_next_state(true, true);
                     reset_repeat_count(1);
-                    health_val(3 downto 0) <= c_table_error_ok;
+                    TABLE_FRAMES <= length_reg(22 downto 4);
+                    length_reg_taken <= '1';
+                    last_table <= not table_more;
                     active <= '1';
                 end if;
 
-            -- State 2
             when WAIT_TRIGGER =>
                 -- trigger met
                 if current_trig_valid = '1' then
@@ -412,28 +395,30 @@ if rising_edge(clk_i) then
                     goto_next_state(false, false);
                 end if;
 
-            -- State 3
             when PHASE_1 =>
                 --time 1 elapsed
                 if presc_ce = '1' and tframe_counter = next_ts - 1 then
                     goto_phase_2(current_frame);
                 end if;
 
-            -- State 4
             when PHASE_2 =>
                 if presc_ce = '1' and tframe_counter = next_ts - 1 then
                     -- TABLE load started
                     -- Table Repeat is finished
                     -- = last_line_repeat, last_table_line, last_table_repeat
-                    if last_table_repeat = '1' then
+                    if last_table_repeat then
                         active <= '0';
                         out_val <= (others => '0');
-                        seq_sm <= WAIT_ENABLE;
-                    elsif last_line_repeat = '1' then
-                        LINE_REPEAT_OUT <= to_unsigned(1,32);
-                        if last_table_line = '1' then
-                            TABLE_LINE_OUT <= to_unsigned(1,16);
-                            if current_next_table_expected = '0' then
+                        seq_sm <= UNREADY;
+                    elsif last_line_repeat then
+                        LINE_REPEAT_OUT <= to_unsigned(1, 32);
+                        if last_table_line then
+                            TABLE_LINE_OUT <=
+                                to_unsigned(1, TABLE_LINE_OUT'length);
+                            TABLE_FRAMES <= length_reg(22 downto 4);
+                            length_reg_taken <= '1';
+                            last_table <= not table_more;
+                            if last_table then
                                 TABLE_REPEAT_OUT <= TABLE_REPEAT_OUT + 1;
                             end if;
                         else
@@ -451,20 +436,35 @@ if rising_edge(clk_i) then
                 end if;
 
             when others =>
-                seq_sm <= WAIT_ENABLE;
+                seq_sm <= UNREADY;
         end case;
     end if;
 end if;
 end process;
 
+-- Health keeping process
+process (clk_i)
+begin
+    if rising_edge(clk_i) then
+        if error_event = '1' and HEALTH(1 downto 0) = "00" then
+            HEALTH(1 downto 0) <=  c_table_error_underrun when underrun_event else
+                                   c_table_error_overrun when overrun_event else
+                                   c_table_error_ok;
+        elsif seq_sm = WAIT_ENABLE and enable_rise = '1' then
+            HEALTH(1 downto 0) <= c_table_error_ok;
+        end if;
+    end if;
+end process;
+
 -- Repeats count equals the number of repeats (Last Table Repeat)
 last_line_repeat <= '1' when (current_frame.repeats /= 0 and LINE_REPEAT_OUT = current_frame.repeats) else '0';
 -- Number of frames memory depth (Last Line )
-last_table_line <= last_line_repeat when current_last_frame_in_table = '1' else '0';
+last_table_line <= last_line_repeat when TABLE_LINE_OUT = unsigned(TABLE_FRAMES)
+                   else '0';
 -- Last Table Repeat
 last_table_repeat <= last_table_line when
-    (REPEATS /= X"0000_0000" and TABLE_REPEAT_OUT = unsigned(REPEATS)
-     and current_next_table_expected = '0') else '0';
+    REPEATS /= X"0000_0000" and TABLE_REPEAT_OUT = unsigned(REPEATS) and
+    last_table = '1' else '0';
 
 --------------------------------------------------------------------------
 -- Prescaler:
@@ -508,7 +508,7 @@ begin
 end process;
 
 -- Block Status
-TABLE_LINE   <= X"0000" & std_logic_vector(TABLE_LINE_OUT);
+TABLE_LINE   <= std_logic_vector(resize(TABLE_LINE_OUT, TABLE_LINE'length));
 LINE_REPEAT <= std_logic_vector(LINE_REPEAT_OUT);
 TABLE_REPEAT  <= std_logic_vector(TABLE_REPEAT_OUT);
 
