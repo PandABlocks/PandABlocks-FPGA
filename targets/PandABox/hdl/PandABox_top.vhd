@@ -232,13 +232,13 @@ signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 
 signal pcap_active          : std_logic_vector(0 downto 0);
 
-signal rdma_req             : std_logic_vector(5 downto 0);
-signal rdma_ack             : std_logic_vector(5 downto 0);
+signal rdma_req             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal rdma_ack             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done            : std_logic;
-signal rdma_addr            : std32_array(5 downto 0);
-signal rdma_len             : std8_array(5 downto 0);
+signal rdma_addr            : std32_array(DMA_USERS_COUNT-1 downto 0);
+signal rdma_len             : std8_array(DMA_USERS_COUNT-1 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
-signal rdma_valid           : std_logic_vector(5 downto 0);
+signal rdma_valid           : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
@@ -690,8 +690,9 @@ port map (
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
 ---------------------------------------------------------------------------
-table_engine : entity work.table_read_engine
-port map (
+table_engine : entity work.table_read_engine generic map (
+    SLAVES => DMA_USERS_COUNT
+) port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     -- Zynq HP1 Bus

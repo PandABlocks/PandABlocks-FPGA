@@ -170,13 +170,13 @@ signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal TTLIN_TERM           : std32_array(TTLIN_NUM-1 downto 0);
 signal TTLIN_TERM_WSTB      : std_logic_vector(TTLIN_NUM-1 downto 0);
 
-signal rdma_req             : std_logic_vector(5 downto 0);
-signal rdma_ack             : std_logic_vector(5 downto 0);
+signal rdma_req             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal rdma_ack             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done            : std_logic;
-signal rdma_addr            : std32_array(5 downto 0);
-signal rdma_len             : std8_array(5 downto 0);
+signal rdma_addr            : std32_array(DMA_USERS_COUNT-1 downto 0);
+signal rdma_len             : std8_array(DMA_USERS_COUNT-1 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
-signal rdma_valid           : std_logic_vector(5 downto 0);
+signal rdma_valid           : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 
@@ -436,8 +436,9 @@ port map (
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
 ---------------------------------------------------------------------------
-table_engine : entity work.table_read_engine
-port map (
+table_engine : entity work.table_read_engine generic map(
+    SLAVES => DMA_USERS_COUNT
+) port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     -- Zynq HP1 Bus

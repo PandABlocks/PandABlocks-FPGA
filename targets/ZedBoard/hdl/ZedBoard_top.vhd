@@ -174,13 +174,13 @@ signal pos_bus              : pos_bus_t := (others => (others => '0'));
 
 signal pcap_active          : std_logic_vector(0 downto 0);
 
-signal rdma_req             : std_logic_vector(5 downto 0);
-signal rdma_ack             : std_logic_vector(5 downto 0);
+signal rdma_req             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+signal rdma_ack             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done            : std_logic;
-signal rdma_addr            : std32_array(5 downto 0);
-signal rdma_len             : std8_array(5 downto 0);
+signal rdma_addr            : std32_array(DMA_USERS_COUNT-1 downto 0);
+signal rdma_len             : std8_array(DMA_USERS_COUNT-1 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
-signal rdma_valid           : std_logic_vector(5 downto 0);
+signal rdma_valid           : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 
 -- FMC Block
 signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
@@ -519,8 +519,9 @@ port map (
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
 ---------------------------------------------------------------------------
-table_engine : entity work.table_read_engine
-port map (
+table_engine : entity work.table_read_engine generic map(
+    SLAVES => DMA_USERS_COUNT
+) port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     -- Zynq HP1 Bus
