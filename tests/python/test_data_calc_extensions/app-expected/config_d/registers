@@ -61,6 +61,12 @@ BLOCKS_COMPAT_VERSION = 0
     # frequency of 125 MHz will be reported and used.
     NOMINAL_CLOCK           24
 
+    # table DMA interrupts bitset. It indicates each interrupt signaled since
+    # last read, top 16 bits indicate the done event(an instance finished
+    # operation), bottom 16 bits indicates the ready event (an instance became
+    # ready to accept a buffer)
+    TABLE_IRQ_STATUS        25
+
 
 # These registers are used by the kernel driver to read the data capture stream.
 # This block is not used by the server, but is here for documentation and other

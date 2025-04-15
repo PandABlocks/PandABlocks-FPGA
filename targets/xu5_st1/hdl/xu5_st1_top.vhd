@@ -499,6 +499,7 @@ port map (
 
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
+    dma_irq_events_i    => dma_irq_events,
     SLOW_FPGA_VERSION   => (others => '0'),
     TS_SEC              => (others => '0'),
     TS_TICKS            => (others => '0'),
