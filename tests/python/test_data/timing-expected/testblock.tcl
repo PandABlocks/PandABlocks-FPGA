@@ -11,6 +11,7 @@ array set tests {
 
 # add the module vhd code
 add_files -norecurse $TOP_DIR/modules/testblock/hdl
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/modules/testblock/hdl/*.vhd]
 
 # read xci files for any IP required by module
 

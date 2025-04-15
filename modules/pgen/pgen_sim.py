@@ -22,11 +22,12 @@ class PgenSimulation(BlockSimulation):
 
         if NAMES.TABLE_ADDRESS in changes:
             # open the table
-            file_dir = os.path.join(
-                os.path.dirname(__file__), self.TABLE_ADDRESS)
+            file_path = os.path.join(
+                os.path.dirname(__file__), 'tests_assets',
+                f'{self.TABLE_ADDRESS}.txt')
 
-            assert os.path.isfile(file_dir), "%s does not exist" % file_dir
-            with open(file_dir, "r") as table:
+            assert os.path.isfile(file_path), "%s does not exist" % file_path
+            with open(file_path, "r") as table:
                 reader = csv.DictReader(table)
                 self.table_data = [int(line['POS']) for line in reader]
 

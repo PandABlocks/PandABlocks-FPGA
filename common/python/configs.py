@@ -97,6 +97,7 @@ class BlockConfig(object):
         self.number = number
         #: The path to the module that holds this block ini
         self.module_path = os.path.dirname(ini_path)
+        self.module_abspath = os.path.realpath(self.module_path)
         #: The path to the ini file for this Block, relative to ROOT
         self.ini_path = ini_path
         #: The Block section of the register address space
