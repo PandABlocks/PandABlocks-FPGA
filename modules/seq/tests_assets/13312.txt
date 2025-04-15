@@ -1,0 +1,9 @@
+Rewriting table whilst in wait for position trigger
+0x800001
+0
+1
+2
+0x480003
+20
+1
+1

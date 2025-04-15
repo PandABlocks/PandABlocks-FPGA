@@ -1,0 +1,9 @@
+Waiting on bit inputs
+0x120003
+0
+2
+1
+0x240001
+0
+3
+2
