@@ -216,16 +216,20 @@ class timing_plot_directive(Directive):
         table_count = 0
         module_path = os.path.dirname(os.path.abspath(path))
         table_address = ''
+        table_address_seen = False
         # get the table data from the sequence file and count the frames
         for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
             if 'TABLE_LENGTH' in inputs:
-                file_path = os.path.join(module_path, 'tests_assets',
-                                         f'{table_address}.txt')
-                lines = list(open(file_path, 'r'))[1:]
-                table = [hex_or_int(line) for line in lines]
-                alltables.append(table)
+                if table_address_seen:
+                    table_address_seen = False
+                    file_path = os.path.join(module_path, 'tests_assets',
+                                             f'{table_address}.txt')
+                    lines = list(open(file_path, 'r'))[1:]
+                    table = [hex_or_int(line) for line in lines]
+                    alltables.append(table)
 
             if 'TABLE_ADDRESS' in inputs:
+                table_address_seen = True
                 table_address = inputs['TABLE_ADDRESS']
 
 
