@@ -4,7 +4,7 @@ import select
 import struct
 import time
 import bisect
-import imp
+import importlib
 import os
 import sys
 from collections import namedtuple, deque
@@ -261,13 +261,11 @@ class SimulationController(object):
         ini_path = os.path.join(ROOT, ini_path)
         module_path = os.path.dirname(ini_path)
         try:
-            f, pathname, description = imp.find_module(
-                block_name + "_sim", [module_path])
-            package = imp.load_module(
-                block_name + "_sim", f, pathname, description)
-            clsnames = [n for n in dir(package)
+            sys.path.insert(0, module_path)
+            sim_mod = importlib.import_module(f'{block_name}_sim')
+            clsnames = [n for n in dir(sim_mod)
                         if n.lower() == block_name + "simulation"]
-            cls = getattr(package, clsnames[0])
+            cls = getattr(sim_mod, clsnames[0])
             print("Got %s sim" % cls.__name__)
         except ImportError:
             print("No %s sim, using BlockSimulation" % block_name.title())

@@ -9,7 +9,7 @@ else:
 
 import sys
 import os
-import imp
+import importlib
 import numpy
 
 import unittest
@@ -45,12 +45,9 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
             super(SequenceTest, self).__init__(test_name)
 
         def runTest(self):
-            # Load <block>_sim.py into common.python.<block>_sim
-            file, pathname, description = imp.find_module(
-                self.block_name + "_sim", [self.module_path])
-            mod = imp.load_module(
-                "common.python." + self.block_name,
-                file, pathname, description)
+            if self.module_path not in sys.path:
+                sys.path.insert(0, self.module_path)
+            mod = importlib.import_module(f'{self.block_name}_sim')
             # Make instance of <Block>Simulation
             block = getattr(mod, self.block_name.title() + "Simulation")()
             # Start prodding the block and checking its outputs
