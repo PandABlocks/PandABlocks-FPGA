@@ -86,8 +86,7 @@ signal LINE_REPEAT_OUT      : unsigned(31 downto 0);
 signal TABLE_LINE_OUT       : unsigned(18 downto 0);
 signal TABLE_REPEAT_OUT     : unsigned(31 downto 0);
 
-type state_t is (UNREADY, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER,
-                 RESETTING);
+type state_t is (UNREADY, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
 
 signal next_inp_val         : std_logic_vector(2 downto 0);
@@ -128,7 +127,6 @@ signal length_reg_taken : std_logic := '0';
 signal last_table : std_logic := '0';
 signal underrun_event : std_logic := '0';
 signal overrun_event : std_logic := '0';
-signal reset_by_table_length : std_logic := '0';
 signal abort_dma : std_logic := '0';
 signal table_more : std_logic;
 signal reset_table : std_logic := '0';
@@ -167,8 +165,6 @@ sequencer_ring_table : entity work.sequencer_ring_table generic map (
     data_ready_o => open,
     nframes_o => open
 );
-reset_table <= '1' when reset_by_table_length = '1' or seq_sm = RESETTING else
-               '0';
 
 error_event <= underrun_event or overrun_event;
 underrun_event <= load_next and not frame_valid;
@@ -182,12 +178,12 @@ tre_client: entity work.table_read_engine_client port map (
     length_o => length_reg,
     more_o => table_more,
     length_taken_i => length_reg_taken,
-    length_zero_event_o => reset_by_table_length,
     completed_o => open,
     available_beats_i => x"0000" & "00" & frames_room & "00",
     overflow_error_o => overrun_event,
     repeat_i => REPEATS,
     busy_o => transfer_busy,
+    resetting_o => reset_table,
     -- DMA Engine Interface
     dma_req_o => dma_req_o,
     dma_ack_i => dma_ack_i,
@@ -280,7 +276,6 @@ STATE(2 downto 0)   <= c_state_idle when seq_sm = UNREADY else
                        c_state_wait_trigger when seq_sm = WAIT_TRIGGER else
                        c_state_phase1 when seq_sm = PHASE_1 else
                        c_state_phase2 when seq_sm = phase_2 else
-                       c_state_resetting when seq_sm = RESETTING else
                        c_state_wait_enable;
 STATE(31 downto 3) <= (others => '0');
 
@@ -353,7 +348,7 @@ if rising_edge(clk_i) then
         out_val <= (others => '0');
         active <= '0';
         if seq_sm /= UNREADY and seq_sm /= WAIT_ENABLE then
-            seq_sm <= RESETTING;
+            seq_sm <= UNREADY;
             abort_dma <= '1';
         end if;
         reset_repeat_count(0);
@@ -362,14 +357,8 @@ if rising_edge(clk_i) then
         case seq_sm is
             when UNREADY =>
                 out_val <= (others => '0');
-                if table_ready then
+                if table_ready and not reset_table then
                     seq_sm <= WAIT_ENABLE;
-                end if;
-
-            when RESETTING =>
-                out_val <= (others => '0');
-                if not transfer_busy then
-                    seq_sm <= UNREADY;
                 end if;
 
             when WAIT_ENABLE =>

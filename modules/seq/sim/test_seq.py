@@ -22,7 +22,6 @@ class State(Enum):
     WAIT_TRIGGER = 2
     PHASE1 = 3
     PHASE2 = 4
-    RESETTING = 5
 
 
 async def wait_for_state(dut, state, timeout=1024):
@@ -166,8 +165,8 @@ async def simple_streaming_disabled(dut):
     dut.enable_i.value = 0
     await clkedge
     await clkedge
-    assert dut.state.value.to_unsigned() == State.RESETTING.value
-    await wait_for_state(dut, State.IDLE)
+    assert dut.state.value.to_unsigned() == State.IDLE.value
+    await ClockCycles(dut.clk_i, 8)
 
 
 def test_seq():

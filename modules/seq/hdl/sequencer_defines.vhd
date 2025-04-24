@@ -9,7 +9,6 @@ package sequencer_defines is
     constant c_state_wait_trigger   : std_logic_vector(2 downto 0) := "010";
     constant c_state_phase1         : std_logic_vector(2 downto 0) := "011";
     constant c_state_phase2         : std_logic_vector(2 downto 0) := "100";
-    constant c_state_resetting      : std_logic_vector(2 downto 0) := "101";
 
     -- table errors
     constant c_table_error_ok        : std_logic_vector(1 downto 0) := "00";

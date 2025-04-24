@@ -21,12 +21,12 @@ entity table_read_engine_client is
         length_o : out std_logic_vector(31 downto 0);
         more_o : out std_logic;
         length_taken_i : in std_logic;
-        length_zero_event_o : out std_logic;
         completed_o : out std_logic;
         available_beats_i : in std_logic_vector(31 downto 0);
         overflow_error_o : out std_logic;
         repeat_i : in std_logic_vector(31 downto 0);
         busy_o : out std_logic;
+        resetting_o : out std_logic;
         -- DMA Engine Interface
         dma_req_o : out std_logic;
         dma_ack_i : in  std_logic;
@@ -46,10 +46,13 @@ architecture rtl of table_read_engine_client is
     signal completed : std_logic;
     signal completed_dly : std_logic;
     signal address : std_logic_vector(31 downto 0);
+    signal resetting : std_logic := '0';
+    signal length_zero_event : std_logic;
 begin
     busy_o <= transfer_busy;
     completed_o <= completed;
     dma_done_irq_o <= completed and not completed_dly;
+    resetting_o <= abort_i or resetting;
 
     regs: process (clk_i)
     begin
@@ -58,9 +61,20 @@ begin
         end if;
     end process;
 
+    resetting_proc: process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if abort_i or length_zero_event then
+                resetting <= '1';
+            elsif not transfer_busy then
+                resetting <= '0';
+            end if;
+        end if;
+    end process;
+
     transfer_mgr: entity work.table_read_engine_client_transfer_manager port map(
         clk_i => clk_i,
-        abort_i => abort_i,
+        abort_i => abort_i or length_zero_event,
         start_i => start,
         address_i => address,
         beats_i => "00000000000" & length_i(22 downto 2),
@@ -86,7 +100,7 @@ begin
         length_o => length_o,
         more_o => more_o,
         length_taken_i => length_taken_i,
-        length_zero_event_o => length_zero_event_o,
+        length_zero_event_o => length_zero_event,
         completed_o => completed,
         overflow_error_o => overflow_error_o,
         repeat_i => repeat_i,
