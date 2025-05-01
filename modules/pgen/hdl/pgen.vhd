@@ -33,6 +33,7 @@ port (
     -- Block Parameters
     REPEATS             : in  std_logic_vector(31 downto 0);
     ACTIVE_o            : out std_logic;
+    STATE               : out std_logic_vector(31 downto 0) := (others => '0');
     TABLE_ADDRESS       : in  std_logic_vector(31 downto 0);
     TABLE_ADDRESS_WSTB  : in  std_logic;
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
@@ -67,15 +68,9 @@ port (
 );
 end component;
 
-type state_t is (IDLE, WAIT_FIFO, DMA_REQ, DMA_READ, IS_FINISHED, FINISHED);
+type state_t is (UNREADY, WAIT_ENABLE, RUNNING);
 signal pgen_fsm         : state_t;
-signal reset            : std_logic;
-signal TABLE_WORDS      : unsigned(31 downto 0);
 
-signal table_cycle      : unsigned(31 downto 0);
-signal table_ready      : std_logic := '0';
-
-signal fifo_reset       : std_logic;
 signal fifo_rd_en       : std_logic;
 signal fifo_dout        : std_logic_vector(DW-1 downto 0);
 signal fifo_count       : integer range 0 to 1023;
@@ -89,32 +84,30 @@ signal enable           : std_logic;
 signal trig_pulse       : std_logic;
 signal enable_fall      : std_logic;
 
-signal count            : unsigned(31 downto 0);
-signal dma_len          : unsigned(8 downto 0);
-signal dma_addr         : unsigned(31 downto 0);
-
-signal dma_underrun     : std_logic;
-signal table_end        : std_logic;
-
-signal active           : std_logic := '0';
-
+signal enable_rise : std_logic;
+signal error_event : std_logic := '0';
+signal overrun_event : std_logic := '0';
+signal underrun_event : std_logic := '0';
+signal all_transfers_completed : std_logic := '0';
+signal transfer_busy : std_logic := '0';
+signal reset_table : std_logic := '0';
+signal abort_dma : std_logic := '0';
+signal active : std_logic := '0';
 
 begin
 
 -- Assign outputs
-dma_len_o <= std_logic_vector(dma_len(7 downto 0));
-dma_addr_o <= std_logic_vector(dma_addr);
 out_o <= fifo_dout;
-
--- Reset for state machine
-reset <= not table_ready or enable_fall;
+STATE(1 downto 0) <= "00" when pgen_fsm = UNREADY else
+                     "01" when pgen_fsm = WAIT_ENABLE else
+                     "10";
 
 --
 -- 32bit FIFO with 1K sample depth
 --
 dma_fifo_inst : fifo_1K32
 port map (
-    srst            => fifo_reset,
+    srst            => reset_table,
     clk             => clk_i,
     din             => dma_data_i,
     wr_en           => dma_valid_i,
@@ -124,14 +117,8 @@ port map (
     empty           => fifo_empty,
     data_count      => fifo_data_count
 );
-
-fifo_reset <= reset;
 fifo_rd_en <= trig_pulse;
 fifo_count <= to_integer(unsigned(fifo_data_count));
-
--- There is space (>256 words) in the fifo, so perform data read from
--- host memory.
-fifo_available <= '1' when (fifo_count < 768) else '0';
 
 --
 -- Input registers
@@ -145,138 +132,96 @@ end process;
 
 -- Trigger pulse pops data from fifo and tick data counter when block
 -- is enabled and table is ready.
-trig_pulse <= (trig_i and not trig) and active and table_ready;
+trig_pulse <= (trig_i and not trig) and active;
 enable_fall <= not enable_i and enable;
-
+enable_rise <= enable_i and not enable;
 --
--- Table ready controls state machine reset. The table is un-validated once
--- LENGTH=0 written.
---
-TABLE_WORDS <= unsigned(TABLE_LENGTH) srl 2;  -- Byte -> Dword
 
-process(clk_i) begin
+error_event <= underrun_event or overrun_event;
+underrun_event <= fifo_rd_en and fifo_empty;
+
+tre_client: entity work.table_read_engine_client port map (
+    clk_i => clk_i,
+    abort_i => abort_dma,
+    address_i => TABLE_ADDRESS,
+    length_i => TABLE_LENGTH,
+    length_wstb_i => TABLE_LENGTH_WSTB,
+    length_o => open,
+    more_o => open,
+    length_taken_i => '1',
+    completed_o => all_transfers_completed,
+    available_beats_i => x"00000" & "00" & (not fifo_data_count),
+    overflow_error_o => overrun_event,
+    repeat_i => REPEATS,
+    busy_o => transfer_busy,
+    resetting_o => reset_table,
+    -- DMA Engine Interface
+    dma_req_o => dma_req_o,
+    dma_ack_i => dma_ack_i,
+    dma_done_i => dma_done_i,
+    dma_addr_o => dma_addr_o,
+    dma_len_o => dma_len_o,
+    dma_data_i => dma_data_i,
+    dma_valid_i => dma_valid_i,
+    dma_irq_o => dma_irq_o,
+    dma_done_irq_o => dma_done_irq_o
+);
+
+process(clk_i)
+begin
     if rising_edge(clk_i) then
-        if (TABLE_LENGTH_WSTB = '1') then
-            if (TABLE_WORDS = 0) then
-                table_ready <= '0';
-            elsif (TABLE_WORDS /= 0) then
-                table_ready <= '1';
+        -- Assign HEALTH output as Enum.
+        if health(1 downto 0) = "00" then
+            if underrun_event then
+                health(1 downto 0) <= TO_SVECTOR(1,2);
+            elsif overrun_event then
+                health(1 downto 0) <= TO_SVECTOR(2,2);
             end if;
+        end if;
+        if enable_rise then
+            health(1 downto 0) <= (others => '0');
         end if;
     end if;
 end process;
 
-process(clk_i) begin
+process (clk_i)
+begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
-            dma_req_o <= '0';
-            count <= (others => '0');
-            dma_addr <= (others => '0');
-            dma_len <= (others => '0');
-            table_cycle <= (others => '0');
-            pgen_fsm <= IDLE;
+        abort_dma <= '0';
+        if enable_fall or error_event then
+            active <= '0';
+            pgen_fsm <= UNREADY;
+            if pgen_fsm /= UNREADY and pgen_fsm /= WAIT_ENABLE then
+                pgen_fsm <= UNREADY;
+                abort_dma <= '1';
+            end if;
         else
             case pgen_fsm is
-                when IDLE =>
-                    -- Wait following fifo reset by monitoring full flag.
-                    if (fifo_full = '0') then
-                        table_cycle <= table_cycle + 1;
-                        count <= TABLE_WORDS;
-                        dma_addr <= unsigned(TABLE_ADDRESS);
-                        pgen_fsm <= WAIT_FIFO;
+                when UNREADY =>
+                    if not fifo_empty then
+                        pgen_fsm <= WAIT_ENABLE;
                     end if;
 
-                -- Wait until enough space available in the fifo.
-                when WAIT_FIFO =>
-                    if (fifo_available = '1') then
-                        dma_req_o <= '1';
-                        pgen_fsm <= DMA_REQ;
-
-                        -- Determine dma length in samples.
-                        if (count < AXI_BURST_LEN) then
-                            dma_len <= count(8 downto 0);
-                        else
-                            dma_len <= to_unsigned(AXI_BURST_LEN, dma_len'length);
-                        end if;
+                when WAIT_ENABLE =>
+                    if fifo_empty then
+                        pgen_fsm <= UNREADY;
+                    elsif enable_rise then
+                        pgen_fsm <= RUNNING;
+                        active <= '1';
                     end if;
 
-                when DMA_REQ =>
-                    if (dma_ack_i = '1') then
-                        dma_req_o <= '0';
-                        pgen_fsm <= DMA_READ;
+                when RUNNING =>
+                    if all_transfers_completed and fifo_empty then
+                        pgen_fsm <= UNREADY;
+                        active <= '0';
                     end if;
 
-                when DMA_READ =>
-                    -- Wait until DMA completes, and keep track of total count.
-                    if (dma_done_i = '1') then
-                        count <= count - dma_len;
-                        dma_addr <= dma_addr + dma_len * 4;
-                        pgen_fsm <= IS_FINISHED;
-                    end if;
-
-                when IS_FINISHED =>
-                    -- Is table finished?
-                    if (count = 0) then
-                        -- Are there more table REPEATS?
-                        if (table_cycle = unsigned(REPEATS)) then
-                            pgen_fsm <= FINISHED;
-                        else
-                            count <= TABLE_WORDS;
-                            dma_addr <= unsigned(TABLE_ADDRESS);
-                            pgen_fsm <= WAIT_FIFO;
-                            table_cycle <= table_cycle + 1;
-                        end if;
-                    else
-                        pgen_fsm <= WAIT_FIFO;
-                    end if;
-
-                -- Wait for re-enable to start over.
-                when FINISHED =>
-                    dma_req_o <= '0';
-                    count <= (others => '0');
-                    dma_addr <= (others => '0');
-                    dma_len <= (others => '0');
+                when others =>
+                    pgen_fsm <= UNREADY;
             end case;
         end if;
     end if;
 end process;
 
---
--- Error detection, and reporting.
---
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset = '1') then
-            dma_underrun <= '0';
-            table_end <= '0';
-            health <= (others => '0');
-        else
-            -- Detect Table End reached once in operation.
-            if (pgen_fsm = FINISHED and fifo_empty = '1' and trig_pulse = '1') then
-                table_end <= '1';
-            end if;
-
-            -- Detect DMA underrun, and stop operation.
-            if (trig_pulse = '1' and fifo_empty = '1') then
-                dma_underrun <= '1';
-            end if;
-
-            -- Assign HEALTH output as Enum.
-            if (table_ready = '0') then
-                health(1 downto 0) <= TO_SVECTOR(1,2);
-            elsif (dma_underrun = '1') then
-                health(1 downto 0) <= TO_SVECTOR(3,2);
-            else
-                health(1 downto 0) <= (others => '0');
-            end if;
-
-        end if;
-    end if;
-end process;
-
-active <= enable and not fifo_empty;
-
 ACTIVE_o <= active;
-
 end rtl;
-
