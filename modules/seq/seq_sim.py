@@ -237,7 +237,7 @@ class SeqSimulation(BlockSimulation):
             self.goto_next_state(ts, load_next=True, consider_triggers=True)
             self.reset_repeat_count(1)
             self.HEALTH = TABLE_ERROR_OK
-            self.table_frames = (self.len & 0x7fffffff) >> 4
+            self.table_frames = (self.len & 0x7fffffff) >> 2
             self.last_table = False if self.len >> 31 else True
             self.len_taken = True
             self.ACTIVE = 1
@@ -265,7 +265,7 @@ class SeqSimulation(BlockSimulation):
                     if self.last_table:
                         self.TABLE_REPEAT += 1
                     self.TABLE_LINE = 1
-                    self.table_frames = (self.len & 0x7fffffff) >> 4
+                    self.table_frames = (self.len & 0x7fffffff) >> 2
                     self.last_table = False if self.len >> 31 else True
                     self.len_taken = True
                 else:

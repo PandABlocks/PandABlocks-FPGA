@@ -16,13 +16,15 @@ entity table_read_engine_client is
         clk_i : in  std_logic;
         abort_i : in  std_logic;
         address_i : in  std_logic_vector(31 downto 0);
+        -- In units of 32-bit words
         length_i : in  std_logic_vector(31 downto 0);
         length_wstb_i : in  std_logic;
         length_o : out std_logic_vector(31 downto 0);
         more_o : out std_logic;
         length_taken_i : in std_logic;
         completed_o : out std_logic;
-        available_beats_i : in std_logic_vector(31 downto 0);
+        -- In units of 32-bit words
+        available_i : in std_logic_vector(31 downto 0);
         overflow_error_o : out std_logic;
         repeat_i : in std_logic_vector(31 downto 0);
         busy_o : out std_logic;
@@ -77,8 +79,8 @@ begin
         abort_i => abort_i or length_zero_event,
         start_i => start,
         address_i => address,
-        beats_i => "00000000000" & length_i(22 downto 2),
-        available_i => available_beats_i,
+        length_i => "00000000000" & length_i(20 downto 0),
+        available_i => available_i,
         busy_o => transfer_busy,
         -- DMA Engine Interface
         dma_req_o => dma_req_o,

@@ -179,7 +179,7 @@ tre_client: entity work.table_read_engine_client port map (
     more_o => table_more,
     length_taken_i => length_reg_taken,
     completed_o => open,
-    available_beats_i => x"0000" & "00" & frames_room & "00",
+    available_i => x"0000" & "00" & frames_room & "00",
     overflow_error_o => overrun_event,
     repeat_i => REPEATS,
     busy_o => transfer_busy,
@@ -370,7 +370,7 @@ if rising_edge(clk_i) then
                     -- triggers
                     goto_next_state(true, true);
                     reset_repeat_count(1);
-                    TABLE_FRAMES <= length_reg(22 downto 4);
+                    TABLE_FRAMES <= length_reg(20 downto 2);
                     length_reg_taken <= '1';
                     last_table <= not table_more;
                     active <= '1';
@@ -404,7 +404,7 @@ if rising_edge(clk_i) then
                         if last_table_line then
                             TABLE_LINE_OUT <=
                                 to_unsigned(1, TABLE_LINE_OUT'length);
-                            TABLE_FRAMES <= length_reg(22 downto 4);
+                            TABLE_FRAMES <= length_reg(20 downto 2);
                             length_reg_taken <= '1';
                             last_table <= not table_more;
                             if last_table then

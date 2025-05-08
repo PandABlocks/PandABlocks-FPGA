@@ -46,7 +46,7 @@ class PgenSimulation(BlockSimulation):
         elif NAMES.TRIG in changes and self.TRIG:
             self.OUT = self.table_data[self.current_line]
             self.current_line += 1
-            if self.current_line == self.TABLE_LENGTH // 4:
+            if self.current_line == self.TABLE_LENGTH:
                 self.current_cycle += 1
                 self.current_line = 0
             if self.current_cycle == self.REPEATS:

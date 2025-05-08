@@ -150,7 +150,7 @@ tre_client: entity work.table_read_engine_client port map (
     more_o => open,
     length_taken_i => '1',
     completed_o => all_transfers_completed,
-    available_beats_i => x"00000" & "00" & (not fifo_data_count),
+    available_i => x"00000" & "00" & (not fifo_data_count),
     overflow_error_o => overrun_event,
     repeat_i => REPEATS,
     busy_o => transfer_busy,

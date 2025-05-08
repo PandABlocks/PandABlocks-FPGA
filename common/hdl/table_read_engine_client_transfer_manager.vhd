@@ -15,7 +15,7 @@ port (
     abort_i : in std_logic;
     start_i : in std_logic;
     address_i : in std_logic_vector(31 downto 0);
-    beats_i : in std_logic_vector(31 downto 0);
+    length_i : in std_logic_vector(31 downto 0);
     available_i : in std_logic_vector(31 downto 0);
     busy_o : out std_logic := '0';
     -- DMA Engine Interface
@@ -59,7 +59,7 @@ begin
             case state is
                 when DMA_IDLE =>
                     dma_addr <= unsigned(address_i);
-                    left <= unsigned(beats_i);
+                    left <= unsigned(length_i);
                     if start_i then
                         state <= DMA_WAIT_ROOM;
                     end if;
