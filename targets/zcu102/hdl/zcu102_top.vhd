@@ -25,8 +25,8 @@ generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 4;
-    NUM_FMC             : natural := 0;
-    MAX_NUM_FMC_MGT     : natural := 0
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 8
 );
 port (
     -- MGT REFCLKs 
@@ -34,13 +34,37 @@ port (
     GTXCLK0_N           : in    std_logic;
     --GTXCLK1_P           : in    std_logic;
     --GTXCLK1_N           : in    std_logic;
+    FMC_HPC0_GBTCLK0_M2C_C_N : in STD_LOGIC;
+    FMC_HPC0_GBTCLK0_M2C_C_P : in STD_LOGIC;
+    FMC_HPC0_GBTCLK1_M2C_C_N : in STD_LOGIC;
+    FMC_HPC0_GBTCLK1_M2C_C_P : in STD_LOGIC;
     -- SFPT GTX I/O and GTX
     SFP_TX_P            : out   std_logic_vector(NUM_SFP-1 downto 0)
                                                             := (others => 'Z');
     SFP_TX_N            : out   std_logic_vector(NUM_SFP-1 downto 0)
                                                             := (others => 'Z');
     SFP_RX_P            : in    std_logic_vector(NUM_SFP-1 downto 0);
-    SFP_RX_N            : in    std_logic_vector(NUM_SFP-1 downto 0)
+    SFP_RX_N            : in    std_logic_vector(NUM_SFP-1 downto 0);
+    -- FMC
+    FMC_DP_C2M_P        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_C2M_N        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_M2C_P        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_N        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    -- I2C FPGA
+    I2C_SCL_FPGA        : inout  std_logic;
+    I2C_SDA_FPGA        : inout  std_logic
 );
 end zcu102_top;
 
@@ -133,6 +157,15 @@ signal write_data           : std_logic_vector(31 downto 0);
 signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
                                                                        => '1');
 
+-- I2C FPGA
+signal IIC_FPGA_sda_in      : std_logic;
+signal IIC_FPGA_sda_out     : std_logic;
+signal IIC_FPGA_sda_tri     : std_logic;
+signal IIC_FPGA_scl_in      : std_logic;
+signal IIC_FPGA_scl_out     : std_logic;
+signal IIC_FPGA_scl_tri     : std_logic;
+signal SYS_I2C_MUX          : std_logic;
+
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
 signal pos_bus              : pos_bus_t := (others => (others => '0'));
@@ -140,11 +173,6 @@ signal pos_bus              : pos_bus_t := (others => (others => '0'));
 
 -- Discrete Block Outputs :
 signal pcap_active          : std_logic_vector(0 downto 0);
-
--- Discrete Block Outputs :
-signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
-signal TTLIN_TERM           : std32_array(TTLIN_NUM-1 downto 0);
-signal TTLIN_TERM_WSTB      : std_logic_vector(TTLIN_NUM-1 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
@@ -159,17 +187,23 @@ signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 -- FMC Block
 signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
                                         := (FMC_ARR => (others => FMC_init));
+-- SFP Block
+signal SFP_MGT              : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+                                        := (MGT_ARR => (others => MGT_init));
 
--- Additional MGT interfaces available using FMC
+-- Additional SFP interfaces available using FMC MGT
 signal FMC_MGT              : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
                                         := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
+signal   fmc0_gtrefclk0, fmc0_gtrefclk1 :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 
 attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
+attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
 attribute IO_BUFFER_TYPE of FMC_DP_C2M_N : signal is "none";
 attribute IO_BUFFER_TYPE of FMC_DP_C2M_P : signal is "none";
 
@@ -195,6 +229,7 @@ port map (
     IB =>    GTXCLK0_N
 );
 
+/*
 IBUFDS_GTE4_REFCLK1 : IBUFDS_GTE4
 generic map (
     REFCLK_EN_TX_PATH => '0',
@@ -208,6 +243,35 @@ port map (
     I =>     GTXCLK1_P,
     IB =>    GTXCLK1_N
 );
+*/
+
+IBUFDS_FMC0_REFCLK0 : IBUFDS_GTE4
+generic map (
+    REFCLK_EN_TX_PATH => '0',
+    REFCLK_HROW_CK_SEL => "00",
+    REFCLK_ICNTL_RX => "00" -- Refer to Transceiver User Guide.
+)
+port map (
+    O =>     fmc0_gtrefclk0,
+    ODIV2 => open,
+    CEB =>   '0',
+    I =>     FMC_HPC0_GBTCLK0_M2C_C_P,
+    IB =>    FMC_HPC0_GBTCLK0_M2C_C_N
+);
+
+IBUFDS_FMC0_REFCLK1 : IBUFDS_GTE4
+generic map (
+    REFCLK_EN_TX_PATH => '0',
+    REFCLK_HROW_CK_SEL => "00",
+    REFCLK_ICNTL_RX => "00" -- Refer to Transceiver User Guide.
+)
+port map (
+    O =>     fmc0_gtrefclk1,
+    ODIV2 => open,
+    CEB =>   '0',
+    I =>     FMC_HPC0_GBTCLK1_M2C_C_P,
+    IB =>    FMC_HPC0_GBTCLK1_M2C_C_N
+);
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -217,6 +281,13 @@ port map (
     FCLK_CLK0                   => FCLK_CLK0_PS,
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
+
+    IIC_FPGA_scl_i              => IIC_FPGA_scl_in,
+    IIC_FPGA_scl_o              => IIC_FPGA_scl_out,
+    IIC_FPGA_scl_t              => IIC_FPGA_scl_tri,
+    IIC_FPGA_sda_i              => IIC_FPGA_sda_in,
+    IIC_FPGA_sda_o              => IIC_FPGA_sda_out,
+    IIC_FPGA_sda_t              => IIC_FPGA_sda_tri,
 
     IRQ_F2P                     => IRQ_F2P,
 
@@ -323,33 +394,6 @@ port map (
     write_address_o             => write_address,
     write_data_o                => write_data,
     write_ack_i                 => write_ack
-);
-
----------------------------------------------------------------------------
--- TTL
----------------------------------------------------------------------------
-ttlin_inst : entity work.ttlin_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    pad_i               => TTLIN_PAD_I,
-    val_o               => ttlin_val,
-
-    read_strobe_i       => read_strobe(TTLIN_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLIN_CS),
-    read_ack_o          => read_ack(TTLIN_CS),
-
-    write_strobe_i      => write_strobe(TTLIN_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLIN_CS),
-
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    TTLIN_TERM_o        => TTLIN_TERM,
-    TTLIN_TERM_WSTB_o   => TTLIN_TERM_WSTB
 );
 
 ---------------------------------------------------------------------------
@@ -471,7 +515,19 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & ttlin_val;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
+
+-- Assemble FMC records
+
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= "10";
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
 
 -- Assemble SFP records
 
@@ -482,10 +538,23 @@ SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
     SFP_MGT.MGT_ARR(I).RXP_IN <= SFP_RX_P(I);
     SFP_TX_N(I) <= SFP_MGT.MGT_ARR(I).TXN_OUT;
     SFP_TX_P(I) <= SFP_MGT.MGT_ARR(I).TXP_OUT;
-    SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
-    SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
+    --SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
+    --SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
     SFP_MGT.MGT_ARR(I).MAC_ADDR <= MGT_MAC_ADDR_ARR(2*I+1)(23 downto 0) & MGT_MAC_ADDR_ARR(2*I)(23 downto 0);
     SFP_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
+
+-- Added FMC_MGT which is an option by using the MGT pins on the FMC.
+
+FMC_MGT_gen: for I in 0 to MAX_NUM_FMC_MGT-1 generate
+    FMC_MGT.MGT_ARR(I).SFP_LOS <= '0';
+    FMC_MGT.MGT_ARR(I).GTREFCLK <= fmc0_gtrefclk1;
+    FMC_MGT.MGT_ARR(I).RXN_IN <= FMC_DP_M2C_N(I);
+    FMC_MGT.MGT_ARR(I).RXP_IN <= FMC_DP_M2C_P(I);
+    FMC_DP_C2M_N(I) <= FMC_MGT.MGT_ARR(I).TXN_OUT;
+    FMC_DP_C2M_P(I) <= FMC_MGT.MGT_ARR(I).TXP_OUT;
+    FMC_MGT.MGT_ARR(I).MAC_ADDR <= (others => '0');
+    FMC_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
 end generate;
 
 ---------------------------------------------------------------------------
@@ -516,13 +585,14 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     FMC => FMC,
+    SFP => SFP_MGT,
     FMC_MGT => FMC_MGT
 );
 
 us_system_top_inst : entity work.us_system_top
 port map (
     clk_i               => FCLK_CLK0,
-    sys_i2c_mux_o       => open,
+    sys_i2c_mux_o       => SYS_I2C_MUX,
     read_strobe_i       => read_strobe(US_SYSTEM_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(US_SYSTEM_CS),
@@ -533,6 +603,19 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(US_SYSTEM_CS)
 );
+
+-- Mux/Demux for FPGA I2C
+IIC_FPGA_sda_in <= I2C_SDA_FPGA when SYS_I2C_MUX = '0' else FMC.FMC_ARR(0).FMC_I2C_SDA_in;
+IIC_FPGA_scl_in <= I2C_SCL_FPGA when SYS_I2C_MUX = '0' else FMC.FMC_ARR(0).FMC_I2C_SCL_in;
+
+I2C_SDA_FPGA <= '0' when (SYS_I2C_MUX = '0' and IIC_FPGA_sda_tri = '0' and IIC_FPGA_sda_out = '0') else 'Z';
+I2C_SCL_FPGA <= '0' when (SYS_I2C_MUX = '0' and IIC_FPGA_scl_tri = '0' and IIC_FPGA_scl_out = '0') else 'Z';
+
+FMC.FMC_ARR(0).FMC_I2C_SDA_out <= IIC_FPGA_sda_out;
+FMC.FMC_ARR(0).FMC_I2C_SDA_tri <= IIC_FPGA_sda_tri when SYS_I2C_MUX = '1' else '1';
+FMC.FMC_ARR(0).FMC_I2C_SCL_out <= IIC_FPGA_scl_out;
+FMC.FMC_ARR(0).FMC_I2C_SCL_tri <= IIC_FPGA_scl_tri when SYS_I2C_MUX = '1' else '1';
+
 
 end rtl;
 
