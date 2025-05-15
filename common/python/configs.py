@@ -451,10 +451,11 @@ class TableFieldConfig(FieldConfig):
 
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
-        # Hardcode to 2^8 = 256 pages
+        # Hardcode to 2^10 = 1024 pages
         # Each page is 1024 words = 4096 bytes
+        # The driver can allocate 8 buffers at most
         self.registers.extend([
-            RegisterConfig(self.name, prefix='long 2^8'),
+            RegisterConfig(self.name, prefix='long 2^10 8'),
             RegisterConfig(self.name + "_ADDRESS", counters.new_field()),
             RegisterConfig(self.name + "_LENGTH", counters.new_field())])
 
