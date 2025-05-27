@@ -34,6 +34,7 @@ architecture Basic_PID of PID is
     signal P_out      : signed(63 downto 0) := (others => '0');
     signal I_out      : signed(63 downto 0) := (others => '0');
     signal D_out      : signed(63 downto 0) := (others => '0');
+    signal FF_out     : signed(63 downto 0) := (others => '0');
     signal round_out  : signed(63 downto 0) := (others => '0');
 
     -- For type conversion
@@ -56,13 +57,10 @@ begin
     in_signal     <= signed(in_signal_i);
 
     process(slo_clk_i)
-        variable max_lim : signed(out_signal'range);
-        variable min_lim : signed(out_signal'range);
+        constant max_lim : signed(out_signal'range) := (out_signal'left => '0', others => '1');
+        constant min_lim : signed(out_signal'range) := (out_signal'left => '1', others => '0');
 
     begin
-        max_lim := (out_signal'left => '0', others => '1');
-        min_lim := (out_signal'left => '1', others => '0');
-
         if rising_edge(slo_clk_i) then
             if init_i = '1' then
                 round_out  <= (others => '0');
@@ -78,20 +76,23 @@ begin
                 I_out      <= I_out + (Ki * in_error);
 
                 -- Derivative
-                D_out      <= D_out + (Kd * (in_error - prev_error));
+                D_out      <= Kd * (in_error - prev_error);
+
+                -- Feedforwards
+                FF_out     <= FF * setpoint;
 
                 -- Update
                 prev_error <= in_error;
 
                 -- Protect against overflow
-                if P_out + I_out + D_out + FF > max_lim then
+                if P_out + I_out + D_out + FF_out > max_lim then
                     report "OVERFLOW HIGH";
                     round_out  <= (round_out'left => '0', others => '1');
-                elsif P_out + I_out + D_out + FF < min_lim then
+                elsif P_out + I_out + D_out + FF_out < min_lim then
                     round_out  <= (round_out'left => '1', others => '0');
                     report "OVERFLOW LOW";
                 else
-                    round_out  <= P_out + I_out + D_out + FF;
+                    round_out  <= P_out + I_out + D_out + FF_out;
                 end if;
 
             end if; -- Reset + Logic
