@@ -18,6 +18,7 @@ port (
     length_i : in std_logic_vector(31 downto 0);
     available_i : in std_logic_vector(31 downto 0);
     busy_o : out std_logic := '0';
+    last_o : out std_logic := '0';
     -- DMA Engine Interface
     dma_req_o : out std_logic := '0';
     dma_ack_i : in  std_logic;
@@ -36,10 +37,12 @@ architecture rtl of table_read_engine_client_transfer_manager is
     signal left : unsigned(31 downto 0) := (others => '0');
     signal dma_transfer : unsigned(8 downto 0) := (others => '0');
     signal abort : std_logic := '0';
+    signal last_burst : std_logic := '0';
 begin
     dma_len_o <= std_logic_vector(dma_transfer(7 downto 0));
     dma_addr_o <= std_logic_vector(dma_addr);
     busy_o <= '1' when state /= DMA_IDLE or start_i = '1' else '0';
+    last_o <= dma_done_i and last_burst;
 
     latch_abort: process (clk_i)
     begin
@@ -54,39 +57,43 @@ begin
 
     process (clk_i)
         variable next_left : unsigned(31 downto 0) := (others => '0');
+        variable next_dma_transfer : unsigned(8 downto 0) := (others => '0');
     begin
         if rising_edge(clk_i) then
             case state is
                 when DMA_IDLE =>
+                    last_burst <= '0';
                     dma_addr <= unsigned(address_i);
                     left <= unsigned(length_i);
                     if start_i then
                         state <= DMA_WAIT_ROOM;
                     end if;
                 when DMA_WAIT_ROOM =>
-                   if abort then
+                    next_dma_transfer :=
+                        to_unsigned(AXI_BURST_LEN, next_dma_transfer'length)
+                            when left > AXI_BURST_LEN else
+                        left(8 downto 0);
+                    if abort then
                         state <= DMA_IDLE;
-                    elsif unsigned(available_i) >= AXI_BURST_LEN then
+                    elsif unsigned(available_i) >= next_dma_transfer then
                         dma_req_o <= '1';
                         state <= DMA_WAIT_ACK;
-                        if left > AXI_BURST_LEN then
-                            dma_transfer <= to_unsigned(
-                                AXI_BURST_LEN, dma_transfer'length);
-                        else
-                            dma_transfer <= left(8 downto 0);
-                        end if;
+                        dma_transfer <= next_dma_transfer;
                     end if;
                 when DMA_WAIT_ACK =>
                     if dma_ack_i then
+                        next_left := left - dma_transfer;
+                        left <= next_left;
+                        if next_left = 0 then
+                            last_burst <= '1';
+                        end if;
                         dma_req_o <= '0';
                         state <= DMA_READING;
                     end if;
                 when DMA_READING =>
                     if dma_done_i then
-                        next_left := left - dma_transfer;
                         dma_addr <= dma_addr + (dma_transfer & "00");
-                        left <= next_left;
-                        if next_left > 0 then
+                        if left > 0 then
                             state <= DMA_WAIT_ROOM;
                         else
                             state <= DMA_IDLE;

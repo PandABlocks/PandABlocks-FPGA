@@ -17,7 +17,6 @@ class PgenSimulation(BlockSimulation):
     def __init__(self):
         self.table_data = []
         self.data = deque()
-        self.data_repeats = 1
         self.current_line = 0
         self.current_cycle = 0
         self.state2function = {
@@ -50,12 +49,10 @@ class PgenSimulation(BlockSimulation):
                 self.current_cycle += 1
                 self.current_line = 0
             if self.current_cycle == self.REPEATS:
-                self.go_idle = True
+                self.reset()
 
     def handle_table_write(self, ts, changes):
-        if not self.data and \
-                (self.data_repeats < self.REPEATS or self.REPEATS == 0):
-            self.data_repeats += 1
+        if not self.data:
             self.data.extend(self.data)
             self.data.append(None)
 
@@ -74,23 +71,19 @@ class PgenSimulation(BlockSimulation):
                 lines = list(f)[1:]
             new_data = [int(line, 16) if line.startswith('0x') else
                         int(line) for line in lines]
-            self.data.extend([None] * 5)
+            self.data.extend([None] * 6)
             self.data.extend(new_data)
+
+    def reset(self):
+        self.current_line = 0
+        self.ACTIVE = 0
+        self.STATE = WAIT_ENABLE
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
         super(PgenSimulation, self).on_changes(ts, changes)
-        if self.go_idle:
-            self.current_line = 0
-            self.table_data = []
-            self.data_repeats = 1
-            self.data.clear()
-            self.ACTIVE = 0
-            self.STATE = IDLE
-        else:
-            self.state2function[self.STATE](ts, changes)
-
+        self.state2function[self.STATE](ts, changes)
         self.handle_table_write(ts, changes)
         return ts + 1

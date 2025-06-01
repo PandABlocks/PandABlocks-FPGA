@@ -70,6 +70,7 @@ always @(posedge clk_i) begin
             if (mem_cnt == req_dma_len - 1) begin
                 mem_cnt <= 0;
                 dma_data_i <= data_mem[mem_cnt];
+                dma_done_i <= 1;
                 REQ_STATE <= STATE_FINISHED;
             // Read the values out of the memory
             end else begin
@@ -81,7 +82,7 @@ always @(posedge clk_i) begin
         STATE_FINISHED:
         begin
             // Finished reset everything
-            dma_done_i <= 1;
+            dma_done_i <= 0;
             dma_valid_i <= 0;
             REQ_STATE <= STATE_IDLE;
         end

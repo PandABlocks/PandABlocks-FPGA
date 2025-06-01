@@ -19,16 +19,16 @@ entity table_read_engine_client is
         -- In units of 32-bit words
         length_i : in  std_logic_vector(31 downto 0);
         length_wstb_i : in  std_logic;
-        length_o : out std_logic_vector(31 downto 0);
-        more_o : out std_logic;
-        length_taken_i : in std_logic;
         completed_o : out std_logic;
         -- In units of 32-bit words
         available_i : in std_logic_vector(31 downto 0);
         overflow_error_o : out std_logic;
-        repeat_i : in std_logic_vector(31 downto 0);
         busy_o : out std_logic;
         resetting_o : out std_logic;
+        last_o : out std_logic;
+        streaming_mode_o : out std_logic;
+        one_buffer_mode_o : out std_logic;
+        loop_one_buffer_i : in std_logic;
         -- DMA Engine Interface
         dma_req_o : out std_logic;
         dma_ack_i : in  std_logic;
@@ -47,14 +47,16 @@ architecture rtl of table_read_engine_client is
     signal start : std_logic;
     signal completed : std_logic;
     signal completed_dly : std_logic;
-    signal address : std_logic_vector(31 downto 0);
     signal resetting : std_logic := '0';
     signal length_zero_event : std_logic;
+    signal last_buffer : std_logic;
+    signal last_transfer : std_logic;
 begin
     busy_o <= transfer_busy;
     completed_o <= completed;
     dma_done_irq_o <= completed and not completed_dly;
     resetting_o <= abort_i or resetting;
+    last_o <= last_transfer and last_buffer;
 
     regs: process (clk_i)
     begin
@@ -78,10 +80,11 @@ begin
         clk_i => clk_i,
         abort_i => abort_i or length_zero_event,
         start_i => start,
-        address_i => address,
+        address_i => address_i,
         length_i => "00000000000" & length_i(20 downto 0),
         available_i => available_i,
         busy_o => transfer_busy,
+        last_o => last_transfer,
         -- DMA Engine Interface
         dma_req_o => dma_req_o,
         dma_ack_i => dma_ack_i,
@@ -95,19 +98,17 @@ begin
     length_mgr: entity work.table_read_engine_client_length_manager port map(
         clk_i => clk_i,
         abort_i => abort_i,
-        address_i => address_i,
         length_i => length_i,
         length_wstb_i => length_wstb_i,
-        address_o => address,
-        length_o => length_o,
-        more_o => more_o,
-        length_taken_i => length_taken_i,
         length_zero_event_o => length_zero_event,
         completed_o => completed,
+        last_buffer_o => last_buffer,
         overflow_error_o => overflow_error_o,
-        repeat_i => repeat_i,
         became_ready_event_o => dma_irq_o,
         transfer_busy_i => transfer_busy,
-        transfer_start_o => start
+        transfer_start_o => start,
+        streaming_mode_o => streaming_mode_o,
+        one_buffer_mode_o => one_buffer_mode_o,
+        loop_one_buffer_i => loop_one_buffer_i
     );
 end;

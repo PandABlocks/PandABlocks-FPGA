@@ -102,7 +102,6 @@ signal enable_val           : std_logic;
 signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
 signal enable_rise          : std_logic;
-signal table_ready          : std_logic;
 
 signal last_table_line      : std_logic := '0';
 signal last_line_repeat     : std_logic := '0';
@@ -122,14 +121,17 @@ signal frame_valid : std_logic;
 signal transfer_busy : std_logic;
 signal frames_room : std_logic_vector(11 downto 0);
 signal error_event : std_logic := '0';
-signal length_reg : std_logic_vector(31 downto 0) := (others => '0');
-signal length_reg_taken : std_logic := '0';
-signal last_table : std_logic := '0';
 signal underrun_event : std_logic := '0';
 signal overrun_event : std_logic := '0';
 signal abort_dma : std_logic := '0';
-signal table_more : std_logic;
-signal reset_table : std_logic := '0';
+signal resetting_dma : std_logic := '0';
+signal data_last : std_logic;
+signal next_frame_last : std_logic;
+signal current_frame_last : std_logic := '0';
+signal streaming_mode : std_logic;
+signal one_buffer_mode : std_logic;
+signal wrapping_mode : std_logic;
+signal wrapping_mode_reset : std_logic;
 
 begin
 
@@ -154,13 +156,16 @@ sequencer_ring_table : entity work.sequencer_ring_table generic map (
     SEQ_LEN => SEQ_FRAMES
 ) port map (
     clk_i => clk_i,
-    reset_i => reset_table,
+    reset_i => resetting_dma or wrapping_mode_reset,
     frame_ready_i => load_next,
     frame_valid_o => frame_valid,
     frame_o  => next_frame,
+    frame_last_o => next_frame_last,
     available_o => frames_room,
+    wrapping_mode_i => wrapping_mode,
     data_i  => dma_data_i,
     data_valid_i => dma_valid_i,
+    data_last_i => data_last,
     -- we always have room because we push based on available space
     data_ready_o => open,
     nframes_o => open
@@ -168,6 +173,9 @@ sequencer_ring_table : entity work.sequencer_ring_table generic map (
 
 error_event <= underrun_event or overrun_event;
 underrun_event <= load_next and not frame_valid;
+wrapping_mode <= to_std_logic(
+    unsigned(TABLE_FRAMES) < SEQ_FRAMES and one_buffer_mode = '1' and
+    resetting_dma = '0');
 
 tre_client: entity work.table_read_engine_client port map (
     clk_i => clk_i,
@@ -175,15 +183,15 @@ tre_client: entity work.table_read_engine_client port map (
     address_i => TABLE_ADDRESS,
     length_i => TABLE_LENGTH,
     length_wstb_i => TABLE_LENGTH_WSTB,
-    length_o => length_reg,
-    more_o => table_more,
-    length_taken_i => length_reg_taken,
     completed_o => open,
     available_i => x"0000" & "00" & frames_room & "00",
     overflow_error_o => overrun_event,
-    repeat_i => REPEATS,
     busy_o => transfer_busy,
-    resetting_o => reset_table,
+    resetting_o => resetting_dma,
+    last_o => data_last,
+    streaming_mode_o => streaming_mode,
+    one_buffer_mode_o => one_buffer_mode,
+    loop_one_buffer_i => not wrapping_mode,
     -- DMA Engine Interface
     dma_req_o => dma_req_o,
     dma_ack_i => dma_ack_i,
@@ -286,8 +294,6 @@ load_next <= '1' when
     or (seq_sm = PHASE_2 and presc_ce = '1' and tframe_counter = next_ts - 1
         and last_line_repeat = '1' and last_table_repeat = '0') else '0';
 
-table_ready <= frame_valid;
-
 SEQ_FSM : process(clk_i)
     procedure reset_repeat_count(val: integer) is
     begin
@@ -323,6 +329,7 @@ SEQ_FSM : process(clk_i)
             frame := next_frame;
             triggered := next_trig_valid;
             current_frame <= next_frame;
+            current_frame_last <= next_frame_last;
         else
             frame := current_frame;
             triggered := current_trig_valid;
@@ -342,14 +349,19 @@ if rising_edge(clk_i) then
     --
     -- Sequencer State Machine
     --
-    length_reg_taken <= '0';
     abort_dma <= '0';
+    wrapping_mode_reset <= '0';
     if enable_fall or error_event then
         out_val <= (others => '0');
         active <= '0';
         if seq_sm /= UNREADY and seq_sm /= WAIT_ENABLE then
-            seq_sm <= UNREADY;
-            abort_dma <= '1';
+            if wrapping_mode and not error_event then
+                seq_sm <= WAIT_ENABLE;
+                wrapping_mode_reset <= '1';
+            else
+                seq_sm <= UNREADY;
+                abort_dma <= '1';
+            end if;
         end if;
         reset_repeat_count(0);
     else
@@ -357,12 +369,12 @@ if rising_edge(clk_i) then
         case seq_sm is
             when UNREADY =>
                 out_val <= (others => '0');
-                if table_ready and not reset_table then
+                if frame_valid and not resetting_dma then
                     seq_sm <= WAIT_ENABLE;
                 end if;
 
             when WAIT_ENABLE =>
-                if not table_ready then
+                if not frame_valid then
                     seq_sm <= UNREADY;
                 -- load_next fires here
                 elsif enable_rise then
@@ -370,9 +382,6 @@ if rising_edge(clk_i) then
                     -- triggers
                     goto_next_state(true, true);
                     reset_repeat_count(1);
-                    TABLE_FRAMES <= length_reg(20 downto 2);
-                    length_reg_taken <= '1';
-                    last_table <= not table_more;
                     active <= '1';
                 end if;
 
@@ -398,16 +407,13 @@ if rising_edge(clk_i) then
                     if last_table_repeat then
                         active <= '0';
                         out_val <= (others => '0');
-                        seq_sm <= UNREADY;
+                        seq_sm <= UNREADY when streaming_mode else WAIT_ENABLE;
                     elsif last_line_repeat then
                         LINE_REPEAT_OUT <= to_unsigned(1, 32);
                         if last_table_line then
                             TABLE_LINE_OUT <=
                                 to_unsigned(1, TABLE_LINE_OUT'length);
-                            TABLE_FRAMES <= length_reg(20 downto 2);
-                            length_reg_taken <= '1';
-                            last_table <= not table_more;
-                            if last_table then
+                            if one_buffer_mode then
                                 TABLE_REPEAT_OUT <= TABLE_REPEAT_OUT + 1;
                             end if;
                         else
@@ -446,14 +452,18 @@ begin
 end process;
 
 -- Repeats count equals the number of repeats (Last Table Repeat)
-last_line_repeat <= '1' when (current_frame.repeats /= 0 and LINE_REPEAT_OUT = current_frame.repeats) else '0';
+last_line_repeat <= '1' when
+    (current_frame.repeats /= 0 and
+     LINE_REPEAT_OUT = current_frame.repeats) else '0';
 -- Number of frames memory depth (Last Line )
-last_table_line <= last_line_repeat when TABLE_LINE_OUT = unsigned(TABLE_FRAMES)
-                   else '0';
+last_table_line <= last_line_repeat when
+    (one_buffer_mode = '1' and TABLE_LINE_OUT = unsigned(TABLE_FRAMES)) or
+     current_frame_last = '1' else '0';
+TABLE_FRAMES <= TABLE_LENGTH(20 downto 2);
 -- Last Table Repeat
-last_table_repeat <= last_table_line when
-    REPEATS /= X"0000_0000" and TABLE_REPEAT_OUT = unsigned(REPEATS) and
-    last_table = '1' else '0';
+last_table_repeat <= last_table_line when 
+    (streaming_mode = '0' and REPEATS /= X"0000_0000" and
+     TABLE_REPEAT_OUT = unsigned(REPEATS)) or streaming_mode = '1' else '0';
 
 --------------------------------------------------------------------------
 -- Prescaler:

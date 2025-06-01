@@ -10,108 +10,99 @@ entity table_read_engine_client_length_manager is
     port (
         clk_i : in  std_logic;
         abort_i : in  std_logic;
-        address_i : in  std_logic_vector(31 downto 0);
         length_i : in  std_logic_vector(31 downto 0);
         length_wstb_i : in  std_logic;
-        address_o : out std_logic_vector(31 downto 0) := (others => '0');
-        length_o : out std_logic_vector(31 downto 0) := (others => '0');
-        more_o : out std_logic;
-        length_taken_i : in std_logic;
         length_zero_event_o : out std_logic;
         completed_o : out std_logic := '0';
-        repeat_i : in std_logic_vector(31 downto 0);
+        last_buffer_o : out std_logic := '0';
         overflow_error_o : out std_logic := '0';
         became_ready_event_o : out std_logic := '0';
         transfer_busy_i : in std_logic;
-        transfer_start_o : out std_logic := '0'
+        transfer_start_o : out std_logic := '0';
+        streaming_mode_o : out std_logic := '0';
+        one_buffer_mode_o : out std_logic := '0';
+        loop_one_buffer_i : in std_logic
     );
 end;
 
 architecture rtl of table_read_engine_client_length_manager is
-    type state_t is (NO_ADDRESS, WAIT_LENGTH_TAKEN, WAIT_DMA, DONE);
-    signal state : state_t := NO_ADDRESS;
+    type state_t is (IDLE, ONE_BUFFER, STREAMING, STREAMING_WAIT, DONE);
+    signal state : state_t := IDLE;
     signal length : std_logic_vector(31 downto 0) := (others => '0');
-    signal length_taken_reg : std_logic := '1';
-    signal length_taken : std_logic := '0';
-    signal repeat_count : unsigned(31 downto 0) := to_unsigned(1, 32);
     constant MORE_FLAG_INDEX : positive := 31;
 begin
-    length_taken <= length_taken_reg or length_taken_i;
     length_zero_event_o <= '1' when length_wstb_i = '1' and
                                     length_i = x"00000000" else
                            '0';
-    address_o <= address_i;
 
     process (clk_i)
+        procedure error_if_new_length is
+        begin
+            if length_wstb_i then
+                overflow_error_o <= '1';
+                state <= DONE;
+            end if;
+        end procedure;
     begin
         if rising_edge(clk_i) then
             if length_zero_event_o then
-                state <= NO_ADDRESS;
-                -- first time through we don't need to wait for last length
-                -- being taken
-                length_taken_reg <= '1';
+                streaming_mode_o <= '0';
+                one_buffer_mode_o <= '0';
+                state <= IDLE;
                 completed_o <= '0';
             elsif abort_i then
-                state <= DONE;
+                if state /= ONE_BUFFER then
+                    state <= DONE;
+                end if;
             else
                 transfer_start_o <= '0';
                 overflow_error_o <= '0';
                 became_ready_event_o <= '0';
                 case state is
                     -- state in which a new buffer is accepted
-                    when NO_ADDRESS =>
-                        repeat_count <= to_unsigned(1, 32);
+                    when IDLE =>
+                        streaming_mode_o <= '0';
+                        one_buffer_mode_o <= '0';
+                        last_buffer_o <= '0';
                         if length_wstb_i then
-                            if length_taken then
-                                length_o(30 downto 0) <= length_i(30 downto 0);
-                                more_o <= length_i(MORE_FLAG_INDEX);
-                                state <= WAIT_LENGTH_TAKEN when not length_taken else
-                                         WAIT_DMA;
+                            if length_i(MORE_FLAG_INDEX) then
+                                streaming_mode_o <= '1';
+                                state <= STREAMING;
                             else
-                                length <= length_i;
-                                state <= WAIT_LENGTH_TAKEN;
+                                one_buffer_mode_o <= '1';
+                                state <= ONE_BUFFER;
                             end if;
                         end if;
-                    -- states in which a new buffer is not accepted
-                    when WAIT_LENGTH_TAKEN =>
-                        if length_wstb_i then
-                            overflow_error_o <= '1';
-                            state <= DONE;
+                    when ONE_BUFFER =>
+                        error_if_new_length;
+                        if not transfer_busy_i then
+                            transfer_start_o <= '1';
+                            if not loop_one_buffer_i then
+                                state <= DONE;
+                            end if;
                         end if;
-                        if length_taken then
-                            length_o(30 downto 0) <= length(30 downto 0);
-                            more_o <= length(MORE_FLAG_INDEX);
-                            state <= WAIT_DMA;
-                        end if;
-                    when WAIT_DMA =>
-                        if length_wstb_i then
-                            overflow_error_o <= '1';
-                            state <= DONE;
-                        end if;
+                    when STREAMING =>
+                        error_if_new_length;
                         if not transfer_busy_i then
                             if length_i(MORE_FLAG_INDEX) then
-                                state <= NO_ADDRESS;
+                                state <= STREAMING_WAIT;
                                 became_ready_event_o <= '1';
-                                length_taken_reg <= '0';
                             else
-                                if repeat_count >= unsigned(repeat_i) and
-                                        repeat_i /= x"00000000" then
-                                    state <= DONE;
-                                else
-                                    repeat_count <= repeat_count + 1;
-                                end if;
+                                last_buffer_o <= '1';
+                                state <= DONE;
                             end if;
                             transfer_start_o <= '1';
                         end if;
-                    when DONE =>
+                    when STREAMING_WAIT =>
                         if length_wstb_i then
-                            overflow_error_o <= '1';
+                            state <= STREAMING;
                         end if;
+                    when DONE =>
+                        error_if_new_length;
                         completed_o <= not transfer_busy_i;
+                    when others =>
+                        state <= IDLE;
                 end case;
-                if length_taken_i then
-                    length_taken_reg <= '1';
-                end if;
             end if;
         end if;
     end process;
