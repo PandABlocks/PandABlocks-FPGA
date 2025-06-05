@@ -51,3 +51,4 @@ jobs:
         with:
           name: zpkgs-${{ matrix.app }}
           path: /build/panda-fpga@*.zpg
+          if-no-files-found: error
