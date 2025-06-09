@@ -73,3 +73,4 @@ framework
     reference/changelog
     reference/glossary
     reference/testing
+    reference/cocotb
