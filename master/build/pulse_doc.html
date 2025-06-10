@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PULSE - One-shot pulse delay and stretch &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>PULSE - One-shot pulse delay and stretch &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -323,62 +324,62 @@ with rising edges separated by STEP</p></li>
 <p>If WIDTH=0, then the Block acts as a delay line. DELAY must either be 0 or
 5+ clock ticks. TRIG_EDGE, STEP, and NPULSES are ignored.</p>
 <p>If DELAY=0 the Block is a simple pass through:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-1.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-1.png">png</a>, <a class="reference external" href="../build/pulse_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/792a099465fdae1f704325356d482ef9/pulse_doc-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f51fd5948f2dfd32242038e8d4f17942/pulse_doc-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/058202774f89bceae12f9e434e78a9e7/pulse_doc-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4264c18900d2682eda586d4dd942a60a/pulse_doc-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-1.png" src="../_images/pulse_doc-1.png" />
+<img alt="../_images/pulse_doc-1.png" class="plot-directive" src="../_images/pulse_doc-1.png" />
 </div>
 <p>If DELAY is non-zero, rising and falling edges will be inserted in the queue and
 output after the given DELAY:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-2.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-2.png">png</a>, <a class="reference external" href="../build/pulse_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/c43e5ddd06d5314d65dc16ac978c3edd/pulse_doc-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/5b9a609454a1e66a33e7dbf1cdfda337/pulse_doc-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d716117feddb7c73347f2b0a56d904a6/pulse_doc-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c3e2777a0de3226cc7a889f405bf0fc5/pulse_doc-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-2.png" src="../_images/pulse_doc-2.png" />
+<img alt="../_images/pulse_doc-2.png" class="plot-directive" src="../_images/pulse_doc-2.png" />
 </div>
 <p>0 &lt; DELAY &lt; 5 will be treated as DELAY=5:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-3.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-3.png">png</a>, <a class="reference external" href="../build/pulse_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/bbbf3aadcb9bd4d94e58a9261a71c69b/pulse_doc-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/38466dfb2dfc8b97f855022eb40c82b9/pulse_doc-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d459d948a37966bfd92d24af4acb2b12/pulse_doc-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/66d7facb966cd821f43d2a6dfe9f7361/pulse_doc-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-3.png" src="../_images/pulse_doc-3.png" />
+<img alt="../_images/pulse_doc-3.png" class="plot-directive" src="../_images/pulse_doc-3.png" />
 </div>
 </div>
 <div class="section" id="pulse-train-generation">
 <h2>Pulse train generation<a class="headerlink" href="#pulse-train-generation" title="Permalink to this heading"></a></h2>
 <p>If WIDTH != 0 then the Block will operate in pulse train mode. If NPULSES is
 0 or 1 then it will produce a single pulse for each matching input pulse:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-4.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-4.png">png</a>, <a class="reference external" href="../build/pulse_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/934dc554498eb1022cd31a3abdb50afe/pulse_doc-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e8a58fb31810b2d4740f52d7fd9bd2e2/pulse_doc-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c05bc9121e527a048aef6404d2cd16fc/pulse_doc-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ab21d8203fc230652c8189285ee62ac7/pulse_doc-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-4.png" src="../_images/pulse_doc-4.png" />
+<img alt="../_images/pulse_doc-4.png" class="plot-directive" src="../_images/pulse_doc-4.png" />
 </div>
 <p>The output pulses are queued, so multiple pulses can be queued before output:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-5.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-5.png">png</a>, <a class="reference external" href="../build/pulse_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/6b336181cdca8fb901d7acbbe73669a7/pulse_doc-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c388f558c0410ef151fa4164fb8ef976/pulse_doc-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/079505429c1f7a07c3624c918efd804a/pulse_doc-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f0b3e7a8f8628151d1046ec0cf4337b3/pulse_doc-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-5.png" src="../_images/pulse_doc-5.png" />
+<img alt="../_images/pulse_doc-5.png" class="plot-directive" src="../_images/pulse_doc-5.png" />
 </div>
 <p>The TRIG_EDGE field can be used to select whether an input pulse queues an
 output on rising, falling, or both edges:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-6.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-6.png">png</a>, <a class="reference external" href="../build/pulse_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-6.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/f17450bd3d05a169f3227b9ffa68a51e/pulse_doc-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/85dff85e0e9f2962ce1d26610616e795/pulse_doc-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/672f22187cf9f51d79cd87fb20f64c82/pulse_doc-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e1888e3024ffd8514cf910a0f0e8bb5b/pulse_doc-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-6.png" src="../_images/pulse_doc-6.png" />
+<img alt="../_images/pulse_doc-6.png" class="plot-directive" src="../_images/pulse_doc-6.png" />
 </div>
-<p>(<a class="reference external" href="../build/pulse_doc-7.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-7.png">png</a>, <a class="reference external" href="../build/pulse_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-7.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/36aebdc73d09ef2b353344c0fafcb761/pulse_doc-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/269f2252567576a914c91df937de8c10/pulse_doc-7.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9a9bef053cc8ed68cc7acd66b105b371/pulse_doc-7.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e5471f39d4042141b3318d03bc099f5f/pulse_doc-7.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-7.png" src="../_images/pulse_doc-7.png" />
+<img alt="../_images/pulse_doc-7.png" class="plot-directive" src="../_images/pulse_doc-7.png" />
 </div>
-<p>(<a class="reference external" href="../build/pulse_doc-8.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-8.png">png</a>, <a class="reference external" href="../build/pulse_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-8.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/51e34e43993399a0d54fcf9b6871a259/pulse_doc-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/673e5a55a6e92aae272e32e55bcdc9f4/pulse_doc-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/212315f346d3f01d30f29da095ab5500/pulse_doc-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c5210eedaf940f76c0d32941ddd1b232/pulse_doc-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-8.png" src="../_images/pulse_doc-8.png" />
+<img alt="../_images/pulse_doc-8.png" class="plot-directive" src="../_images/pulse_doc-8.png" />
 </div>
 <p>0 &lt; WIDTH &lt; 5 will be treated as WIDTH=5:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-9.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-9.png">png</a>, <a class="reference external" href="../build/pulse_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-9.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/01a7edece94246bdac3bb2fd834e5e0c/pulse_doc-9.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/7acb448f96313f89de910322afa6ea23/pulse_doc-9.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/011582e47d81b9c41800c7c0bd7d4aee/pulse_doc-9.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1bc1f248faa194dc5dcb180e1af95897/pulse_doc-9.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-9.png" src="../_images/pulse_doc-9.png" />
+<img alt="../_images/pulse_doc-9.png" class="plot-directive" src="../_images/pulse_doc-9.png" />
 </div>
 <p>If PULSES &gt; 1 then multiple output pulses will be generated, separated by STEP:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-10.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-10.png">png</a>, <a class="reference external" href="../build/pulse_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-10.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/9e9bc18ade2cb8b7a663a583dfc3f3e4/pulse_doc-10.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/bbaeabae8771cf9bd6c6eb5b1a7cfc28/pulse_doc-10.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c5d67110d282700434f74bc58433959d/pulse_doc-10.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4e6ec5f5c616b900c7c848c9212c962a/pulse_doc-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-10.png" src="../_images/pulse_doc-10.png" />
+<img alt="../_images/pulse_doc-10.png" class="plot-directive" src="../_images/pulse_doc-10.png" />
 </div>
-<p>(<a class="reference external" href="../build/pulse_doc-11.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-11.png">png</a>, <a class="reference external" href="../build/pulse_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-11.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/5d675e3ecbb578daddf8dd5e4861103c/pulse_doc-11.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f8cf3bbecd69e2b450e9b732a6e867b3/pulse_doc-11.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/424033d596591dffa63cd1ead75f86a6/pulse_doc-11.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/bedd12cd1d0fb1d2e70e2b19023140d4/pulse_doc-11.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-111.png" src="../_images/pulse_doc-111.png" />
+<img alt="../_images/pulse_doc-111.png" class="plot-directive" src="../_images/pulse_doc-111.png" />
 </div>
 </div>
 <div class="section" id="pulse-period-error">
@@ -386,9 +387,9 @@ output on rising, falling, or both edges:</p>
 <p>The following example shows what happens when the period between pulses is too
 short. To avoid running output pulses together, the DROPPED field is incremented
 and the input is dropped:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-12.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-12.png">png</a>, <a class="reference external" href="../build/pulse_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-12.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/45efe08782600f36f1697966eb93c224/pulse_doc-12.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c359aea490c2bda29ff5e92379913e79/pulse_doc-12.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/604ec0900ac7043b35d2bef0fc7b2a8b/pulse_doc-12.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/69c7405da52e6a8d0227730d415ffa44/pulse_doc-12.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-12.png" src="../_images/pulse_doc-12.png" />
+<img alt="../_images/pulse_doc-12.png" class="plot-directive" src="../_images/pulse_doc-12.png" />
 </div>
 <p>The queue length is 255, so if QUEUED reaches 255 then any new pulse will
 be dropped and also increment DROPPED.</p>
@@ -398,24 +399,24 @@ be dropped and also increment DROPPED.</p>
 <h2>Enabling the Block<a class="headerlink" href="#enabling-the-block" title="Permalink to this heading"></a></h2>
 <p>There is an Enable signal that stops the Block from producing signals. Edges
 must occur while Enable is high to trigger a pulse creation</p>
-<p>(<a class="reference external" href="../build/pulse_doc-13.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-13.png">png</a>, <a class="reference external" href="../build/pulse_doc-13.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-13.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/62c3db9129744df8f08254cb29fe1ac1/pulse_doc-13.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d63e0397ec0b43abff190bc0081e44cc/pulse_doc-13.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/927d0ec1bd22967f377b25a88db34fa5/pulse_doc-13.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/b787110bbcbdb57d6bcba483d95d5ac9/pulse_doc-13.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-13.png" src="../_images/pulse_doc-13.png" />
+<img alt="../_images/pulse_doc-13.png" class="plot-directive" src="../_images/pulse_doc-13.png" />
 </div>
 <p>If enable is dropped mid way through a pulse train, the output is set low and
 the QUEUED output is set to zero.</p>
-<p>(<a class="reference external" href="../build/pulse_doc-14.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-14.png">png</a>, <a class="reference external" href="../build/pulse_doc-14.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-14.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/ec8dc7426a68b11c5e7164536b564b8e/pulse_doc-14.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2334a352c3533eab3ac95cddd0a8054f/pulse_doc-14.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a416c643a01b6b9e23c2433101ec195f/pulse_doc-14.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a1ab4f41377c2413bd458f5686bff6e0/pulse_doc-14.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-14.png" src="../_images/pulse_doc-14.png" />
+<img alt="../_images/pulse_doc-14.png" class="plot-directive" src="../_images/pulse_doc-14.png" />
 </div>
 </div>
 <div class="section" id="changing-parameters-while-enabled">
 <h2>Changing parameters while Enabled<a class="headerlink" href="#changing-parameters-while-enabled" title="Permalink to this heading"></a></h2>
 <p>If any of the input parameters are changed while enabled, the queue is dropped
 and the state of the Block is reset:</p>
-<p>(<a class="reference external" href="../build/pulse_doc-15.py">Source code</a>, <a class="reference external" href="../build/pulse_doc-15.png">png</a>, <a class="reference external" href="../build/pulse_doc-15.hires.png">hires.png</a>, <a class="reference external" href="../build/pulse_doc-15.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/2d6af38b503660502c655836191c500c/pulse_doc-15.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/52b6626bc9460cfc636d70a548a137a5/pulse_doc-15.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/087c3f7eba54456fe2928d139874a82d/pulse_doc-15.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/adcf1767b30e00fe43dd4a271b2e659c/pulse_doc-15.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pulse_doc-15.png" src="../_images/pulse_doc-15.png" />
+<img alt="../_images/pulse_doc-15.png" class="plot-directive" src="../_images/pulse_doc-15.png" />
 </div>
 </div>
 </div>

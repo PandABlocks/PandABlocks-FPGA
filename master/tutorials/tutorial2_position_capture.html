@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Position Capture Tutorial &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>Position Capture Tutorial &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -201,9 +202,9 @@ counter value.</p></li>
 <p>We start off with both CLOCK Blocks set to a period of 1s, so each second the
 COUNTER will increment by one, followed by a PCAP trigger half a second later.
 This is best viewed as a timing diagram:</p>
-<p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-1.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/566ef6d925d35c49cf47fe23161195d7/tutorial2_position_capture-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/76499a0c037a5c7f60e9d02ca35f1745/tutorial2_position_capture-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8e0b9df27e5219adb7d4f8b2db31abcd/tutorial2_position_capture-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4750864eae5fb09fa28bafd34ced2b08/tutorial2_position_capture-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/tutorial2_position_capture-1.png" src="../_images/tutorial2_position_capture-1.png" />
+<img alt="../_images/tutorial2_position_capture-1.png" class="plot-directive" src="../_images/tutorial2_position_capture-1.png" />
 </div>
 <p>What PCAP does on that trigger is determined by the PCAP Block settings, and
 the contents of the Bits and Positions tables. For Bits you can turn capture
@@ -314,9 +315,9 @@ to 0.2s, and click PCAP.ARM and you will see the captured value change:</p>
 </div>
 <p>If we look at the timing plot, we can see this also matched what we expect, the
 value is captured mid way through each increment of 5:</p>
-<p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-2.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/3a8d10ff69bfc73f13be018c011e1771/tutorial2_position_capture-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4350b687b9436c77018395855767f08b/tutorial2_position_capture-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/3e5478a68e4a7f86edc01c43462e5296/tutorial2_position_capture-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e723d0e6cb9ed1aed2bf15f008f6c743/tutorial2_position_capture-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/tutorial2_position_capture-2.png" src="../_images/tutorial2_position_capture-2.png" />
+<img alt="../_images/tutorial2_position_capture-2.png" class="plot-directive" src="../_images/tutorial2_position_capture-2.png" />
 </div>
 <p>Now let’s investigate the other options. If we change the Positions table
 so COUNTER1.OUT captures the Diff instead of Value then we will see it captures

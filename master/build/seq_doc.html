@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEQ - Sequencer &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>SEQ - Sequencer &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -536,9 +537,9 @@ can be repeated, with a value of 0 meaning repeat forever.</p>
 example we can ask for 3x 50% duty cycle pulses by writing a single line table
 that is repeated 3 times. When enabled it will become active and immediately
 start producing pulses, remaining active until the pulses have been produced:</p>
-<p>(<a class="reference external" href="../build/seq_doc-1.py">Source code</a>, <a class="reference external" href="../build/seq_doc-1.png">png</a>, <a class="reference external" href="../build/seq_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/76552ef61e77477f7b1ebd986dd5a36a/seq_doc-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6a14f1765857f45f97a2b2f409492eb5/seq_doc-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ee25b861841de887df8f9087bc61f14b/seq_doc-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cd8d63a6e2371c9b0eb45b4484989977/seq_doc-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-1.png" src="../_images/seq_doc-1.png" />
+<img alt="../_images/seq_doc-1.png" class="plot-directive" src="../_images/seq_doc-1.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -613,9 +614,9 @@ start producing pulses, remaining active until the pulses have been produced:</p
 <p>We can also use it to generate irregular streams of pulses on different outputs
 by adding more lines to the table. Note that OUTB which was high at the end
 of Phase2 of the first line remains high in Phase1 of the second line:</p>
-<p>(<a class="reference external" href="../build/seq_doc-2.py">Source code</a>, <a class="reference external" href="../build/seq_doc-2.png">png</a>, <a class="reference external" href="../build/seq_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/97b1f8a20ea910c1ca9d19097eea72b8/seq_doc-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/21ffc4a204a2fa021ce51f754ca8cbe6/seq_doc-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8cc9b974cabb1f42c4d8be5bc6f7bb81/seq_doc-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0d4af0b98db27c31193fb56b738f4fae/seq_doc-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-2.png" src="../_images/seq_doc-2.png" />
+<img alt="../_images/seq_doc-2.png" class="plot-directive" src="../_images/seq_doc-2.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -707,9 +708,9 @@ of Phase2 of the first line remains high in Phase1 of the second line:</p>
 </table>
 <p>And we can set repeats on the entire table too. Note that in the second line of
 this table we have suppressed phase1 by setting its time to 0:</p>
-<p>(<a class="reference external" href="../build/seq_doc-3.py">Source code</a>, <a class="reference external" href="../build/seq_doc-3.png">png</a>, <a class="reference external" href="../build/seq_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/29dae7acbc27b6a6e31977cffe0bbc17/seq_doc-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a1ec0701ccbe3bef2e3eb2ede0f392e6/seq_doc-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d30f18d951297591697a45c6646e4133/seq_doc-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d198e2f06ed88de84b77f0ed66faa8b7/seq_doc-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-3.png" src="../_images/seq_doc-3.png" />
+<img alt="../_images/seq_doc-3.png" class="plot-directive" src="../_images/seq_doc-3.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -800,9 +801,9 @@ this table we have suppressed phase1 by setting its time to 0:</p>
 </tbody>
 </table>
 <p>There are 6 outputs which allow for complex patterns to be generated:</p>
-<p>(<a class="reference external" href="../build/seq_doc-4.py">Source code</a>, <a class="reference external" href="../build/seq_doc-4.png">png</a>, <a class="reference external" href="../build/seq_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/f5af3fe2f77d8fe4b8e3e1a6b5d53e31/seq_doc-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9a94a4c01cea4bb5596a2f45c5c168ee/seq_doc-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/06d1ac753967e05c68fecdc124f8b92a/seq_doc-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f41c68fa6aa5e890be9dac669fbd6256/seq_doc-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-4.png" src="../_images/seq_doc-4.png" />
+<img alt="../_images/seq_doc-4.png" class="plot-directive" src="../_images/seq_doc-4.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -951,9 +952,9 @@ waited on before the phased times are started. The trigger condition is checked
 on each repeat of the line, but not checked during phase1 and phase2. You can
 see when the Block is waiting for a trigger signal as it will enter the
 WAIT_TRIGGER(2) state:</p>
-<p>(<a class="reference external" href="../build/seq_doc-5.py">Source code</a>, <a class="reference external" href="../build/seq_doc-5.png">png</a>, <a class="reference external" href="../build/seq_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/e45e96564ca9ca6171a0950a32080bfd/seq_doc-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/fb426a3778254f6e505c6fdb6e472d97/seq_doc-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/95e22222504c4aef295a58a342ebccae/seq_doc-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/56bd2a52697a2f7468531e9a416a3eb2/seq_doc-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-5.png" src="../_images/seq_doc-5.png" />
+<img alt="../_images/seq_doc-5.png" class="plot-directive" src="../_images/seq_doc-5.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1045,9 +1046,9 @@ WAIT_TRIGGER(2) state:</p>
 </table>
 <p>You can also use a position field as a trigger condition in the same way, this
 is useful to do a table based position compare:</p>
-<p>(<a class="reference external" href="../build/seq_doc-6.py">Source code</a>, <a class="reference external" href="../build/seq_doc-6.png">png</a>, <a class="reference external" href="../build/seq_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-6.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/46517f8fa6a8798f289f1c0d6023e254/seq_doc-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cc396ac308776473901006f11199b64c/seq_doc-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2306f06fb4ff11f12f65d77571f58ff0/seq_doc-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4a73b15be27d6991f969cf2764d40bff/seq_doc-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-6.png" src="../_images/seq_doc-6.png" />
+<img alt="../_images/seq_doc-6.png" class="plot-directive" src="../_images/seq_doc-6.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1161,9 +1162,9 @@ is useful to do a table based position compare:</p>
 <p>Each row of the table gives a time value for the phases. This value can be
 scaled with a block wide prescaler to allow a frame to be longer than
 2**32 * 8e-9 = about 34 seconds. For example:</p>
-<p>(<a class="reference external" href="../build/seq_doc-7.py">Source code</a>, <a class="reference external" href="../build/seq_doc-7.png">png</a>, <a class="reference external" href="../build/seq_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-7.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/78f39747839770ce3d8c55c8476662f5/seq_doc-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0a3607c90e9af409fcff933f27521d43/seq_doc-7.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/942b6025d07903c83f8105dc96dbf2e2/seq_doc-7.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a3a4854f625a8fac81a30429f4e9b3ff/seq_doc-7.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-7.png" src="../_images/seq_doc-7.png" />
+<img alt="../_images/seq_doc-7.png" class="plot-directive" src="../_images/seq_doc-7.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1240,9 +1241,9 @@ scaled with a block wide prescaler to allow a frame to be longer than
 <h2>Interrupting a sequence<a class="headerlink" href="#interrupting-a-sequence" title="Permalink to this heading"></a></h2>
 <p>Setting the repeats on a table row to 0 will cause it to iterate until
 interrupted by a falling ENABLE signal:</p>
-<p>(<a class="reference external" href="../build/seq_doc-8.py">Source code</a>, <a class="reference external" href="../build/seq_doc-8.png">png</a>, <a class="reference external" href="../build/seq_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-8.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/88447f86161102347293cf72b7665627/seq_doc-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/5add21ffdb23f37d8e443a3c65450667/seq_doc-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2bbcdf9688c287ad32fff4de9af61058/seq_doc-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f4a6060854e23350924de30b32872339/seq_doc-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-8.png" src="../_images/seq_doc-8.png" />
+<img alt="../_images/seq_doc-8.png" class="plot-directive" src="../_images/seq_doc-8.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1316,9 +1317,9 @@ interrupted by a falling ENABLE signal:</p>
 </table>
 <p>In a similar way, REPEATS=0 on a table will cause the whole table to be
 iterated until interrupted by a falling ENABLE signal:</p>
-<p>(<a class="reference external" href="../build/seq_doc-9.py">Source code</a>, <a class="reference external" href="../build/seq_doc-9.png">png</a>, <a class="reference external" href="../build/seq_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-9.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/7e70ad5ef283481456802406cf77a58b/seq_doc-9.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/5890d2929eafe1c511f70ae43a0ac425/seq_doc-9.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/b37640080aa75eadece955e226579be3/seq_doc-9.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a5821786be8cdc401fe9336f48fd34d4/seq_doc-9.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-9.png" src="../_images/seq_doc-9.png" />
+<img alt="../_images/seq_doc-9.png" class="plot-directive" src="../_images/seq_doc-9.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1409,9 +1410,9 @@ iterated until interrupted by a falling ENABLE signal:</p>
 </tbody>
 </table>
 <p>And a rising edge of the ENABLE will re-run the same table from the start:</p>
-<p>(<a class="reference external" href="../build/seq_doc-10.py">Source code</a>, <a class="reference external" href="../build/seq_doc-10.png">png</a>, <a class="reference external" href="../build/seq_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-10.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/9e021565436f851f6b1288817d1f7251/seq_doc-10.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cd12060dd9e828bae120f053d232a20c/seq_doc-10.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/dcb30f302c71e0a4ae835169341aa46a/seq_doc-10.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/da45fcd5678b2d41be0fc74a805af377/seq_doc-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-10.png" src="../_images/seq_doc-10.png" />
+<img alt="../_images/seq_doc-10.png" class="plot-directive" src="../_images/seq_doc-10.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1488,9 +1489,9 @@ iterated until interrupted by a falling ENABLE signal:</p>
 <h2>Table rewriting<a class="headerlink" href="#table-rewriting" title="Permalink to this heading"></a></h2>
 <p>If a table is written while enabled, the outputs and table state are reset and
 operation begins again from the first repeat of the first line of the table:</p>
-<p>(<a class="reference external" href="../build/seq_doc-11.py">Source code</a>, <a class="reference external" href="../build/seq_doc-11.png">png</a>, <a class="reference external" href="../build/seq_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-11.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/a716e4465f9979dbf57d34d66c99ef30/seq_doc-11.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/632c96774e2df332b99953eb82b40590/seq_doc-11.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2fb74af9791b3e8650ed84f59a71d5d1/seq_doc-11.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/799aa1fe95e78f7d61b09b8cf12e0243/seq_doc-11.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-111.png" src="../_images/seq_doc-111.png" />
+<img alt="../_images/seq_doc-111.png" class="plot-directive" src="../_images/seq_doc-111.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -1641,9 +1642,9 @@ The user is responsible to push a table that gives enough time to be able to
 push the next table before the last line is reached.
 The last table will not contain the last zeroed entry and will be the only table
 that will be repeated according to the REPEATS register.</p>
-<p>(<a class="reference external" href="../build/seq_doc-12.py">Source code</a>, <a class="reference external" href="../build/seq_doc-12.png">png</a>, <a class="reference external" href="../build/seq_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-12.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/6b790feddc097ad9ed277eee4adfc1e3/seq_doc-12.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9b28176693a2350452ff490f03953c89/seq_doc-12.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/5dcbc513de428fb7e50819e2074329dd/seq_doc-12.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8db754ef97fce8608230699149472dc4/seq_doc-12.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/seq_doc-12.png" src="../_images/seq_doc-12.png" />
+<img alt="../_images/seq_doc-12.png" class="plot-directive" src="../_images/seq_doc-12.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>

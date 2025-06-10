@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FILTER - Filter &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>FILTER - Filter &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -307,21 +308,21 @@ comparing to the current value.</p>
 <p>The difference operation works by latching the value on the input on the rising
 edge of the Enable signal. On a rising edge of the trigger signal the output is
 given as the the current input value minus the latched value.</p>
-<p>(<a class="reference external" href="../build/filter_doc-1.py">Source code</a>, <a class="reference external" href="../build/filter_doc-1.png">png</a>, <a class="reference external" href="../build/filter_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/453587a78b5b413d1b6f10bef50a8927/filter_doc-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/283e947ac8ca97f301a1d1ab8bdf8b3e/filter_doc-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8cb2bafd41c6fe6ee6005102bf34f95b/filter_doc-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a3143770b4714d522940d79fa4ef463f/filter_doc-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-1.png" src="../_images/filter_doc-1.png" />
+<img alt="../_images/filter_doc-1.png" class="plot-directive" src="../_images/filter_doc-1.png" />
 </div>
 <p>After the operation, the latched value is updated to be the current value on
 the input.</p>
-<p>(<a class="reference external" href="../build/filter_doc-2.py">Source code</a>, <a class="reference external" href="../build/filter_doc-2.png">png</a>, <a class="reference external" href="../build/filter_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/629f641288b46ff447b2e132fe9d4b0e/filter_doc-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d72d0a85d55cf82a91f9358635af0aed/filter_doc-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/771762ea85f43fab9d3fbda528efd3ce/filter_doc-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/bc9979a6723903a3499bb0acdcd40b1d/filter_doc-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-2.png" src="../_images/filter_doc-2.png" />
+<img alt="../_images/filter_doc-2.png" class="plot-directive" src="../_images/filter_doc-2.png" />
 </div>
 <p>The operation continues to work if the current value is less than the latched
 value: a negative result is outputted</p>
-<p>(<a class="reference external" href="../build/filter_doc-3.py">Source code</a>, <a class="reference external" href="../build/filter_doc-3.png">png</a>, <a class="reference external" href="../build/filter_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/ad5513d3ad129f4f3bf8651e42ea191a/filter_doc-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a305d3e9525eb42ed8fabe9c81910481/filter_doc-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8e0c7f26a6d30c1628acd58e1539f12a/filter_doc-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/63c2c8287d8d69cf7b3dfd8c592e026a/filter_doc-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-3.png" src="../_images/filter_doc-3.png" />
+<img alt="../_images/filter_doc-3.png" class="plot-directive" src="../_images/filter_doc-3.png" />
 </div>
 </div>
 <div class="section" id="average">
@@ -329,28 +330,28 @@ value: a negative result is outputted</p>
 <p>The average function appends a sum value on each clock pulse. When a trigger
 signal is received it divides the summed value by the number of clock pulses
 that have passed.</p>
-<p>(<a class="reference external" href="../build/filter_doc-4.py">Source code</a>, <a class="reference external" href="../build/filter_doc-4.png">png</a>, <a class="reference external" href="../build/filter_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/70078a783ed7f0756290c34d32d5043d/filter_doc-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/baed96864bd99dc11f4f150f1959ec3c/filter_doc-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f580e307734af92f18463ccaa4ab5690/filter_doc-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/b0967ad9850b2c7de0f12b4f737fd097/filter_doc-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-4.png" src="../_images/filter_doc-4.png" />
+<img alt="../_images/filter_doc-4.png" class="plot-directive" src="../_images/filter_doc-4.png" />
 </div>
-<p>(<a class="reference external" href="../build/filter_doc-5.py">Source code</a>, <a class="reference external" href="../build/filter_doc-5.png">png</a>, <a class="reference external" href="../build/filter_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/e8b96374d5ae6b717587acddba555855/filter_doc-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/b4fb505bb5d7da0fb65b668657b5e372/filter_doc-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ae2920f7419d93e1c62a951b104d962d/filter_doc-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/7a26f0f2b45c44d58b6057955c1a522c/filter_doc-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-5.png" src="../_images/filter_doc-5.png" />
+<img alt="../_images/filter_doc-5.png" class="plot-directive" src="../_images/filter_doc-5.png" />
 </div>
-<p>(<a class="reference external" href="../build/filter_doc-6.py">Source code</a>, <a class="reference external" href="../build/filter_doc-6.png">png</a>, <a class="reference external" href="../build/filter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-6.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/4834b7588e9e4448d7775f8092591618/filter_doc-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/672a1bbc8f12674e0fe57c78faec0dd1/filter_doc-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f33677351737dd27da04bf1128af2cfd/filter_doc-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1eea1bb213a9cec86f1acde42533723b/filter_doc-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-6.png" src="../_images/filter_doc-6.png" />
+<img alt="../_images/filter_doc-6.png" class="plot-directive" src="../_images/filter_doc-6.png" />
 </div>
 <p>If a calculation is triggered before the calculation is ready, the system will
 show an error on the HEALTH output and will then need to be re-enabled before
 another calculation can be sent.</p>
-<p>(<a class="reference external" href="../build/filter_doc-7.py">Source code</a>, <a class="reference external" href="../build/filter_doc-7.png">png</a>, <a class="reference external" href="../build/filter_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-7.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/47cfc435992033f2759e6c9da98ad164/filter_doc-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ddb414b28c5aa1ed6b239965cd41637a/filter_doc-7.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/41aab64061d1aa76460abf90db525185/filter_doc-7.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6ff3f5dbb7bfe8e5508495c167a88a69/filter_doc-7.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-7.png" src="../_images/filter_doc-7.png" />
+<img alt="../_images/filter_doc-7.png" class="plot-directive" src="../_images/filter_doc-7.png" />
 </div>
-<p>(<a class="reference external" href="../build/filter_doc-8.py">Source code</a>, <a class="reference external" href="../build/filter_doc-8.png">png</a>, <a class="reference external" href="../build/filter_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-8.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/708f34faa4da43e1bc5fbe40381db407/filter_doc-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d43542de961a44408fab037512909adf/filter_doc-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c29fc544a55fb922f20a2950a4223ba7/filter_doc-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/3682b454e9eb57290aca9a993e26fb07/filter_doc-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/filter_doc-8.png" src="../_images/filter_doc-8.png" />
+<img alt="../_images/filter_doc-8.png" class="plot-directive" src="../_images/filter_doc-8.png" />
 </div>
 </div>
 </div>

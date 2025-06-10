@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -353,14 +354,14 @@ can capture the value at capture, sum, sum of squared values, min and max.</p>
 <p>To start off the block an arm signal is required with a write to <code class="docutils literal notranslate"><span class="pre">*PCAP.ARM=</span></code>.
 The active signal is raised immediately on ARM, and dropped either on
 <code class="docutils literal notranslate"><span class="pre">*PCAP.DISARM</span></code>:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-1.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-1.png">png</a>, <a class="reference external" href="../build/pcap_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/02a2d89407759617506e68274aa20382/pcap_doc-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/36b1f23b5aa288fbace87ea91744d9e1/pcap_doc-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e505abf2c52f27c0092ae4916ac4a895/pcap_doc-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d8f96a21a7eae7190e7484fb41d5e13b/pcap_doc-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-1.png" src="../_images/pcap_doc-1.png" />
+<img alt="../_images/pcap_doc-1.png" class="plot-directive" src="../_images/pcap_doc-1.png" />
 </div>
 <p>Or on the falling edge of ENABLE:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-2.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-2.png">png</a>, <a class="reference external" href="../build/pcap_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/20ac5d0556047240a1e454bb3e84a4ec/pcap_doc-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/eea0df29e148b09c9180b06bdf8c8f54/pcap_doc-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/841131adb05ce673fdcda3dfac42f76f/pcap_doc-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ea798ff35c74cacf1a71033367907eae/pcap_doc-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-2.png" src="../_images/pcap_doc-2.png" />
+<img alt="../_images/pcap_doc-2.png" class="plot-directive" src="../_images/pcap_doc-2.png" />
 </div>
 </div>
 <div class="section" id="capturing-fields">
@@ -376,9 +377,9 @@ server over DMA, before being sent to the user. It is reconstructed into a
 table in each of the examples below for ease of reading.</p>
 <p>The following example shows PCAP being configured to capture the timestamp
 when CAPTURE goes high (0x24 is the bottom 32-bits of TS_CAPTURE).</p>
-<p>(<a class="reference external" href="../build/pcap_doc-3.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-3.png">png</a>, <a class="reference external" href="../build/pcap_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/4e6c5fb9f37a9a8a7dd13066680b7c36/pcap_doc-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/00de385cb15079a10088efc2a302bb6b/pcap_doc-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1d0c2f548097668070749152b34b5147/pcap_doc-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/733f244568d134b8b122e5329b3a9480/pcap_doc-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-3.png" src="../_images/pcap_doc-3.png" />
+<img alt="../_images/pcap_doc-3.png" class="plot-directive" src="../_images/pcap_doc-3.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -407,9 +408,9 @@ Pos bus fields have multiple modes that they can capture in.</p>
 <div class="section" id="mode-0-value">
 <h3>Mode 0 - Value<a class="headerlink" href="#mode-0-value" title="Permalink to this heading"></a></h3>
 <p>This gives an instantaneous capture of value no matter what the state of GATE:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-4.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-4.png">png</a>, <a class="reference external" href="../build/pcap_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/40d1c30ec91a38b50c1c4a971aa22be9/pcap_doc-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4ea7c227099a3347a0366a05f1018363/pcap_doc-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8fd6a0bf89d7d8c4cf3bf63730550c23/pcap_doc-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/73ef3071cbb6f8ae0ebddfca5a8f56ef/pcap_doc-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-4.png" src="../_images/pcap_doc-4.png" />
+<img alt="../_images/pcap_doc-4.png" class="plot-directive" src="../_images/pcap_doc-4.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -438,9 +439,9 @@ Pos bus fields have multiple modes that they can capture in.</p>
 <h3>Mode 1 - Difference<a class="headerlink" href="#mode-1-difference" title="Permalink to this heading"></a></h3>
 <p>This is mainly used for something like an incrementing counter value.
 It will only count the differences while GATE was high:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-5.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-5.png">png</a>, <a class="reference external" href="../build/pcap_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/8e11b700e88a127db057c230d22ca654/pcap_doc-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6ddbf4c79933e7c91db607fdee399cc4/pcap_doc-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/64a23715873d28d1e4b0ab7d5dcbde22/pcap_doc-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/ba40e4f4b7f31c1c86cc7392fd7a9616/pcap_doc-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-5.png" src="../_images/pcap_doc-5.png" />
+<img alt="../_images/pcap_doc-5.png" class="plot-directive" src="../_images/pcap_doc-5.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -465,9 +466,9 @@ It will only count the differences while GATE was high:</p>
 <div class="section" id="mode-2-3-sum-lo-hi">
 <h3>Mode 2/3 - Sum Lo/Hi<a class="headerlink" href="#mode-2-3-sum-lo-hi" title="Permalink to this heading"></a></h3>
 <p>Mode 2 is the lower 32-bits of the sum of all samples while GATE was high:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-6.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-6.png">png</a>, <a class="reference external" href="../build/pcap_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-6.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/bc241083da075aaa5361df76cf7175ca/pcap_doc-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/55339fc5b2be2227390ae06cdbcf19e3/pcap_doc-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1aef458085efc44b22c5a163738897e4/pcap_doc-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/fcef6063ec82b6f28e9457a59e7b79dc/pcap_doc-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-6.png" src="../_images/pcap_doc-6.png" />
+<img alt="../_images/pcap_doc-6.png" class="plot-directive" src="../_images/pcap_doc-6.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -493,9 +494,9 @@ It will only count the differences while GATE was high:</p>
 </table>
 <p>Mode 2 and 3 together gives the full 64-bits of sum, needed for any sizeable
 values on the pos_bus:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-7.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-7.png">png</a>, <a class="reference external" href="../build/pcap_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-7.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/367d76e340151c814914ab8b90bf1523/pcap_doc-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4a8fa5b8d0276889af117841e61444c5/pcap_doc-7.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d6e9f856699c9216529153e5765afce9/pcap_doc-7.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e216d597c53b93748c7efe8faf039c17/pcap_doc-7.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-7.png" src="../_images/pcap_doc-7.png" />
+<img alt="../_images/pcap_doc-7.png" class="plot-directive" src="../_images/pcap_doc-7.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -536,9 +537,9 @@ values on the pos_bus:</p>
 can be used to shift both the sum and SAMPLES field by up to 8-bits to
 accomodate up to 125 hour frames. This example demonstrates the effect with
 smaller numbers:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-8.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-8.png">png</a>, <a class="reference external" href="../build/pcap_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-8.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/19c2f7bff72c89856652f5a586905504/pcap_doc-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/02425b9c8418b40e06727babdb902f3f/pcap_doc-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d060ff19b5f11a08ab95632c46249052/pcap_doc-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9706beda40ebc401656dafd13c8c1169/pcap_doc-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-8.png" src="../_images/pcap_doc-8.png" />
+<img alt="../_images/pcap_doc-8.png" class="plot-directive" src="../_images/pcap_doc-8.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -577,9 +578,9 @@ smaller numbers:</p>
 <p>Both of these modes calculate statistics on the value while GATE is high.</p>
 <p>Mode 4 produces the min of all values or zero if the gate was low for all of the
 current capture:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-9.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-9.png">png</a>, <a class="reference external" href="../build/pcap_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-9.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/e666192ea72b18bbdc15ef12fe56c05b/pcap_doc-9.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/317e03d006861cbface2514e5eb38505/pcap_doc-9.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cbabe879c548f0f116e325c0373c3b10/pcap_doc-9.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cf43ed7d63c83473a95d3b1fd7656eb3/pcap_doc-9.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-9.png" src="../_images/pcap_doc-9.png" />
+<img alt="../_images/pcap_doc-9.png" class="plot-directive" src="../_images/pcap_doc-9.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -607,9 +608,9 @@ current capture:</p>
 </tbody>
 </table>
 <p>Mode 5 produces the max of all values in a similar way:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-10.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-10.png">png</a>, <a class="reference external" href="../build/pcap_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-10.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/95c99844a6b899de1adb2a7ad548e152/pcap_doc-10.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1737569a62f63af849479d5dd35a4b35/pcap_doc-10.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d751ec5c969c3c6901b8ff74350b6d02/pcap_doc-10.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e20adb8e9d8990cef101ba7f91f7330e/pcap_doc-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-10.png" src="../_images/pcap_doc-10.png" />
+<img alt="../_images/pcap_doc-10.png" class="plot-directive" src="../_images/pcap_doc-10.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -644,9 +645,9 @@ current capture:</p>
 needed for any sizeable values on the pos_bus.</p>
 <p>Mode 6 is the lower 32-bits while GATE was high, Mode 7 is the middle 32-bits,
 and Mode 8 is the higher 32-bits:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-11.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-11.png">png</a>, <a class="reference external" href="../build/pcap_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-11.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/7d06afaf70278ec66fd69997b78bbf01/pcap_doc-11.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2342fca084930c3bd9fe3cfc3b5f53bd/pcap_doc-11.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/4d7f86a3b7930419e0e599015a3f5afe/pcap_doc-11.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/b24b567e5cae706417fe78fb9fe23471/pcap_doc-11.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-111.png" src="../_images/pcap_doc-111.png" />
+<img alt="../_images/pcap_doc-111.png" class="plot-directive" src="../_images/pcap_doc-111.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -683,9 +684,9 @@ and Mode 8 is the higher 32-bits:</p>
 <p>If long frame times (&gt; 2**32 SAMPLES, &gt; 30s), are to be used, then SHIFT_SUM
 can be used to shift both the sum of squared values and SAMPLES field
 by up to 8-bits to accomodate up to 125 hour frames:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-12.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-12.png">png</a>, <a class="reference external" href="../build/pcap_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-12.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/d524ea4774fba7c26cd20fb1a9b18ed4/pcap_doc-12.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9c128287f477a9fb375810ea690d0870/pcap_doc-12.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/14cfca4d245f0bf2a97f175544b0bace/pcap_doc-12.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cadf37d27439470ccdaad30ad1b8747f/pcap_doc-12.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-12.png" src="../_images/pcap_doc-12.png" />
+<img alt="../_images/pcap_doc-12.png" class="plot-directive" src="../_images/pcap_doc-12.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -733,9 +734,9 @@ ticks that GATE was high during a single CAPTURE. This field allows the TCP
 server to offer “Mean” as a capture option, dividing “Sum” by SAMPLES to get
 the mean value of the field during the capture period. It can also be captured
 separately to give the gate length:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-13.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-13.png">png</a>, <a class="reference external" href="../build/pcap_doc-13.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-13.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/07cc0babf29be77900b097e8ebea56d2/pcap_doc-13.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e34f4de2fb7d0abc6cc70c4111347ee3/pcap_doc-13.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2bf1b3460012989e2203bd6b8321663d/pcap_doc-13.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d8bb352ece0ba8ea4f05c06a9359b13e/pcap_doc-13.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-13.png" src="../_images/pcap_doc-13.png" />
+<img alt="../_images/pcap_doc-13.png" class="plot-directive" src="../_images/pcap_doc-13.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -771,9 +772,9 @@ after the last gate high). These are again split into two 32-bit segments so
 only the lower bits need to be captured for short captures. In the following
 example we capture TS_START (0x20), TS_END (0x22) and TS_CAPTURE (0x24) lower
 bits:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-14.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-14.png">png</a>, <a class="reference external" href="../build/pcap_doc-14.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-14.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/2dbb3161e7386320c6c90eb62d44ff2a/pcap_doc-14.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c81e027c3c4474b576927ea0bf4de8b0/pcap_doc-14.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/31cbd8614b3a7d79c575eb24548b61e3/pcap_doc-14.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c0dccdf2baf867a6b9b16746b524fdec/pcap_doc-14.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-14.png" src="../_images/pcap_doc-14.png" />
+<img alt="../_images/pcap_doc-14.png" class="plot-directive" src="../_images/pcap_doc-14.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -818,9 +819,9 @@ bits:</p>
 <p>The state of the bit bus at capture can also be captured. It is split into 4
 quadrants of 32-bits each. For example, to capture signals 0..31 on the bit bus
 we would use BITS0 (0x27):</p>
-<p>(<a class="reference external" href="../build/pcap_doc-15.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-15.png">png</a>, <a class="reference external" href="../build/pcap_doc-15.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-15.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/31245d9ec12304ed0b02e0b6986216ba/pcap_doc-15.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/98b9ad0241631edca72e06e34f8170cc/pcap_doc-15.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/898429742949c100c22ac5ae854ded6d/pcap_doc-15.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6ba26834799497ec9da6765f26eb2892/pcap_doc-15.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-15.png" src="../_images/pcap_doc-15.png" />
+<img alt="../_images/pcap_doc-15.png" class="plot-directive" src="../_images/pcap_doc-15.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -848,9 +849,9 @@ we would use BITS0 (0x27):</p>
 </tbody>
 </table>
 <p>By capturing all 4 quadrants (0x27..0x2A) we get the whole bit bus:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-16.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-16.png">png</a>, <a class="reference external" href="../build/pcap_doc-16.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-16.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/7f183b0ef4fb1831052d6ed0079acb90/pcap_doc-16.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/11ae9c7a628ef766cea228f7bf279d82/pcap_doc-16.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/13a7cec33fc68f82ba235b0e9a14ca23/pcap_doc-16.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/51b1f8b6c4a2bf5900fbaa72e200b07b/pcap_doc-16.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-16.png" src="../_images/pcap_doc-16.png" />
+<img alt="../_images/pcap_doc-16.png" class="plot-directive" src="../_images/pcap_doc-16.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -907,9 +908,9 @@ Triggering on falling edge would be used if you have a gate signal that
 marks the capture boundaries and want sum or difference data within. For
 example, to capture the amount POS[1] changes in each capture gate we could
 connect GATE and CAPTURE to the same signal:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-17.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-17.png">png</a>, <a class="reference external" href="../build/pcap_doc-17.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-17.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/ac0d10e755367ce03da09d3737494f31/pcap_doc-17.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/1314f1985df0c61af2fe385d25ceb7a1/pcap_doc-17.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6b567e7e7e6afa344e58db4c96ee3698/pcap_doc-17.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e5e339310a871abc762332e42ce29877/pcap_doc-17.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-17.png" src="../_images/pcap_doc-17.png" />
+<img alt="../_images/pcap_doc-17.png" class="plot-directive" src="../_images/pcap_doc-17.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -932,9 +933,9 @@ connect GATE and CAPTURE to the same signal:</p>
 </table>
 <p>Another option would be a gap-less acquisition of sum while gate is high
 with capture boundaries marked with a toggle of CAPTURE:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-18.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-18.png">png</a>, <a class="reference external" href="../build/pcap_doc-18.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-18.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/86cd33ddd3e58cbaebe963379d2dd2c6/pcap_doc-18.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d0cfed76baf0f882ed42a90edc63b087/pcap_doc-18.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/73d94f2152954bfd904dd766f63399e8/pcap_doc-18.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/83c80de467767ecb5935be8d7da9b8a8/pcap_doc-18.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-18.png" src="../_images/pcap_doc-18.png" />
+<img alt="../_images/pcap_doc-18.png" class="plot-directive" src="../_images/pcap_doc-18.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -969,9 +970,9 @@ capture fields. If 2 capture signals are too close together HEALTH will be
 set to 1 (Capture events too close together).</p>
 <p>In this example there are 3 fields captured (TS_CAPTURE_L, TS_CAPTURE_H,
 SAMPLES), but only 2 clock ticks between the 2nd and 3rd capture signals:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-19.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-19.png">png</a>, <a class="reference external" href="../build/pcap_doc-19.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-19.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/a77726613a9718807c3ef15184f0aa9b/pcap_doc-19.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0d09974d3d854914b81584673cb26a4e/pcap_doc-19.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/dd2b8f862e0c3910e6339cf9404c5ad8/pcap_doc-19.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2878504bc2fb795bf8aafc0a92a4faa3/pcap_doc-19.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/pcap_doc-19.png" src="../_images/pcap_doc-19.png" />
+<img alt="../_images/pcap_doc-19.png" class="plot-directive" src="../_images/pcap_doc-19.png" />
 </div>
 <table class="docutils align-default">
 <colgroup>

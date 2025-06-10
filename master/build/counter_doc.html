@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -327,33 +328,33 @@ user-defined START value.</p>
 <h2>Counting pulses<a class="headerlink" href="#counting-pulses" title="Permalink to this heading"></a></h2>
 <p>The most common use of a counter block is when you would like to track the
 number of trigger edges received while enabled:</p>
-<p>(<a class="reference external" href="../build/counter_doc-1.py">Source code</a>, <a class="reference external" href="../build/counter_doc-1.png">png</a>, <a class="reference external" href="../build/counter_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/97c1a231382cf3fd0563d7c08c1c0788/counter_doc-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/fc09a4989e3a79e96bc6204f7e5cb10a/counter_doc-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0865a6e19f62f4875b45e7a7ebd2f029/counter_doc-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e9d894a69ba0966f68b392db91c89470/counter_doc-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-1.png" src="../_images/counter_doc-1.png" />
+<img alt="../_images/counter_doc-1.png" class="plot-directive" src="../_images/counter_doc-1.png" />
 </div>
 <p>The TRIG_EDGE field can be used to select the track on rising, falling, or both edges:</p>
-<p>(<a class="reference external" href="../build/counter_doc-2.py">Source code</a>, <a class="reference external" href="../build/counter_doc-2.png">png</a>, <a class="reference external" href="../build/counter_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/ec442357c5ed7b49796b8f46b841adbf/counter_doc-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/59510f29c8364216c5bc9cc20a44b9d5/counter_doc-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6f5c673e951d9cb0cc36381e9cba91c7/counter_doc-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/40a01810dfb5ffdd9e36655b67497953/counter_doc-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-2.png" src="../_images/counter_doc-2.png" />
+<img alt="../_images/counter_doc-2.png" class="plot-directive" src="../_images/counter_doc-2.png" />
 </div>
 <p>You can also set the start value to be loaded on enable, and step up by a
 number other than one:</p>
-<p>(<a class="reference external" href="../build/counter_doc-3.py">Source code</a>, <a class="reference external" href="../build/counter_doc-3.png">png</a>, <a class="reference external" href="../build/counter_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/f8f545ba820430a4859c29e0842190e1/counter_doc-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/fe8f9dcf82baa9afccc09c701ca8a360/counter_doc-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/726a365e5ec1fedf7f788790634dc807/counter_doc-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0cf594dd64a09738dba374583065a6b6/counter_doc-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-3.png" src="../_images/counter_doc-3.png" />
+<img alt="../_images/counter_doc-3.png" class="plot-directive" src="../_images/counter_doc-3.png" />
 </div>
 <p>You can also set the direction that a pulse should apply step, so it becomes
 an up/down counter. The direction is sampled on the same clock tick as the
 pulse edge:</p>
-<p>(<a class="reference external" href="../build/counter_doc-4.py">Source code</a>, <a class="reference external" href="../build/counter_doc-4.png">png</a>, <a class="reference external" href="../build/counter_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/c7791136119c6195ff3bd0270bc84958/counter_doc-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/cd28191980a0e2a70d69c8e5ce63eb20/counter_doc-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/614c3514cf3a987556eeedf8c0a90aa7/counter_doc-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d23d38bca9f2e69983e36b9b5367e702/counter_doc-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-4.png" src="../_images/counter_doc-4.png" />
+<img alt="../_images/counter_doc-4.png" class="plot-directive" src="../_images/counter_doc-4.png" />
 </div>
 <p>When the OUT_MODE is set to On-Disable, the OUT output will only be changed to
 the internal counter value on ENABLE’s falling edge:</p>
-<p>(<a class="reference external" href="../build/counter_doc-5.py">Source code</a>, <a class="reference external" href="../build/counter_doc-5.png">png</a>, <a class="reference external" href="../build/counter_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/d5e08b16a9c1e97c05fcad37d74f771b/counter_doc-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9085209dba8a5624d9e7144ccf36e67a/counter_doc-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/769628493cecbe929e417a558216f981/counter_doc-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/c94f24a2ec01b19fca951fc15963c3a6/counter_doc-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-5.png" src="../_images/counter_doc-5.png" />
+<img alt="../_images/counter_doc-5.png" class="plot-directive" src="../_images/counter_doc-5.png" />
 </div>
 </div>
 <div class="section" id="rollover">
@@ -361,35 +362,35 @@ the internal counter value on ENABLE’s falling edge:</p>
 <p>If the count goes higher than the max value for an int32 (2147483647) the CARRY
 output gets set high and the counter rolls. The CARRY output stays high for as
 long as the trigger input stays high.</p>
-<p>(<a class="reference external" href="../build/counter_doc-6.py">Source code</a>, <a class="reference external" href="../build/counter_doc-6.png">png</a>, <a class="reference external" href="../build/counter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-6.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/b21fde739ca42a1abb75e786d0c63ac1/counter_doc-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/717f1b07c6890f5c3f19a91467691cb5/counter_doc-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/5dfed81ea108a2b24eca77fbe1614dac/counter_doc-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/f0d56734dcc414e76bf8c31cbb95c2ea/counter_doc-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-6.png" src="../_images/counter_doc-6.png" />
+<img alt="../_images/counter_doc-6.png" class="plot-directive" src="../_images/counter_doc-6.png" />
 </div>
 <p>A similar thing happens for a negative overflow:</p>
-<p>(<a class="reference external" href="../build/counter_doc-7.py">Source code</a>, <a class="reference external" href="../build/counter_doc-7.png">png</a>, <a class="reference external" href="../build/counter_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-7.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/c3795a8385daad2c35bc11805e68449c/counter_doc-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/48f56711f029e1808d3e7befbb50b5ad/counter_doc-7.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0fc36e1a582b245c06a96c07147d7101/counter_doc-7.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/9abc19b9d6034a387a45dca649e9132c/counter_doc-7.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-7.png" src="../_images/counter_doc-7.png" />
+<img alt="../_images/counter_doc-7.png" class="plot-directive" src="../_images/counter_doc-7.png" />
 </div>
 <p>When the OUT_MODE is set to On-Disable, the CARRY output will get set to high
 on ENABLE’s falling edge if any overflow produced while the counter was enabled:</p>
-<p>(<a class="reference external" href="../build/counter_doc-8.py">Source code</a>, <a class="reference external" href="../build/counter_doc-8.png">png</a>, <a class="reference external" href="../build/counter_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-8.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/9ec476eeac6a8c1c8cf229058952fd62/counter_doc-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/43257994c87cbd92dd6e7140fbdc6866/counter_doc-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/2cb5568440c82b2c5b13a7a902a5034c/counter_doc-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/fe08cc620e3810e0880df5cb9a3d52d3/counter_doc-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-8.png" src="../_images/counter_doc-8.png" />
+<img alt="../_images/counter_doc-8.png" class="plot-directive" src="../_images/counter_doc-8.png" />
 </div>
 </div>
 <div class="section" id="edge-cases">
 <h2>Edge cases<a class="headerlink" href="#edge-cases" title="Permalink to this heading"></a></h2>
 <p>If the Enable input goes low at the same time as a trigger, there will be no
 output value on the next clock tick.</p>
-<p>(<a class="reference external" href="../build/counter_doc-9.py">Source code</a>, <a class="reference external" href="../build/counter_doc-9.png">png</a>, <a class="reference external" href="../build/counter_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-9.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/b1c7c8c42d8a770cbaba719e1ca74762/counter_doc-9.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/daac79ebf2c98e4be9a08ebf07cf7c46/counter_doc-9.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/0dba8cff713fe97dcf401393ef4f2fbe/counter_doc-9.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/743f3a449543364ed885b272561fdd3a/counter_doc-9.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-9.png" src="../_images/counter_doc-9.png" />
+<img alt="../_images/counter_doc-9.png" class="plot-directive" src="../_images/counter_doc-9.png" />
 </div>
 <p>If the step size is changed at the same time as a trigger input edge,
 the output value for that trigger will be the new step size.</p>
-<p>(<a class="reference external" href="../build/counter_doc-10.py">Source code</a>, <a class="reference external" href="../build/counter_doc-10.png">png</a>, <a class="reference external" href="../build/counter_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-10.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="../_downloads/a5ed26ce8593cada185818e4ae2320d1/counter_doc-10.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/d9e3b9405e33f7bd96061823f8196951/counter_doc-10.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/523611bfe9f4a48280ce7e90faf5e241/counter_doc-10.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/453500d1f5a2b41b904763ff1bc0f6bd/counter_doc-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <div class="figure align-default">
-<img alt="../_images/counter_doc-10.png" src="../_images/counter_doc-10.png" />
+<img alt="../_images/counter_doc-10.png" class="plot-directive" src="../_images/counter_doc-10.png" />
 </div>
 </div>
 </div>

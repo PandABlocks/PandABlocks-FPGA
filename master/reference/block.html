@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing a Block &mdash; PandABlocks-FPGA 4.0-2-g61de7b0
+  <title>Writing a Block &mdash; PandABlocks-FPGA 4.0-5-gcfc8dc3
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
 
   
@@ -42,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-2-g61de7b0
+                4.0-5-gcfc8dc3
 
               </div>
 <div role="search">
@@ -326,11 +327,11 @@ documented while the logic is relatively easy to change. It also gives an
 accurate simulation of the Block that can be used to simulate an entire
 <a class="reference internal" href="glossary.html#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a>.</p>
 <p>The first step in making a Block Simulation is to define the imports:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">common.python.simulations</span> <span class="kn">import</span> <span class="n">BlockSimulation</span><span class="p">,</span> <span class="n">properties_from_ini</span><span class="p">,</span> \
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">common.python.simulations</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockSimulation</span><span class="p">,</span> <span class="n">properties_from_ini</span><span class="p">,</span> \
     <span class="n">TYPE_CHECKING</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">typing</span></code> imports allow IDEs like PyCharm to infer the types of the
@@ -385,10 +386,10 @@ for comparing field names with.</p></li>
 to the <a class="reference internal" href="#common.python.simulations.BlockSimulation" title="common.python.simulations.BlockSimulation"><code class="xref any py py-class docutils literal notranslate"><span class="pre">BlockSimulation</span></code></a> class</p></li>
 </ul>
 <p>Now we are ready to create our simulation class:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyBlockSimulation</span><span class="p">(</span><span class="n">BlockSimulation</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyBlockSimulation</span><span class="p">(</span><span class="n">BlockSimulation</span><span class="p">):</span>
     <span class="n">INP</span><span class="p">,</span> <span class="n">ANOTHER_FIELD</span><span class="p">,</span> <span class="n">OUT</span> <span class="o">=</span> <span class="n">PROPERTIES</span>
 
-    <span class="k">def</span> <span class="nf">on_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">changes</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">changes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle field changes at a particular timestamp</span>
 
 <span class="sd">        Args:</span>
