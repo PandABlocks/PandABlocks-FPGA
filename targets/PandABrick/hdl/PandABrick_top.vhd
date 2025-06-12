@@ -473,6 +473,8 @@ signal pcap_act_reg         : std_logic;
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
+signal equ_val              : std_logic_vector(7 downto 0);
+
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
 signal rdma_done            : std_logic;
@@ -672,6 +674,15 @@ port map (
     pad_o               => AUX_IO_TTL_OUT
 );
 
+---------------------------------------------------------------------------
+-- EQU
+---------------------------------------------------------------------------
+equ_inst : entity work.equ_top
+port map (
+    clk_i               => FCLK_CLK0,
+    equ_i               => EQU_IN,
+    val_o               => equ_val
+);
 ---------------------------------------------------------------------------
 -- POSITION CAPTURE
 ---------------------------------------------------------------------------
@@ -1301,7 +1312,7 @@ port map (
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & pmacenc_clk & incenc_conn &
-                                     absenc_conn & absenc_data & ttlin_val;
+                                     absenc_conn & absenc_data & equ_val & ttlin_val;
 
 pos_bus(POS_BUS_SIZE-1 downto 0) <= incenc_val & absenc_val;
 
