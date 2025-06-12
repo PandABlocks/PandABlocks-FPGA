@@ -33,12 +33,12 @@ port (
 end;
 
 architecture rtl of sequencer_ring_table is
-
+attribute ram_style : string;
 constant AW_MASK : std_logic_vector(AW-1 downto 0) := (others => '1');
-type mem_t is array(0 to SEQ_LEN-1) of std_logic_vector(127 downto 0);
+type mem_t is array(0 to SEQ_LEN-1) of std_logic_vector(128 downto 0);
 signal mem : mem_t := (others => (others => '0'));
-signal lasts : std_logic_vector(0 to SEQ_LEN-1) := (others => '0');
-signal seq_dout : std_logic_vector(127 downto 0) := (others => '0');
+attribute ram_style of mem : signal is "block";
+signal seq_dout : std_logic_vector(128 downto 0) := (others => '0');
 signal data_sr : std_logic_vector(95 downto 0) := (others => '0');
 signal waddr : unsigned(AW+1 downto 0) := (others => '0');
 signal raddr : unsigned(AW-1 downto 0) := (others => '0');
@@ -65,8 +65,7 @@ begin
         elsif data_valid_i = '1' and data_ready_o = '1' then
             if waddr(1 downto 0) = "11" then
                 wr_index := to_integer(waddr(AW+1 downto 2));
-                mem(wr_index) <= data_i & data_sr;
-                lasts(wr_index) <= data_last_i;
+                mem(wr_index) <= data_last_i & data_i & data_sr;
             end if;
             next_waddr := waddr + 1;
             data_sr <= data_i & data_sr(95 downto 32);
@@ -84,12 +83,13 @@ begin
         end if;
         raddr <= next_raddr;
         seq_dout <= mem(to_integer(next_raddr));
-        frame_last_o <= lasts(to_integer(next_raddr));
         frame_valid_o <=
             to_std_logic(waddr(AW+1 downto 2) /= next_raddr and reset_i = '0')
                 when wrapping_mode_i = '0' else
             to_std_logic(waddr(AW+1 downto 2) > 0);
-        data_ready_o <= '1' when next_waddr(AW+1 downto 2) + 1 /= next_raddr else '0';
+        data_ready_o <=
+            to_std_logic(
+                next_waddr(AW+1 downto 2) + 1 /= raddr and reset_i = '0');
     end if;
 end process;
 
@@ -100,5 +100,6 @@ frame_o.out2 <= seq_dout(31 downto 26);
 frame_o.position <= signed(seq_dout(63 downto 32));
 frame_o.time1 <= unsigned(seq_dout(95 downto 64));
 frame_o.time2 <= unsigned(seq_dout(127 downto 96));
+frame_last_o <= seq_dout(128);
 
 end;

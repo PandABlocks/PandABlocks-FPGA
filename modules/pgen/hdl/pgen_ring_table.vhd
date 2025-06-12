@@ -33,17 +33,18 @@ port (
 end;
 
 architecture rtl of pgen_ring_table is
-
+attribute ram_style : string;
 constant AW_MASK : std_logic_vector(AW-1 downto 0) := (others => '1');
-type mem_t is array(0 to LEN-1) of std_logic_vector(31 downto 0);
+type mem_t is array(0 to LEN-1) of std_logic_vector(32 downto 0);
 signal mem : mem_t := (others => (others => '0'));
-signal lasts : std_logic_vector(0 to LEN-1) := (others => '0');
+attribute ram_style of mem : signal is "block";
 signal waddr : unsigned(AW-1 downto 0) := (others => '0');
 signal raddr : unsigned(AW-1 downto 0) := (others => '0');
+signal rdata : std_logic_vector(32 downto 0) := (others => '0');
 
 begin
 
-ndatas_o <= 
+ndatas_o <=
     std_logic_vector(waddr) when wrapping_mode_i else
     std_logic_vector(waddr - raddr);
 available_o <= ndatas_o xor AW_MASK;
@@ -61,8 +62,7 @@ begin
             next_waddr := (others => '0');
         elsif wdata_valid_i = '1' and wdata_ready_o = '1' then
             wr_index := to_integer(waddr);
-            mem(wr_index) <= wdata_i;
-            lasts(wr_index) <= wdata_last_i;
+            mem(wr_index) <=  wdata_last_i & wdata_i;
             next_waddr := waddr + 1;
         end if;
         waddr <= next_waddr;
@@ -77,14 +77,18 @@ begin
             end if;
         end if;
         raddr <= next_raddr;
-        rdata_o <= mem(to_integer(next_raddr));
-        rdata_last_o <= lasts(to_integer(next_raddr));
+        rdata <= mem(to_integer(next_raddr));
         rdata_valid_o <=
             to_std_logic(waddr /= next_raddr and reset_i = '0')
                 when wrapping_mode_i = '0' else
             to_std_logic(waddr > 0);
-        wdata_ready_o <= '1' when next_waddr + 1 /= next_raddr else '0';
+        wdata_ready_o <=
+            to_std_logic(next_waddr + 1 /= raddr and reset_i = '0');
     end if;
+
+    rdata_o <= rdata(31 downto 0);
+    rdata_last_o <= rdata(32);
+
 end process;
 
 end;
