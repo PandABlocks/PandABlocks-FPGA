@@ -138,7 +138,11 @@ def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ti
     capture_count = 0
     data_count = 0
     lohi = {}
+    table_address_seen = False
     for ts, inputs, outputs in timing_entries(ini, section):
+        if "TABLE_ADDRESS" in inputs:
+            table_address_seen = True
+
         for name, (tracex, tracey) in bit_traces.items():
             if name in inputs:
                 tracex.append(ts)
@@ -150,12 +154,15 @@ def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ti
                 tracex.append(ts+1)
                 tracey.append(tracey[-1])
                 tracey.append(outputs[name])
+
         for name, (tracex, tracey) in pos_traces.items():
             if name == "TABLE":
                 if "TABLE_START" in inputs:
                     inputs["TABLE"] = "load..."
                 elif "TABLE_LENGTH" in inputs:
-                    table_count += 1
+                    if table_address_seen:
+                        table_count += 1
+                    table_address_seen = False
                     inputs['TABLE'] = "T%d" % table_count
             elif name == "DATA":
                 if "START_WRITE" in inputs:

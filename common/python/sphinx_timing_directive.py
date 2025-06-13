@@ -35,18 +35,17 @@ class timing_plot_directive(Directive):
 
         # Parse the ini file and make any special tables
         path = os.path.join(ROOT, path)
+        module_dir = os.path.dirname(path)
+        module_name = os.path.basename(module_dir)
         ini = read_ini(path)
-        tables = []
-        for ts, inputs, outputs in timing_entries(ini, section):
-            for name, val in inputs.items():
-                if name == "TABLE_ADDRESS":
-                    tables = self.make_long_tables(ini, section, path)
-                elif name == "TABLE_DATA":
-                    tables = self.make_all_seq_tables(ini, section)
-            for name, val in outputs.items():
-                # TODO: PCAP_DATA
-                if name == "DATA":
-                    tables = self.make_pcap_table(ini, section)
+        if module_name == 'pcap':
+            tables = self.make_pcap_table(ini, section, path)
+        elif module_name == 'seq':
+            tables = self.make_all_seq_tables(ini, section, path)
+        elif module_name == 'pgen':
+            tables = self.make_long_tables(ini, section, path)
+        else:
+            tables = []
 
         args = [path, section]
         if "xlabel" in self.options:
@@ -80,7 +79,7 @@ class timing_plot_directive(Directive):
             node.append(table_node)
         return [node]
 
-    def make_pcap_table(self, sequence, sequence_dir):
+    def make_pcap_table(self, sequence, sequence_dir, path):
         table_node = table_plot_node()
         # find the inputs that change
         input_changes = []
@@ -177,17 +176,19 @@ class timing_plot_directive(Directive):
         alltables = []
         table_data = []
         table = nodes.table()
-        path = os.path.dirname(os.path.abspath(path))
+        module_path = os.path.dirname(os.path.abspath(path))
         for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
             if 'TABLE_ADDRESS' in inputs:
                 # open the table
-                file_dir = os.path.join(path, inputs["TABLE_ADDRESS"])
-                assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
-                with open(file_dir, "r") as table:
+                file_path = os.path.join(module_path, 'tests_assets',
+                                         f'{inputs['TABLE_ADDRESS']}.txt')
+                assert os.path.isfile(file_path), \
+                    "%s does not exist" % file_path
+                with open(file_path, "r") as table:
                     reader = csv.DictReader(table, delimiter='\t')
                     table_data = [line for line in reader]
                 alltables.append(table_data)
-        for lt in alltables:
+        for table_i, table_data in enumerate(alltables):
             col_widths = [len(x) for x in table_data[0].values()]
             ncols = len(col_widths)
             table = nodes.table()
@@ -199,36 +200,38 @@ class timing_plot_directive(Directive):
             # add the header
             thead = nodes.thead()
             tgroup += thead
-            thead += self.make_row(["T%d" % len(alltables)], [ncols-1])
+            thead += self.make_row(["T%d" % (table_i + 1,)], [ncols-1])
             h1_text = table_data[0].keys()
             thead += self.make_row(h1_text)
             tbody = nodes.tbody()
             tgroup += tbody
-            row = []
             for line in table_data:
                 tbody += self.make_row(line.values())
             table_node.append(table)
         return table_node
 
-    def make_all_seq_tables(self, sequence, sequence_dir):
+    def make_all_seq_tables(self, sequence, sequence_dir, path):
         table_node = table_plot_node()
         alltables = []
-        seqtable = []
-        table_write = 0
-        frame_count = 0
         table_count = 0
+        module_path = os.path.dirname(os.path.abspath(path))
+        table_address = ''
+        table_address_seen = False
         # get the table data from the sequence file and count the frames
         for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
-            if 'TABLE_DATA' in inputs:
-                table_write += 1
-                seqtable.append(inputs['TABLE_DATA'])
-                if table_write % 4 == 0:
-                    frame_count += 1
             if 'TABLE_LENGTH' in inputs:
-                alltables.append(seqtable)
-                seqtable = []
-                frame_count = 0
-                table_write = 0
+                if table_address_seen:
+                    table_address_seen = False
+                    file_path = os.path.join(module_path, 'tests_assets',
+                                             f'{table_address}.txt')
+                    lines = list(open(file_path, 'r'))[1:]
+                    table = [hex_or_int(line) for line in lines]
+                    alltables.append(table)
+
+            if 'TABLE_ADDRESS' in inputs:
+                table_address_seen = True
+                table_address = inputs['TABLE_ADDRESS']
+
 
         for st in alltables:
             table_count += 1
@@ -261,10 +264,10 @@ class timing_plot_directive(Directive):
         for frame in range(len(data) // 4):
             row = []
             # First we get n repeats
-            rpt = int(data[0 + frame * 4], 0) & 0xFFFF
+            rpt = data[0 + frame * 4] & 0xFFFF
             row.append(rpt)
             # Then the trigger values
-            trigger = int(data[0 + frame * 4], 0) >> 16 & 0xF
+            trigger = data[0 + frame * 4] >> 16 & 0xF
             strings = [
                 "Immediate",
                 "BITA=0",
@@ -290,14 +293,14 @@ class timing_plot_directive(Directive):
             p1Len = data[2 + frame * 4]
             row.append(p1Len)
             # Then the phase 1 outputs
-            p1Out = (int(data[0 + frame * 4], 0) >> 20) & 0x3F
+            p1Out = (data[0 + frame * 4] >> 20) & 0x3F
             for i in range(6):
                 row.append(p1Out >> i & 1)
             # Then the phase 2 time
             p2Len = data[3 + frame * 4]
             row.append(p2Len)
             # Finally the phase 2 outputs
-            p2Out = (int(data[0 + frame * 4], 0) >> 26) & 0x3F
+            p2Out = (data[0 + frame * 4] >> 26) & 0x3F
             for i in range(6):
                 row.append(p2Out >> i & 1)
             tbody += self.make_row(row)
@@ -346,3 +349,11 @@ def visit_table_plot(self, node):
 
 def depart_table_plot(self, node):
     pass
+
+
+def hex_or_int(val):
+    """Convert a string to an int or hex value"""
+    if val.startswith('0x'):
+        return int(val, 16)
+    else:
+        return int(val, 0)

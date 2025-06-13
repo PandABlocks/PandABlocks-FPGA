@@ -43,16 +43,12 @@ class TimingCsv(object):
         for k, v in values.items():
             assert k in self.header, \
                 "Field %r is not %s" % (k, self.header)
-            if k == "TABLE_ADDRESS":
-                # TABLE_ADDRESS for long table should be set to an integer.
-                # TODO: how to pass filename down to testbench?
-                v = "0"
-            else:
-                # Lut Function values were given in hex, they need to be
-                # converted to an int, for the testbench to pass
-                # Use bitmask operator to convert to 32-bit unsigned
-                # as work-around for bug with $fscanf in Vivado2023.2
-                v = str(int(v, 0) & 0xFFFFFFFF)
+
+            # Lut Function values were given in hex, they need to be
+            # converted to an int, for the testbench to pass
+            # Use bitmask operator to convert to 32-bit unsigned
+            # as work-around for bug with $fscanf in Vivado2023.2
+            v = str(int(v, 0) & 0xFFFFFFFF)
 
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v

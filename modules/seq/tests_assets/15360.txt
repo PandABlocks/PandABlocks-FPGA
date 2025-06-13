@@ -1,0 +1,9 @@
+Time set to 1 clock pulse
+0x800001
+0
+1
+2
+0x480003
+20
+1
+1

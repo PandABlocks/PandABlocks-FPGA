@@ -1,0 +1,5 @@
+Prescaled pulses
+0x100002
+0
+1
+1

@@ -29,13 +29,15 @@ port (
     pos_bus_i           : in    pos_bus_t;
     pos_bus_o           : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
-    rdma_req            : out   std_logic_vector(5 downto 0);
-    rdma_ack            : in    std_logic_vector(5 downto 0);
+    rdma_req            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_ack            : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     rdma_done           : in    std_logic;
-    rdma_addr           : out   std32_array(5 downto 0);
-    rdma_len            : out   std8_array(5 downto 0);
+    rdma_addr           : out   std32_array(DMA_USERS_COUNT-1 downto 0);
+    rdma_len            : out   std8_array(DMA_USERS_COUNT-1 downto 0);
     rdma_data           : in    std_logic_vector(31 downto 0);
-    rdma_valid          : in    std_logic_vector(5 downto 0);
+    rdma_valid          : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_irq            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_done_irq       : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     --
     FCLK_CLK0           : in    std_logic
 );

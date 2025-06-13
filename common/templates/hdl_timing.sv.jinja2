@@ -124,9 +124,7 @@ initial begin
     {% if loop.first %}
         wait (timestamp == data_in[{{loop.revindex0}}]) begin
     {% else %}
-        {% if field != "TABLE_ADDRESS" %}
                 {{ field }} <= data_in[{{loop.revindex0}}];
-        {% endif %}
     {% endif %}
 {% endfor %}
         end

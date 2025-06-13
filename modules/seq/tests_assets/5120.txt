@@ -1,0 +1,13 @@
+Table based position compare
+0x8070001
+20
+0
+4
+0x8300003
+0
+1
+3
+0x180002
+10
+1
+3

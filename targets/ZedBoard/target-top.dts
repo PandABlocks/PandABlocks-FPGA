@@ -32,7 +32,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 	flash0: flash@0 {
-		compatible = "micron,n25q128a13";
+		compatible = "micron,s25fl256s1";
 		reg = <0x0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -61,7 +61,7 @@
 		panda_pcap_0: panda_pcap@43c00000 {
 			compatible = "xlnx,panda-pcap-1.0";
 			interrupt-parent = <&intc>;
-			interrupts = <0 29 1>;
+			interrupts = <0 29 1>, <0 30 1>;
 			reg = <0x43c00000 0x20000>;
 			xlnx,s00-axi-addr-width = <0x17>;
 			xlnx,s00-axi-data-width = <0x20>;

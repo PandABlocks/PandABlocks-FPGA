@@ -97,6 +97,7 @@ class BlockConfig(object):
         self.number = number
         #: The path to the module that holds this block ini
         self.module_path = os.path.dirname(ini_path)
+        self.module_abspath = os.path.realpath(self.module_path)
         #: The path to the ini file for this Block, relative to ROOT
         self.ini_path = ini_path
         #: The Block section of the register address space
@@ -450,10 +451,11 @@ class TableFieldConfig(FieldConfig):
 
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
-        # Hardcode to 2^8 = 256 pages
+        # Hardcode to 2^10 = 1024 pages
         # Each page is 1024 words = 4096 bytes
+        # The driver can allocate 8 buffers at most
         self.registers.extend([
-            RegisterConfig(self.name, prefix='long 2^8'),
+            RegisterConfig(self.name, prefix='long 2^10 8'),
             RegisterConfig(self.name + "_ADDRESS", counters.new_field()),
             RegisterConfig(self.name + "_LENGTH", counters.new_field())])
 

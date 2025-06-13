@@ -29,6 +29,9 @@ package addr_defines is
 -- Constant equal to the number of carrier modules
     constant CARRIER_MOD_COUNT : natural := 2;
 
+-- Constant equal to the number of long tables
+    constant DMA_USERS_COUNT : natural := 0;
+
 -- Block Register Address Space
 
 

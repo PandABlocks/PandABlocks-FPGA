@@ -1,0 +1,5 @@
+3 evenly spaced pulses
+0x100003
+0
+5
+5
