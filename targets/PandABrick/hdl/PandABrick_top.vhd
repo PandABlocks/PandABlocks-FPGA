@@ -473,7 +473,7 @@ signal pcap_act_reg         : std_logic;
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
-signal equ_val              : std_logic_vector(7 downto 0);
+signal equ_val              : std_logic_vector(EQU_NUM-1 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
