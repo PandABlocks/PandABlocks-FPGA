@@ -19,6 +19,7 @@ port (
     Ki_i                 : in  std_logic_vector(31 downto 0);
     Kd_i                 : in  std_logic_vector(31 downto 0);
     FF_i                 : in  std_logic_vector(31 downto 0);
+    err_sign_i           : in  std_logic_vector(31 downto 0);
 
     setpoint_i           : in  std_logic_vector(31 downto 0); -- Desired value
     in_signal_i          : in  std_logic_vector(31 downto 0); -- Measured value
@@ -40,10 +41,12 @@ architecture Basic_PID of PID is
     signal Ki            : signed(18 downto 0) := (others => '0');
     signal Kd            : signed(18 downto 0) := (others => '0');
     signal FF            : signed(18 downto 0) := (others => '0');
+    signal err_sign      : signed(1 downto 0) := (others => '0');
 
     signal in_signal     : signed(25 downto 0) := (others => '0');
     signal round_out     : signed(44 downto 0) := (others => '0');
     signal out_signal    : signed(31 downto 0) := (others => '0');
+    signal out_sign      : signed(46 downto 0) := (others => '0');
 
     signal trigger       : std_logic;
     signal trigger_prev  : std_logic;
@@ -66,6 +69,7 @@ begin
             Ki             <= resize(signed(Ki_i), 19);
             Kd             <= resize(signed(Kd_i), 19);
             FF             <= resize(signed(FF_i), 19);
+            err_sign       <= resize(signed(err_sign_i), 2);
             setpoint       <= resize(signed(setpoint_i), 26);
             in_signal      <= resize(signed(in_signal_i), 26);
 
@@ -127,7 +131,8 @@ begin
     
 
     -- Output conversions
-    out_signal   <= resize(round_out, 32);
+    out_sign     <= round_out * err_sign;
+    out_signal   <= resize(out_sign, 32);
     out_signal_o <= std_logic_vector(out_signal);
 
 end architecture Basic_PID;
