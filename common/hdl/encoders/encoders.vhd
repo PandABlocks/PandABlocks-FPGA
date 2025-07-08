@@ -70,7 +70,6 @@ end entity;
 
 
 architecture rtl of encoders is
-
 constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
 constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
@@ -137,450 +136,82 @@ signal INENC_PROTOCOL_rb    : std_logic_vector(2 downto 0);
 
 begin
 
--- Unused Nets.
-inenc_dir <= '1';
-outenc_dir <= '0';
-Am0_opad <= '0';
-
------------------------------OUTENC---------------------------------------------
+-----------------------------INENC---------------------------------------------
 --------------------------------------------------------------------------------
 
-
--- When using the Monitor Daughter Card, only the Input Ecoder protocol is used
-OUTENC_PROTOCOL <= 
-    INENC_PROTOCOL_i when DCARD_MODE_i(3 downto 1) = DCARD_MONITOR
-    else OUTENC_PROTOCOL_i;
-
--- Assign outputs
-A_OUT <= a_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
-B_OUT <= b_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
-Z_OUT <= z_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL = c_BISS) else sdat;
-
---
--- INCREMENTAL OUT
---
-qenc_inst : entity work.qenc
-port map (
+inenc_inst : entity work.inenc(rtl)
+port map(
     clk_i           => clk_i,
     reset_i         => reset_i,
-    QPERIOD         => QPERIOD_i,
-    QPERIOD_WSTB    => QPERIOD_WSTB_i,
-    QSTATE          => QSTATE_o,
-    enable_i        => enable_i,
     posn_i          => posn_i,
-    a_o             => quad_a,
-    b_o             => quad_b
+    INENC_A_o       => INENC_A_o,  
+    INENC_B_o       => INENC_B_o,
+    INENC_Z_o       => INENC_Z_o,  
+    INENC_DATA_o    => INENC_DATA_o,  
+    --
+    clk_out_ext_i   => clk_out_ext_i,  
+    clk_int_o       => clk_int_o,   
+    --
+    Am0_pad_io      => Am0_pad_io,   
+    Bm0_pad_io      => Bm0_pad_io,   
+    Zm0_pad_io      => Zm0_pad_io,   
+    As0_pad_io      => As0_pad_io,   
+    Bs0_pad_io      => Bs0_pad_io,   
+    Zs0_pad_io      => Zs0_pad_io,
+
+    DCARD_MODE_i    => DCARD_MODE_i,
+
+    INENC_PROTOCOL_i=> INENC_PROTOCOL_i,  
+    INENC_ENCODING_i=> INENC_ENCODING_i,  
+    CLK_SRC_i       => CLK_SRC_i,  
+    CLK_PERIOD_i    => CLK_PERIOD_i,  
+    FRAME_PERIOD_i  => FRAME_PERIOD_i,  
+    INENC_BITS_i    => INENC_BITS_i, 
+    LSB_DISCARD_i   => LSB_DISCARD_i,   
+    MSB_DISCARD_i   => MSB_DISCARD_i,   
+    SETP_i          => SETP_i,   
+    SETP_WSTB_i     => SETP_WSTB_i,   
+    RST_ON_Z_i      => RST_ON_Z_i,
+    STATUS_o        => STATUS_o,
+    INENC_HEALTH_o  => INENC_HEALTH_o,
+    HOMED_o         => HOMED_o,
+
+    posn_o          => posn_o
 );
 
---
--- SSI SLAVE
---
-ssi_slave_inst : entity work.ssi_slave
-port map (
+---------------------------------OUTENC------------------------------------
+--------------------------------------------------------------------------
+
+outenc_inst : entity work.outenc(rtl)
+port map(
     clk_i           => clk_i,
     reset_i         => reset_i,
-    ENCODING        => OUTENC_ENCODING_i,
-    BITS            => OUTENC_BITS_i,
-    posn_i          => posn_i,
-    ssi_sck_i       => CLK_IN,
-    ssi_dat_o       => sdat
+    -- Encoder inputs from Bitbus
+    a_ext_i         => a_ext_i,
+    b_ext_i         => b_ext_i,    
+    z_ext_i         => z_ext_i,    
+
+    data_ext_i      => data_ext_i,     
+    
+    -- Encoder I/O Pads
+    posn_i          => posn_i,   
+    enable_i        => enable_i,  
+
+    As0_pad_io      => As0_pad_io,   
+    Bs0_pad_io      => Bs0_pad_io,   
+    Zs0_pad_io      => Zs0_pad_io,     
+    -- Block inputs 
+    GENERATOR_ERROR_i=> GENERATOR_ERROR_i,  
+    QPERIOD_i       => QPERIOD_i,   
+    QPERIOD_WSTB_i  => QPERIOD_WSTB_i,   
+    QSTATE_o        => QSTATE_o,   
+
+    INENC_PROTOCOL_i=> INENC_PROTOCOL_i,   
+    DCARD_MODE_i    => DCARD_MODE_i,   
+    OUTENC_PROTOCOL_i=> OUTENC_PROTOCOL_i,
+    OUTENC_ENCODING_i=> OUTENC_ENCODING_i,
+    OUTENC_BITS_i   => OUTENC_BITS_i,
+    OUTENC_HEALTH_o => OUTENC_HEALTH_o   
 );
 
---
--- BISS SLAVE
---
-biss_slave_inst : entity work.biss_slave
-port map (
-    clk_i             => clk_i,
-    reset_i           => reset_i,
-    ENCODING          => OUTENC_ENCODING_i,
-    BITS              => OUTENC_BITS_i,
-    enable_i          => enable_i,
-    GENERATOR_ERROR   => GENERATOR_ERROR_i,
-    health_o          => health_biss_slave,
-    posn_i            => posn_i,
-    biss_sck_i        => CLK_IN,
-    biss_dat_o        => bdat
-);
-
---------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
---------------------------------------------------------------------------
-
-OUTENC_PROTOCOL_rb <= DCARD_MODE_i(18 downto 16);
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if DCARD_MODE_i(3 downto 1) = DCARD_MONITOR then
-            OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(3,32));
-        elsif OUTENC_PROTOCOL_rb /= OUTENC_PROTOCOL then
-            OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(4,32));
-        else 
-            case (OUTENC_PROTOCOL) is
-                when "000"  =>              -- INC
-                    OUTENC_HEALTH_o <= (others=>'0');
-                when "001"  =>              -- SSI & Loopback
-                    OUTENC_HEALTH_o <= (others=>'0');
-                when "010"  =>              -- BISS & Loopback
-                    OUTENC_HEALTH_o <= health_biss_slave;
-                when c_enDat =>             -- enDat 
-                    OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
-                when others =>
-                    OUTENC_HEALTH_o <= (others=>'0');
-            end case;
-        end if;
-    end if;
-end process;
-
----------------------------------INENC------------------------------------
---------------------------------------------------------------------------
--- Assign outputs
---------------------------------------------------------------------------
-
-ps_select: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        -- BITS not begin used
-        bits_not_used <= 31 - (unsigned(INENC_BITS_i(4 downto 0))-1);
-        lp_test: for i in 31 downto 0 loop
-           -- Discard bits not being used and MSB and LSB and extend the sign.
-           -- Note that we need the loop to manipulate the vector. Slicing with \
-           -- variable indices is not synthesisable.
-           if (i > 31 - bits_not_used - unsigned(MSB_DISCARD_i) - unsigned(LSB_DISCARD_i)) then
-               if ((INENC_ENCODING_i=c_UNSIGNED_BINARY_ENCODING) or (INENC_ENCODING_i=c_UNSIGNED_GRAY_ENCODING)) then
-                   posn_o(i) <= '0';
-               else
-                   -- sign extension
-                   posn_o(i) <= posn(31 - to_integer(bits_not_used + unsigned(MSB_DISCARD_i)));
-               end if;
-           -- Add the LSB_DISCARD on to posn index count and start there
-           else
-               posn_o(i) <= posn(i + to_integer(unsigned(LSB_DISCARD_i)));
-           end if;
-        end loop lp_test;
-    end if;
-end process ps_select;
-
--- Loopbacks
-CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
-              clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
-              clk_out_encoder_ssi;
-
-
-
---------------------------------------------------------------------------
--- Incremental Encoder Instantiation :
---------------------------------------------------------------------------
-qdec : entity work.qdec
-port map (
-    clk_i           => clk_i,
---  reset_i         => reset_i,
-    LINKUP_INCR     => linkup_incr_std32,
-    a_i             => A_IN,
-    b_i             => B_IN,
-    z_i             => Z_IN,
-    SETP            => SETP_i,
-    SETP_WSTB       => SETP_WSTB_i,
-    RST_ON_Z        => RST_ON_Z_i,
-    HOMED           => homed_qdec,
-    out_o           => posn_incr
-);
-
-linkup_incr <= not DCARD_MODE_i(0);
-linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
-
---------------------------------------------------------------------------
--- SSI Instantiations
---------------------------------------------------------------------------
-
--- SSI Master
-ssi_master_inst : entity work.ssi_master
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    ENCODING        => INENC_ENCODING_i,
-    BITS            => INENC_BITS_i,
-    CLK_PERIOD      => CLK_PERIOD_i,
-    FRAME_PERIOD    => FRAME_PERIOD_i,
-    ssi_sck_o       => clk_out_encoder_ssi,
-    ssi_dat_i       => DATA_IN,
-    posn_o          => posn_ssi,
-    posn_valid_o    => open,
-    ssi_frame_o     => ssi_frame_master
-);
-
--- SSI Sniffer
-ssi_sniffer_inst : entity work.ssi_sniffer
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    ENCODING        => INENC_ENCODING_i,
-    BITS            => INENC_BITS_i,
-    error_o         => open,
-    ssi_sck_i       => CLK_IN,
-    ssi_dat_i       => DATA_IN,
-    posn_o          => posn_ssi_sniffer,
-    ssi_frame_o     => ssi_frame_sniffer
-);
-
-ssi_frame <= ssi_frame_sniffer when DCARD_MODE_i(3 downto 1) = DCARD_MONITOR
-    else ssi_frame_master;
-
--- Frame checker for SSI
-ssi_err_det_inst: entity work.ssi_error_detect
-port map (
-    clk_i           => clk_i,
-    serial_dat_i    => DATA_IN,
-    ssi_frame_i     => ssi_frame,
-    link_up_o       => linkup_ssi
-);
-
---------------------------------------------------------------------------
--- BiSS Instantiations
---------------------------------------------------------------------------
--- BiSS Master
-biss_master_inst : entity work.biss_master
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    ENCODING        => INENC_ENCODING_i,
-    BITS            => INENC_BITS_i,
-    link_up_o       => linkup_biss_master,
-    health_o        => health_biss_master,
-    CLK_PERIOD      => CLK_PERIOD_i,
-    FRAME_PERIOD    => FRAME_PERIOD_i,
-    biss_sck_o      => clk_out_encoder_biss,
-    biss_dat_i      => DATA_IN,
-    posn_o          => posn_biss,
-    posn_valid_o    => open
-);
-
--- BiSS Sniffer
-biss_sniffer_inst : entity work.biss_sniffer
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    ENCODING        => INENC_ENCODING_i,
-    BITS            => INENC_BITS_i,
-    link_up_o       => linkup_biss_sniffer,
-    health_o        => health_biss_sniffer,
-    error_o         => open,
-    ssi_sck_i       => CLK_IN,
-    ssi_dat_i       => DATA_IN,
-    posn_o          => posn_biss_sniffer
-);
-
---------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
---------------------------------------------------------------------------
-
-INENC_PROTOCOL_rb <= DCARD_MODE_i(10 downto 8);
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if INENC_PROTOCOL_rb /= INENC_PROTOCOL_i then
-            INENC_HEALTH_o <= TO_SVECTOR(6,32);
-        else
-            case (INENC_PROTOCOL_i) is
-                when "000"  =>              -- INC
-                    posn <= posn_incr;
-                    STATUS_o(0) <= linkup_incr;
-                    INENC_HEALTH_o(0) <= not(linkup_incr);
-                    INENC_HEALTH_o(31 downto 1)<= (others=>'0');
-                    HOMED_o <= homed_qdec;
-
-                when "001"  =>              -- SSI & Loopback
-                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                        posn <= posn_ssi_sniffer;
-                    else  -- DCARD_CONTROL
-                        posn <= posn_ssi;
-                    end if;
-                    HOMED_o <= TO_SVECTOR(1,32);
-                    STATUS_o(0) <= linkup_ssi;
-                    if (linkup_ssi = '0') then
-                        INENC_HEALTH_o <= TO_SVECTOR(2,32);
-                    else
-                        INENC_HEALTH_o <= (others => '0');
-                    end if;
-
-                when "010"  =>              -- BISS & Loopback
-                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                        posn <= posn_biss_sniffer;
-                        STATUS_o(0) <= linkup_biss_sniffer;
-                        INENC_HEALTH_o <= health_biss_sniffer;
-                    else  -- DCARD_CONTROL
-                        posn <= posn_biss;
-                        STATUS_o(0) <= linkup_biss_master;
-                        INENC_HEALTH_o<=health_biss_master;
-                    end if;
-                    HOMED_o <= TO_SVECTOR(1,32);
-
-                when others =>
-                    INENC_HEALTH_o <= TO_SVECTOR(5,32);
-                    posn <= (others => '0');
-                    STATUS_o <= (others => '0');
-                    HOMED_o <= TO_SVECTOR(1,32);
-            end case;
-        end if;
-    end if;
-end process;
-
--------------------dcard_interface----------------------------------------------
---------------------------------------------------------------------------------
-INENC_IOBUF_CTRL : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            inenc_ctrl <= "111";
-        else
-            case (INENC_PROTOCOL_i) is
-                when "000"  =>                              -- INC
-                    inenc_ctrl <= "111";
-                when "001"  =>                              -- SSI
-                    inenc_ctrl <= "100";
-                when "010"  =>                              -- BiSS-C
-                    inenc_ctrl <= inenc_dir & "00";
-                when "011"  =>                              -- EnDat
-                    inenc_ctrl <= inenc_dir & "00";
-                when others =>
-                    inenc_ctrl <= "111";
-            end case;
-        end if;
-    end if;
-end process;
-
--- Physical IOBUF instantiations controlled with PROTOCOL
-IOBUF_Am0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => Am0_opad,
-    O       => Am0_ipad,
-    T       => inenc_ctrl(2),
-    IO      => Am0_pad_io
-);
-
-IOBUF_Bm0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => Bm0_opad,
-    O       => Bm0_ipad,
-    T       => inenc_ctrl(1),
-    IO      => Bm0_pad_io
-);
-
-IOBUF_Zm0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => Zm0_opad,
-    O       => Zm0_ipad,
-    T       => inenc_ctrl(0),
-    IO      => Zm0_pad_io
-);
-
-Bm0_opad <= CLK_OUT;
-Zm0_opad <= not inenc_dir;
-
-a_filt : entity work.delay_filter port map(
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Am0_ipad,
-    filt_o  => A_IN
-);
-
-b_filt : entity work.delay_filter port map(
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Bm0_ipad,
-    filt_o  => B_IN
-);
-
-z_filt : entity work.delay_filter port map(
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Zm0_ipad,
-    filt_o  => Z_IN
-);
-
-datain_filt : entity work.delay_filter port map(
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Am0_ipad,
-    filt_o  => DATA_IN
-);
-
---------------------------------------------------------------------------
---  On-chip IOBUF controls based on protocol for OUTENC Blocks
---------------------------------------------------------------------------
-OUTENC_IOBUF_CTRL : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            outenc_ctrl <= "000";
-        else
-            case (OUTENC_PROTOCOL) is
-                when "000"  =>                        -- INC
-                    outenc_ctrl <= "000";
-                when "001"  =>                        -- SSI
-                    outenc_ctrl <= "010";
-                when "010"  =>                        -- BiSS
-                    outenc_ctrl <= outenc_dir & "10";
-                when "011"  =>                        -- EnDat
-                    outenc_ctrl <= outenc_dir & "10";
-                when "101" =>
-                    outenc_ctrl <= "010";          -- DATA PassThrough
-                when others =>
-                    outenc_ctrl <= "000";           -- ABZ Passthrough
-            end case;
-        end if;
-    end if;
-end process;
-
-IOBUF_As0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => As0_opad,
-    O       => As0_ipad,
-    T       => outenc_ctrl(2),
-    IO      => As0_pad_io
-);
-
-IOBUF_Bs0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => Bs0_opad,
-    O       => Bs0_ipad,
-    T       => outenc_ctrl(1),
-    IO      => Bs0_pad_io
-);
-
-IOBUF_Zs0 : entity work.iobuf_registered port map (
-    clock   => clk_i,
-    I       => Zs0_opad,
-    O       => Zs0_ipad,
-    T       => outenc_ctrl(0),
-    IO      => Zs0_pad_io
-);
-
--- A output is shared between incremental and absolute data lines.
-As0_opad <= A_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else DATA_OUT;
-Bs0_opad <= B_OUT;
-Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else not outenc_dir;
-
-INENC_A_o <= A_IN;
-INENC_B_o <= B_IN;
-INENC_Z_o <= Z_IN;
-INENC_DATA_o <= DATA_IN;
-
-clk_int_o <= CLK_IN;
-
-clkin_filt : entity work.delay_filter port map (
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Bs0_ipad,
-    filt_o  => CLK_IN
-);
 end rtl;
-
