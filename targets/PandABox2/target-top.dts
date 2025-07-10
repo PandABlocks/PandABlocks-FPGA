@@ -1,0 +1,60 @@
+/dts-v1/;
+/include/ "system-top.dts.tmp"
+
+&sdhci1 {
+	disable-wp;
+	no-1-8-v;
+};
+
+&i2c0 {
+	clock-frequency = <100000>;
+	ssd1306: oled@0x3c {
+		compatible = "solomon,ssd1306";
+		reg = <0x3c>;
+		solomon,height = <64>;
+		solomon,width = <128>;
+		solomon,page-offset = <0>;
+		solomon,segment-no-remap;
+	};
+};
+
+&qspi {
+	is-dual = <0>;
+	num-cs = <1>;
+	flash0: s25fl512s@0 {
+		reg = <0x0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "s25fl512s";
+		spi-max-frequency = <0x2faf080>;
+		spi-tx-bus-width = <0x1>;
+		spi-rx-bus-width = <0x4>;
+		partition@0x00000000 {
+			label = "boot";
+			reg = <0x0 0x500000>;
+		};
+		partition@0x00500000 {
+			label = "bootenv";
+			reg = <0x500000 0x40000>;
+		};
+		partition@0x00540000 {
+			label = "data";
+			reg = <0x540000 0xb00000>;
+		};
+	};
+};
+
+/ {
+	amba_pl: amba_pl {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges ;
+		panda_pcap_0: panda_pcap@a0000000 {
+			compatible = "xlnx,panda-pcap-1.0";
+			reg = <0xa0000000 0x20000>;
+			interrupt-parent = <&gic>;
+			interrupts = <0 89 1>;
+		};
+	};
+};

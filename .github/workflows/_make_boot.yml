@@ -7,12 +7,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: zynq
-            app: PandABox-no-fmc
           - platform: zynqmp
-            app: xu5_st1-no-fmc
-          - platform: zynqmp
-            app: PandABrick
+            app: PandABox2-no-fmc # To be reverted back when PR is created
     runs-on:
       group: iris_runners
     container:

@@ -8,7 +8,7 @@ on:
   push:
     tags:
       - '*'
-    branches: [master]
+    branches: [master, PandABox2] # To be reverted back to master only when PR is created
 
 jobs:
 
