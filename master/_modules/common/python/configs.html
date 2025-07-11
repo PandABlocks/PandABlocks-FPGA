@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 4.0-6-g1ae2cbe
+  <title>common.python.configs &mdash; PandABlocks-FPGA 4.0-34-g8e07b9a
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
@@ -41,7 +41,7 @@
               <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-6-g1ae2cbe
+                4.0-34-g8e07b9a
 
               </div>
 <div role="search">
@@ -243,6 +243,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="n">number</span>
         <span class="c1">#: The path to the module that holds this block ini</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">ini_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module_abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_path</span><span class="p">)</span>
         <span class="c1">#: The path to the ini file for this Block, relative to ROOT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ini_path</span> <span class="o">=</span> <span class="n">ini_path</span>
         <span class="c1">#: The Block section of the register address space</span>
@@ -596,10 +597,11 @@
 
 <div class="viewcode-block" id="TableFieldConfig.register_addresses"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.TableFieldConfig.register_addresses">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">register_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">counters</span><span class="p">):</span>
         <span class="c1"># type: (FieldCounter) -&gt; None</span>
-        <span class="c1"># Hardcode to 2^8 = 256 pages</span>
+        <span class="c1"># Hardcode to 2^10 = 1024 pages</span>
         <span class="c1"># Each page is 1024 words = 4096 bytes</span>
+        <span class="c1"># The driver can allocate 8 buffers at most</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
-            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;long 2^8&#39;</span><span class="p">),</span>
+            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;long 2^10 8&#39;</span><span class="p">),</span>
             <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_ADDRESS&quot;</span><span class="p">,</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">()),</span>
             <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_LENGTH&quot;</span><span class="p">,</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">())])</span></div>
 

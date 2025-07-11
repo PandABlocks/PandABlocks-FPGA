@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PGEN - Position Generator &mdash; PandABlocks-FPGA 4.0-6-g1ae2cbe
+  <title>PGEN - Position Generator &mdash; PandABlocks-FPGA 4.0-34-g8e07b9a
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -43,7 +43,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.0-6-g1ae2cbe
+                4.0-34-g8e07b9a
 
               </div>
 <div role="search">
@@ -290,13 +290,23 @@ a table</p>
 <td><p>pos_out</p></td>
 <td><p>Current sample</p></td>
 </tr>
-<tr class="row-even"><td><p>HEALTH</p></td>
+<tr class="row-even"><td><p>STATE</p></td>
+<td><p>read enum</p></td>
+<td><p><div class="line-block">
+<div class="line">Internal state machine state</div>
+<div class="line">0   UNREADY</div>
+<div class="line">1   WAIT_ENABLE</div>
+<div class="line">2   RUNNING</div>
+</div>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p>HEALTH</p></td>
 <td><p>read enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Table status</div>
 <div class="line">0   OK</div>
-<div class="line">1   Table not ready</div>
-<div class="line">3   DMA overrun</div>
+<div class="line">1   DMA underrun</div>
+<div class="line">2   Not ready for table</div>
 </div>
 </p></td>
 </tr>
