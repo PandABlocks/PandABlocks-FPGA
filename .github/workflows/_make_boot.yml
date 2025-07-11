@@ -48,3 +48,4 @@ jobs:
         with:
           name: boot-${{ matrix.app }}
           path: /build/boot*.zip
+          if-no-files-found: error
