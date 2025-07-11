@@ -11,9 +11,9 @@ package sequencer_defines is
     constant c_state_phase2         : std_logic_vector(2 downto 0) := "100";
 
     -- table errors
-    constant c_table_error_ok        : std_logic_vector(3 downto 0) := x"0";
-    constant c_table_error_underrun  : std_logic_vector(3 downto 0) := x"1";
-    constant c_table_error_overrun   : std_logic_vector(3 downto 0) := x"2";
+    constant c_table_error_ok        : std_logic_vector(1 downto 0) := "00";
+    constant c_table_error_underrun  : std_logic_vector(1 downto 0) := "01";
+    constant c_table_error_overrun   : std_logic_vector(1 downto 0) := "10";
 
     -- trigger options
     constant c_immediately          : unsigned(3 downto 0) := "0000";

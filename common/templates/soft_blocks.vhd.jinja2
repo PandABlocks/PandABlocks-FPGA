@@ -29,13 +29,15 @@ port (
     pos_bus_i           : in    pos_bus_t;
     pos_bus_o           : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
-    rdma_req            : out   std_logic_vector(5 downto 0);
-    rdma_ack            : in    std_logic_vector(5 downto 0);
+    rdma_req            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_ack            : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     rdma_done           : in    std_logic;
-    rdma_addr           : out   std32_array(5 downto 0);
-    rdma_len            : out   std8_array(5 downto 0);
+    rdma_addr           : out   std32_array(DMA_USERS_COUNT-1 downto 0);
+    rdma_len            : out   std8_array(DMA_USERS_COUNT-1 downto 0);
     rdma_data           : in    std_logic_vector(31 downto 0);
-    rdma_valid          : in    std_logic_vector(5 downto 0);
+    rdma_valid          : in    std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_irq            : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
+    rdma_done_irq       : out   std_logic_vector(DMA_USERS_COUNT-1 downto 0);
     --
     {% for site in target_sites %}
     {{pad(site.name)}} : view  {{site.type}}_MOD_ARR;
@@ -48,8 +50,7 @@ architecture rtl of soft_blocks is
 -- Chip selects and Block Num constants are declared in addr_defines
 
 begin
-{# Using a namespace jinja2 object may make iterating simpler #}
-{% set dma = [0] %}
+{% set ns = namespace(dma_index=0) %}
 {% for block in fpga_blocks if block.type in "soft|dma|io"%}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
@@ -73,14 +74,16 @@ port map (
     write_ack_o         => write_ack({{ block.name }}_CS),
     {% if block.type == "dma" %}
 
-    dma_req_o           => rdma_req({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
-    dma_ack_i           => rdma_ack({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
+    dma_req_o           => rdma_req({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_ack_i           => rdma_ack({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
     dma_done_i          => rdma_done,
-    dma_addr_o          => rdma_addr({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
-    dma_len_o           => rdma_len({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
+    dma_addr_o          => rdma_addr({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_len_o           => rdma_len({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
     dma_data_i          => rdma_data,
-    dma_valid_i         => rdma_valid({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
-        {% if dma.append(dma.pop() + 1) %}{% endif %}
+    dma_valid_i         => rdma_valid({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_irq_o           => rdma_irq({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+    dma_done_irq_o      => rdma_done_irq({{ ns.dma_index + block.number - 1 }} downto {{ ns.dma_index }}),
+        {% set ns.dma_index = ns.dma_index + block.number %}
     {% elif block.interfaces %}
         {% for interface in block.interfaces %}
     {{ pad(interface[0]) }} => {{ interface[1] }},

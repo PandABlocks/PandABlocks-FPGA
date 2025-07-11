@@ -46,7 +46,7 @@
 			compatible = "xlnx,panda-pcap-1.0";
 			reg = <0xa0000000 0x20000>;
 			interrupt-parent = <&gic>;
-			interrupts = <0 89 1>;
+			interrupts = <0 89 1>, <0 90 1>;
 		};
 	};
 };

@@ -1,0 +1,5 @@
+Infinite repeats of a row interrupted
+0x100000
+0
+5
+5

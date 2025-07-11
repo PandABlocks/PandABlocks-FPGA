@@ -281,9 +281,9 @@ proc create_root_design { parentCell } {
    CONFIG.FREQ_HZ {200000000} \
  ] $FCLK_CLK1
   set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
-  set IRQ_F2P [ create_bd_port -dir I -from 0 -to 0 -type intr IRQ_F2P ]
+  set IRQ_F2P [ create_bd_port -dir I -from 1 -to 0 -type intr IRQ_F2P ]
   set_property -dict [ list \
-   CONFIG.PortWidth {1} \
+   CONFIG.PortWidth {2} \
    CONFIG.SENSITIVITY {EDGE_RISING} \
  ] $IRQ_F2P
   set PL_CLK [ create_bd_port -dir I -type clk -freq_hz 125000000 PL_CLK ]

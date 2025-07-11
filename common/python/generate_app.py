@@ -334,12 +334,16 @@ class AppGenerator(object):
         target_sites_num = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
+        dma_users_count = 0
 
         self.check_interfaces()
 
         for block in self.fpga_blocks:
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
+            elif block.type == "dma":
+                dma_users_count += block.number
+
             for field in block.fields:
                 if block.type in "carrier|pcap":
                     if field.type == "bit_out":
@@ -371,6 +375,7 @@ class AppGenerator(object):
             total_bit_bus_length=total_bit_bus_length,
             total_pos_bus_length=total_pos_bus_length,
             carrier_mod_count=carrier_mod_count,
+            dma_users_count=dma_users_count,
             register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")

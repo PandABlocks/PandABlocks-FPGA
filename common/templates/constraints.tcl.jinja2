@@ -8,7 +8,7 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 # Module code and constraints
 {% for block in fpga_blocks %}
     {# block module code #}
-add_files $TOP_DIR/{{ block.module_path }}/hdl/
+add_files -norecurse $TOP_DIR/{{ block.module_path }}/hdl/
 set_property -quiet FILE_TYPE "VHDL 2019" [get_files $TOP_DIR/{{ block.module_path }}/hdl/*.vhd]
 add_files -quiet $TOP_DIR/{{ block.module_path }}/hdl_$PLATFORM/
 set_property -quiet FILE_TYPE "VHDL 2019" [get_files -quiet $TOP_DIR/{{ block.module_path }}/hdl_$PLATFORM/*.vhd]

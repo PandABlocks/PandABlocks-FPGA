@@ -47,6 +47,7 @@ port (
     -- Readback signals
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
+    dma_irq_events_i    : in  std_logic_vector(31 downto 0);
     SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0);
     TS_SEC              : in  std_logic_vector(31 downto 0);
     TS_TICKS            : in  std_logic_vector(31 downto 0);
@@ -70,6 +71,7 @@ signal FPGA_CAPABILITIES    : std_logic_vector(31 downto 0);
 signal read_address         : natural range 0 to (2**read_address_i'length - 1);
 signal write_address        : natural range 0 to (2**write_address_i'length - 1);
 signal read_ack             : std_logic;
+signal table_dma_irq        : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 -- Acknowledgement to AXI Lite interface
@@ -186,28 +188,34 @@ FPGA_CAPABILITIES <= (0 => PCAP_STD_DEV_OPTION,
 REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        case (read_address) is
-            when REG_FPGA_VERSION =>
-                read_data_o <= FPGA_VERSION;
-            when REG_FPGA_BUILD =>
-                read_data_o <= FPGA_BUILD;
-            when REG_USER_VERSION =>
-                read_data_o <= SLOW_FPGA_VERSION;
-            when REG_BIT_READ_VALUE =>
-                read_data_o <= BIT_READ_VALUE;
-            when REG_POS_READ_VALUE =>
-                read_data_o <= POS_READ_VALUE;
-            when REG_POS_READ_CHANGES =>
-                read_data_o <= POS_READ_CHANGES;
-            when REG_FPGA_CAPABILITIES =>
-                read_data_o <= FPGA_CAPABILITIES;
-            when REG_PCAP_TS_SEC => 
-                read_data_o <= TS_SEC;
-            when REG_PCAP_TS_TICKS =>
-                read_data_o <= TS_TICKS;
-            when others =>
-                read_data_o <= (others => '0');
-        end case;
+        table_dma_irq <= table_dma_irq or dma_irq_events_i;
+        if read_strobe_i = '1' then
+            case (read_address) is
+                when REG_FPGA_VERSION =>
+                    read_data_o <= FPGA_VERSION;
+                when REG_FPGA_BUILD =>
+                    read_data_o <= FPGA_BUILD;
+                when REG_USER_VERSION =>
+                    read_data_o <= SLOW_FPGA_VERSION;
+                when REG_BIT_READ_VALUE =>
+                    read_data_o <= BIT_READ_VALUE;
+                when REG_POS_READ_VALUE =>
+                    read_data_o <= POS_READ_VALUE;
+                when REG_POS_READ_CHANGES =>
+                    read_data_o <= POS_READ_CHANGES;
+                when REG_FPGA_CAPABILITIES =>
+                    read_data_o <= FPGA_CAPABILITIES;
+                when REG_PCAP_TS_SEC =>
+                    read_data_o <= TS_SEC;
+                when REG_PCAP_TS_TICKS =>
+                    read_data_o <= TS_TICKS;
+                when REG_TABLE_IRQ_STATUS =>
+                    read_data_o <= table_dma_irq;
+                    table_dma_irq <= dma_irq_events_i;
+                when others =>
+                    read_data_o <= (others => '0');
+            end case;
+        end if;
     end if;
 end process;
 

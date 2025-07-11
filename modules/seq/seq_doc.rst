@@ -173,26 +173,15 @@ And a rising edge of the ENABLE will re-run the same table from the start:
    :section: Restarting the same table
 
 
-Table rewriting
----------------
+Streaming tables
+-----------------
 
-If a table is written while enabled, the outputs and table state are reset and
-operation begins again from the first repeat of the first line of the table:
+When TABLE_LENGTH has the most significant bit set, it indicates there will
+be one more table pushed. The condition in which a new table can be pushed
+is signaled via an interrupt. When the last table is pushed (indicated by
+TABLE_LENGTH's most significant bit cleared), the sequencer will repeat that
+table according to the value of the REPEATS register.
 
 .. timing_plot::
    :path: modules/seq/seq_documentation.timing.ini
-   :section: Rewriting a table
-
-Double table mode
------------------
-A table ending with a zeroed entry indicates that there will be a next table,
-a new table can be pushed as soon as CAN_WRITE_NEXT becomes 1.
-The user is responsible to push a table that gives enough time to be able to
-push the next table before the last line is reached.
-The last table will not contain the last zeroed entry and will be the only table
-that will be repeated according to the REPEATS register.
-
-
-.. timing_plot::
-   :path: modules/seq/seq_double_table_documentation.timing.ini
-   :section: Test case for double table writting while running
+   :section: Streaming tables
