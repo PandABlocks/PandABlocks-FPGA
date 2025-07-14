@@ -384,7 +384,7 @@ datain_filt : entity work.delay_filter port map(
     filt_o  => DATA_IN
 );
 
--- An output is shared between incremental and absolute data lines.
+-- A output is shared between incremental and absolute data lines.
 
 INENC_A_o <= A_IN;
 INENC_B_o <= B_IN;

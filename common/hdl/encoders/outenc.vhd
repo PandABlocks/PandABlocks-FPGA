@@ -227,14 +227,11 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
 );
 
 
--- Determine how to share between inenc and outenc
-
 -- A output is shared between incremental and absolute data lines.
 As0_opad <= A_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else DATA_OUT;
 Bs0_opad <= B_OUT;
 Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else not outenc_dir;
 
--- Take this out and put in inenc
 
 clkin_filt : entity work.delay_filter port map (
     clk_i   => clk_i,
