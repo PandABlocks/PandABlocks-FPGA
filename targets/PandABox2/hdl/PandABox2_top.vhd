@@ -107,29 +107,21 @@ signal IRQ_F2P              : std_logic_vector(1 downto 0);
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
 signal read_data            : std32_array(MOD_COUNT-1 downto 0);
-signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others
-                                                                       => '1');
+signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
 signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
-signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
-                                                                       => '1');
+signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
+
+-- I2C FPGA
+signal SYS_I2C_MUX          : std_logic;
 
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
 signal pos_bus              : pos_bus_t := (others => (others => '0'));
--- Daughter card control signals
 
 -- Discrete Block Outputs :
 signal pcap_active          : std_logic_vector(0 downto 0);
-
--- FMC Block
-signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
-                                        := (FMC_ARR => (others => FMC_init));
-                                        
--- 4th SFP interface available using FMC MGT
-signal FMC_MGT              : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
-                                        := (MGT_ARR => (others => MGT_init));
 
 signal rdma_req             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_ack             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
@@ -141,9 +133,7 @@ signal rdma_valid           : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
-
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
-
 
 begin
 
@@ -392,6 +382,21 @@ port map (
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
+us_system_top_inst : entity work.us_system_top
+port map (
+    clk_i               => FCLK_CLK0,
+    sys_i2c_mux_o       => SYS_I2C_MUX,
+    read_strobe_i       => read_strobe(US_SYSTEM_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(US_SYSTEM_CS),
+    read_ack_o          => read_ack(US_SYSTEM_CS),
+
+    write_strobe_i      => write_strobe(US_SYSTEM_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(US_SYSTEM_CS)
+);
+
 softblocks_inst : entity work.soft_blocks
 port map(
     FCLK_CLK0 => FCLK_CLK0,
@@ -416,9 +421,7 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     rdma_irq => rdma_irq,
-    rdma_done_irq => rdma_done_irq,
-    FMC => FMC,
-    FMC_MGT => FMC_MGT
+    rdma_done_irq => rdma_done_irq
 );
 
 end rtl;
