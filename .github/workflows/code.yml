@@ -16,13 +16,13 @@ jobs:
   make_boot:
     uses: ./.github/workflows/_make_boot.yml
 
-  # Make zpkg for FPGA apps
-  make_zpkg:
-    uses: ./.github/workflows/_make_zpkg.yml
+  # Make packages for FPGA apps
+  make_packages:
+    uses: ./.github/workflows/_make_packages.yml
 
   # Release on push to tag
   release:
-    needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen ]
+    needs: [ make_boot, make_packages, test_hdl, test_matrix, test_python_autogen ]
     uses: ./.github/workflows/_release.yml
 
   # Generate job matrix to evenly split tests

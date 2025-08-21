@@ -14,6 +14,9 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 PYTHON = python3
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+MAKE_IPK = $(TOP)/common/scripts/make-fpga-ipk.sh
+MAKE_DOC_IPK = $(TOP)/common/scripts/make-fpga-doc-ipk.sh
+MAKE_BOOT_IPK = $(TOP)/common/scripts/make-fpga-boot-ipk.sh
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
@@ -310,6 +313,15 @@ ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
+IPKG_DEPENDS += fpga-bit
+IPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
+IPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
+
+IPK_FILE = $(BUILD_DIR)/panda-fpga-$(APP_NAME)@$(GIT_VERSION).ipk
+DOC_IPK_FILE = $(BUILD_DIR)/panda-fpga-doc@$(GIT_VERSION).ipk
+BOOT_IPK_FILE = $(BUILD_DIR)/panda-fpga-boot@$(TARGET)-$(GIT_VERSION).ipk
+
+
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
 	$(PYTHON) -m common.python.copy_file_in_modules \
         --fallback $(TOP)/common/templates/default_ipmi.ini \
@@ -335,6 +347,25 @@ zpkg: $(ZPKG_FILE)
 all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
+
+$(IPK_FILE): $(IPKG_DEPENDS)
+	$(MAKE_IPK) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
+            $(APP_NAME) $(GIT_VERSION)
+
+$(DOC_IPK_FILE): $(DOCS_HTML_DIR)
+	$(MAKE_DOC_IPK) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
+            $(GIT_VERSION)
+
+$(BOOT_IPK_FILE): boot
+	$(MAKE_BOOT_IPK) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
+            $(TARGET) $(GIT_VERSION)
+
+ipk: $(IPK_FILE)
+.PHONY: ipk
+doc-ipk: $(DOC_IPK_FILE)
+.PHONY: doc-ipk
+boot-ipk: $(BOOT_IPK_FILE)
+.PHONY: boot-ipk
 
 # ------------------------------------------------------------------------------
 # Clean
