@@ -135,17 +135,6 @@ function PFIELD(pbus : std32_array; sel : std_logic_vector)
 function compute_block_strobe(addr : std_logic_vector; index : natural)
     return std_logic;
 
---
--- Components
---
-component ila_32x8K
-port (
-    clk             : in  std_logic;
-    probe0          : in  std_logic_vector(31 downto 0)
-);
-end component;
-
-
 end top_defines;
 
 package body top_defines is
