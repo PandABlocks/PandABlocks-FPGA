@@ -26,6 +26,7 @@ jobs:
         with:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
+          submodules: true
 
       - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv

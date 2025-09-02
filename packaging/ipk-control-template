@@ -1,0 +1,10 @@
+Package: @PACKAGE@
+Version: @VERSION@
+Description: @DESCRIPTION@
+ @DESCRIPTION@
+Depends: @DEPENDS@
+Maintainer: emilio.perezjuarez@diamond.ac.uk
+Section: base
+Priority: optional
+License: Apache-2.0
+Architecture: all
