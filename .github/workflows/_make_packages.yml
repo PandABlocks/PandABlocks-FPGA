@@ -5,7 +5,7 @@ env:
   WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
 
 jobs:
-  make_zpkg:
+  make_packages:
     strategy:
       fail-fast: false
       matrix:
@@ -37,14 +37,13 @@ jobs:
       - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
-      # Make zpkgs
-      - name: build carrier_ip and zpkg
-        id: make_zpkg
+      # Make ipks
+      - name: build carrier_ip and ipks
+        id: make_ipks
         run: |
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }}
-          tini -s -- make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
           tini -s -- make WORK_DIR=$WORK_DIR ipk APP_NAME=${{ matrix.app }}
           # Documentation is the same for all
           if [[ ${{ matrix.app }} = PandABox-no-fmc ]]; then
@@ -52,13 +51,6 @@ jobs:
           fi
 
       # Artifacts
-      - name: Upload zpkg
-        uses: actions/upload-artifact@v4
-        with:
-          name: zpkgs-${{ matrix.app }}
-          path: /build/panda-fpga@*.zpg
-          if-no-files-found: error
-
       - name: Upload ipk
         uses: actions/upload-artifact@v4
         with:

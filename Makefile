@@ -6,22 +6,19 @@ TOP := $(CURDIR)
 SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
-PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 VIVADO = $(error Define VIVADO in CONFIG file)
 APP_NAME = $(error Define APP_NAME in CONFIG file)
 
 # Build defaults that can be overwritten by the CONFIG file if required
 PYTHON = python3
 SPHINX_BUILD = sphinx-build
-MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_IPK = $(TOP)/packaging/make-fpga-ipk.sh
 MAKE_DOC_IPK = $(TOP)/packaging/make-fpga-doc-ipk.sh
 MAKE_BOOT_IPK = $(TOP)/packaging/make-fpga-boot-ipk.sh
-MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
 VIVADO_VER = 2023.2
-DEFAULT_TARGETS = zpkg
+DEFAULT_TARGETS = ipk
 
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
@@ -316,15 +313,6 @@ endif
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_LIST = targets/$(TARGET)/etc/panda-fpga.list
-ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
-ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
-
-ZPKG_DEPENDS += fpga-bit
-ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
-ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
-ZPKG_DEPENDS += $(DOCS_HTML_DIR)
-
 IPK_DEPENDS += fpga-bit
 IPK_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 IPK_DEPENDS += $(APP_BUILD_DIR)/extensions
@@ -353,17 +341,9 @@ $(APP_BUILD_DIR)/extensions: $(APP_FILE)
 # the result is more predictable
 .PHONY: $(APP_BUILD_DIR)/ipmi.ini $(APP_BUILD_DIR)/extensions
 
-
-$(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
-	$(MAKE_ZPKG) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
-            $< $(ZPKG_VERSION)
-
-zpkg: $(ZPKG_FILE)
-.PHONY: zpkg
-
-all-zpkg:
-	$(call MAKE_ALL_APPS, zpkg)
-.PHONY: all-zpkg
+all-ipks:
+	$(call MAKE_ALL_APPS, ipk)
+.PHONY: all-ipks
 
 $(IPK_FILE): $(IPK_DEPENDS)
 	$(MAKE_IPK) $(TOP) $(APP_BUILD_DIR) $(APP_NAME) $(GIT_VERSION) && \
