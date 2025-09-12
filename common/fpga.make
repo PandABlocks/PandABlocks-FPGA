@@ -73,8 +73,6 @@ BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
-BOOT_ZIP = $(ZIP_BUILD_DIR)/boot@$(TARGET)-$(GIT_VERSION).zip
-
 ATF_NAME = arm-trusted-firmware-$(ATF_TAG)
 ATF_SRC = $(SRC_ROOT)/$(ATF_NAME)
 ATF_BUILD = $(BOOT_BUILD)/atf
@@ -99,17 +97,11 @@ carrier_ip: $(APP_IP_DEPS)
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(BOOT_ZIP) $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
+boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
 u-boot: $(U_BOOT_ELF)
 atf: $(ATF_ELF)
 dtc: $(DEVTREE_DTC)
 .PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf dtc
-
-#####################################################################
-# zip boot files
-
-$(BOOT_ZIP): $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
-	zip -j $@ $^
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation
