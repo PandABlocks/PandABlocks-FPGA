@@ -26,6 +26,7 @@ jobs:
         with:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
+          submodules: true
 
       - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
@@ -37,13 +38,15 @@ jobs:
         run: |
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
-          make boot APP_NAME=${{ matrix.app }}
+          make boot-ipk APP_NAME=${{ matrix.app }}
           ps -Ao pid= -o comm= | awk '$2 ~ /Xvfb/ { print $1}' | xargs kill
 
       # Upload artifacts if boot files present
       - name: Upload boot
         uses: actions/upload-artifact@v4
         with:
-          name: boot-${{ matrix.app }}
-          path: /build/boot*.zip
+          name: boot-ipk-${{ matrix.app }}
+          path: |
+            /build/boot*.zip
+            /build/panda-fpga-boot*.ipk
           if-no-files-found: error

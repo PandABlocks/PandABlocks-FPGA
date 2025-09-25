@@ -1,5 +1,8 @@
 # Extension module to support FMC ADC427
-from i2c import smbus2
+try:
+    from i2c import smbus2
+except ImportError:
+    from pandai2c import smbus2
 
 # The mapping of GPIO bits is as follows:
 #   0.1:0   ADC A4 gain

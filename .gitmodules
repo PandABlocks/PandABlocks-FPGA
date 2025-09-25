@@ -1,0 +1,3 @@
+[submodule "packaging/opkg-utils"]
+	path = packaging/opkg-utils
+	url = git://git.yoctoproject.org/opkg-utils
