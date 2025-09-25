@@ -60,6 +60,8 @@ this:
     ip:
     otherconst:
     extension:
+    extra_interface: fmc_mgt: mgt 4
+
 
 The ``description`` should be a short (a few words) description that will be
 visible as a Block label to users of the `pandablocks_device_` when it runs.
@@ -82,6 +84,12 @@ configuration.
 If the ``extension`` field is present then the ``extensions`` directory in the
 module must exist and contain a python server extension file.
 
+If the ``extra_interface`` field is present then this block would enable use of 
+the specified io. This io would also need to have been identified as a capability
+and signified with a '*' in the :ref:`Target ini`. The build system would then 
+enable this io as if it were specified in the ``io`` section of the target.ini,
+where the number of instances is determined by the lower of the number specified
+ here or that given in the target.ini file.
 [FIELD] sections
 ~~~~~~~~~~~~~~~~
 
@@ -280,16 +288,24 @@ ini file declares the blocks and their number similar to the app.ini file.
 
 The [.] section
 ~~~~~~~~~~~~~~~
-The first entry to the ini file defines information for the SFP sites for the
+The first entry to the ini file defines information for the IO sites for the
 target::
 
     [.]
-    sfp_sites:
-    sfp_constraints:
+    io: sfp: mgt, 3
+        fmc: 1
+        fmc_mgt: mgt, 1*
+    options: pcap_std_dev, PICXO
 
-The ``sfp_sites`` type is the number of available SFP sites on the target, and
-the ``sfp_sites`` type is the name of the constraints file for each SFP site,
-located in the target/const directory.
+The ``io`` type describes the IO that is available on the target. The format is
+``io_name: io_type, number``. If ``io_type`` is not specified it is assumed
+to be the same as ``io_name``. If there is a '*' following ``number`` the target has the
+capability to have this number of sites however they are not natively available.
+E.g, they can be added by using a specific mezzanine card.
+
+The ``options`` define various functionality that can be enabled in the firmware
+however use significant resources that they are not enabled by default. They can be
+added in the app.ini.
 
 [BLOCK] sections
 ~~~~~~~~~~~~~~~~
