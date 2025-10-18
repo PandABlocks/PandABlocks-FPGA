@@ -8,11 +8,11 @@ jobs:
       matrix:
         include:
           - platform: zynq
-            app: PandABox-no-fmc
+            app: pandabox-no-fmc
           - platform: zynqmp
-            app: xu5_st1-no-fmc
+            app: xu5-st1-no-fmc
           - platform: zynqmp
-            app: PandABrick
+            app: pandabrick
     runs-on:
       group: iris_runners
     container:

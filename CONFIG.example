@@ -42,6 +42,6 @@ PANDA_ROOTFS = $(WORK_DIR)/repos/PandABlocks-rootfs
 # DEFAULT_TARGETS = zpkg
 
 # FPGA Application Name
-APP_NAME = PandABox-fmc_lback-sfp_lback
+APP_NAME = pandabox-fmc-lback-sfp-lback
 
 # vim: set filetype=make:
