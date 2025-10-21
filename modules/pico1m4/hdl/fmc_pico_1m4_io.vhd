@@ -4,7 +4,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.support.all;
+library unisim;
+use unisim.vcomponents.all;
 
 entity fmc_pico_1m4_io is
     port (
@@ -73,14 +74,14 @@ begin
     ) port map(
         I => cnv_i,
         O => FMC_LA_P(4)
-    )
+    );
 
-    sck_buf : OBUF generip map(
+    sck_buf : OBUF generic map(
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => sck_i,
         O => FMC_LA_N(4)
-    )
+    );
 
 
     -- Conversion status and data clock
@@ -100,14 +101,14 @@ begin
     ) port map (
         I => FMC_LA_N(8),
         O => busy_cmn_o
-    )
+    );
 
     sck_buf_array : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => FMC_LA_P(8),
         O => sck_rtrn_o
-    )
+    );
 
     -- Converted data
     -- adc_data : entity work.ibuf_array generic map (
@@ -128,29 +129,29 @@ begin
     ) port map (
         I => FMC_LA_N(11),
         0 => sdo_out(0)
-    )
+    );
 
     conv_array_2 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => FMC_LA_P(11),
         0 => sdo_out(1)
-    )
+    );
 
     conv_array_3 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => FMC_LA_N(7),
         0 => sdo_out(2)
-    )
+    );
 
     conv_array_4 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => FMC_LA_P(7),
         O => sdo_out(3)
-    )
-    
+    );
+
     sdo_o <= reverse(sdo_out);
 
     -- ADC range selection
@@ -170,28 +171,28 @@ begin
     ) port map (
         I => r_i(3),
         O => FMC_LA_N(3)
-    )
+    );
 
     adc_range_2: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(2),
         O => FMC_LA_P(3)
-    )
+    );
 
     adc_range_3: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(1),
         O => FMC_LA_N(2)
-    )
+    );
 
     adc_range_4: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(0),
         O => FMC_LA_P(2)
-    )
+    );
 
     -- LEDs (somewhat futile as they're placed where they are invisible)
     -- leds : entity work.obuf_array generic map (
@@ -224,7 +225,7 @@ begin
         O => a_scl_o,
         T => a_scl_i,
         IO => FMC_LA_P(23)
-    )
+    );
 
     i2c_buf_sda: IOBUF generic map (
         IOSTANDARD => "LVCMOS18"
@@ -233,5 +234,5 @@ begin
         O => a_sda_o,
         T => a_sda_i,
         IO => FMC_LA_N(23)
-    )
+    );
 end;
