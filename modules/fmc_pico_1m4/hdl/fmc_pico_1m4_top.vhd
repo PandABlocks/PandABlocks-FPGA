@@ -12,20 +12,19 @@ entity fmc_pico_1m4_top is
         DATA_BITS : natural := 20
     );
     port (
-        clk_i : in std_ulogic;
+        clk_i               : in std_ulogic;
 
         -- Capture control
-        start_i : in std_ulogic;
-        busy_o : out std_ulogic;
+        start_i             : in std_ulogic;
+        busy_o              : out std_ulogic;
         -- Data returned
-        valid_o : out std_ulogic;       -- Strobed on data ready out
-        data_o : out signed_array(0 to 3)(DATA_BITS-1 downto 0);
+        valid_o             : out std_ulogic;       -- Strobed on data ready out
+        data_o              : out signed_array(0 to 3)(DATA_BITS-1 downto 0);
         -- Range selection
-        range_i : in std_ulogic_vector(0 to 3);
+        range_i             : in std_ulogic_vector(0 to 3);
 
         -- FMC
-        FMC_LA_P : inout std_logic_vector(0 to 33);
-        FMC_LA_N : inout std_logic_vector(0 to 33)
+        FMC                 : view FMC_Module
     );
 end;
 
@@ -38,8 +37,8 @@ architecture arch of fmc_pico_1m4_top is
 
 begin
     io : entity work.fmc_pico_1m4_io port map (
-        FMC_LA_P => FMC_LA_P,
-        FMC_LA_N => FMC_LA_N,
+        FMC_LA_P => FMC.FMC_LA_P,
+        FMC_LA_N => FMC.FMC_LA_N,
 
         cnv_i => cnv,
         sck_i => sck,
