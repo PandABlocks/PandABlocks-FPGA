@@ -12,6 +12,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library unisim;
+use unisim.vcomponents.all;
+
 use work.support.all;
 
 entity fmc_pico_1m4_capture is
@@ -69,18 +72,86 @@ architecture arch of fmc_pico_1m4_capture is
     signal capture_edge : std_ulogic;
     signal last_capture : std_ulogic;
 
+    signal last_data: std_ulogic := '1';
+
 begin
     -- Synchroniser for all inputs
-    sync_busy : entity work.iddr_array generic map (
-        COUNT => 6
+    -- sync_busy : entity work.iddr_array generic map (
+    --     COUNT => 6
+    -- ) port map (
+    --     clk_i => clk_i,
+    --     d_i(3 downto 0) => sdo_i,
+    --     d_i(4) => busy_cmn_i,
+    --     d_i(5) => sck_rtrn_i,
+    --     q1_o(3 downto 0) => sdo_in,
+    --     q1_o(4) => adc_busy,
+    --     q1_o(5) => sck_rtrn
+    -- );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
     ) port map (
-        clk_i => clk_i,
-        d_i(3 downto 0) => sdo_i,
-        d_i(4) => busy_cmn_i,
-        d_i(5) => sck_rtrn_i,
-        q1_o(3 downto 0) => sdo_in,
-        q1_o(4) => adc_busy,
-        q1_o(5) => sck_rtrn
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sdo_i(3),
+        Q1 => sdo_in(3)
+    );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
+    ) port map (
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sdo_i(2),
+        Q1 => sdo_in(2)
+    );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
+    ) port map (
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sdo_i(1),
+        Q1 => sdo_in(1)
+    );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
+    ) port map (
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sdo_i(0),
+        Q1 => sdo_in(0)
+    );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
+    ) port map (
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sck_rtrn_i,
+        Q1 => sck_rtrn
+    );
+
+    sync_busy_1: IDDR generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
+        SRTYPE       => "ASYNC"
+    ) port map (
+        S  => '0',
+        C  => clk_i,
+        CE => '1',
+        D  => sdo_i(2),
+        Q1 => sdo_in(2)
     );
 
     -- Delay data to align with clock.  This needs to take the synchroniser
@@ -89,21 +160,27 @@ begin
         WIDTH => 4,
         DELAY => 1 + CLOCK_DATA_DELAY
     ) port map (
-        clk_i => clk_i,
+        clk_i  => clk_i,
         data_i => sdo_in,
         data_o => sdo_in_delay
     );
 
     -- Detect rising edge of incoming clock
-    edge_detect : entity work.edge_detect generic map (
-        REGISTER_EDGE => false,
-        INITIAL_STATE => '1'
-    ) port map (
-        clk_i => clk_i,
-        data_i(0) => sck_rtrn,
-        edge_o(0) => capture_edge
-    );
-
+    -- edge_detect : entity work.edge_detect generic map (
+    --     REGISTER_EDGE => false,
+    --     INITIAL_STATE => '1'
+    -- ) port map (
+    --     clk_i => clk_i,
+    --     data_i(0) => sck_rtrn,
+    --     edge_o(0) => capture_edge
+    -- );
+    
+    capture_edge <= sck_rtrn and not last_data;
+    edge_detection_process: process(clk_i) begin
+        if rising_edge(clk_i) then
+            last_data <= data_i(0);
+        end if;
+    end process;
 
     process (clk_i) begin
         if rising_edge(clk_i) then
