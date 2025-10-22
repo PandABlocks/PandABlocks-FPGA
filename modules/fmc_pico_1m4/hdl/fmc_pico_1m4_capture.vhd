@@ -99,7 +99,7 @@ begin
         Q1 => sdo_in(3)
     );
 
-    sync_busy_1: IDDR generic map (
+    sync_busy_2: IDDR generic map (
         DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
         SRTYPE       => "ASYNC"
     ) port map (
@@ -110,7 +110,7 @@ begin
         Q1 => sdo_in(2)
     );
 
-    sync_busy_1: IDDR generic map (
+    sync_busy_3: IDDR generic map (
         DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
         SRTYPE       => "ASYNC"
     ) port map (
@@ -121,7 +121,7 @@ begin
         Q1 => sdo_in(1)
     );
 
-    sync_busy_1: IDDR generic map (
+    sync_busy_4: IDDR generic map (
         DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
         SRTYPE       => "ASYNC"
     ) port map (
@@ -132,7 +132,7 @@ begin
         Q1 => sdo_in(0)
     );
 
-    sync_busy_1: IDDR generic map (
+    sync_busy_5: IDDR generic map (
         DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
         SRTYPE       => "ASYNC"
     ) port map (
@@ -143,7 +143,7 @@ begin
         Q1 => sck_rtrn
     );
 
-    sync_busy_1: IDDR generic map (
+    sync_busy_6: IDDR generic map (
         DDR_CLK_EDGE => "SAME_EDGE_PIPELINED",
         SRTYPE       => "ASYNC"
     ) port map (
@@ -178,7 +178,7 @@ begin
     capture_edge <= sck_rtrn and not last_data;
     edge_detection_process: process(clk_i) begin
         if rising_edge(clk_i) then
-            last_data <= data_i(0);
+            last_data <= sck_rtrn;
         end if;
     end process;
 
