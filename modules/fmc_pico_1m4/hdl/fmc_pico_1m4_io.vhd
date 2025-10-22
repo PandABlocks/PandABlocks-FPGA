@@ -7,11 +7,13 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
+use work.support.all;
+use work.interface_types.all;
+
 entity fmc_pico_1m4_io is
     port (
         -- FMC -----------------------------------------------------------------
-        FMC_LA_P : inout std_logic_vector(0 to 33);
-        FMC_LA_N : inout std_logic_vector(0 to 33);
+        FMC : view FMC_Module;
 
         -- ADC Interface
         cnv_i : in std_ulogic;                  -- Start conversion on edge
@@ -34,6 +36,7 @@ end;
 architecture arch of fmc_pico_1m4_io is
     -- The following rather strange selection of pins are assigned, we'll need
     -- to set all the rest to high impedance.
+    type boolean_array is array(natural range<>) of boolean;
     constant USED_IOS : boolean_array(0 to 33) := (
         2 to 5 | 7 to 8 | 11 | 23 => true,
         others => false);
@@ -43,16 +46,16 @@ architecture arch of fmc_pico_1m4_io is
 begin
     -- Ensure inputs don't get flagged as 'U' in simulation
     -- pragma translate_off
-    FMC_LA_P <= (others => 'Z');
-    FMC_LA_N <= (others => 'Z');
+    FMC.FMC_LA_P <= (others => 'Z');
+    FMC.FMC_LA_N <= (others => 'Z');
     -- pragma translate_on
 
 
     -- Set all unused pins to high impedance.
     gen_unused : for n in USED_IOS'RANGE generate
         test_used : if not USED_IOS(n) generate
-            FMC_LA_P(n) <= 'Z';
-            FMC_LA_N(n) <= 'Z';
+            FMC.FMC_LA_P(n) <= 'Z';
+            FMC.FMC_LA_N(n) <= 'Z';
         end generate;
     end generate;
 
@@ -73,14 +76,14 @@ begin
         IOSTANDARD => "LVCMOS18"
     ) port map(
         I => cnv_i,
-        O => FMC_LA_P(4)
+        O => FMC.FMC_LA_P(4)
     );
 
     sck_buf : OBUF generic map(
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => sck_i,
-        O => FMC_LA_N(4)
+        O => FMC.FMC_LA_N(4)
     );
 
 
@@ -99,14 +102,14 @@ begin
     busy_buf_array : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_N(8),
+        I => FMC.FMC_LA_N(8),
         O => busy_cmn_o
     );
 
     sck_buf_array : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_P(8),
+        I => FMC.FMC_LA_P(8),
         O => sck_rtrn_o
     );
 
@@ -127,28 +130,28 @@ begin
     conv_array_1 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_N(11),
-        0 => sdo_out(0)
+        I => FMC.FMC_LA_N(11),
+        O => sdo_out(0)
     );
 
     conv_array_2 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_P(11),
-        0 => sdo_out(1)
+        I => FMC.FMC_LA_P(11),
+        O => sdo_out(1)
     );
 
     conv_array_3 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_N(7),
-        0 => sdo_out(2)
+        I => FMC.FMC_LA_N(7),
+        O => sdo_out(2)
     );
 
     conv_array_4 : IBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC_LA_P(7),
+        I => FMC.FMC_LA_P(7),
         O => sdo_out(3)
     );
 
@@ -170,28 +173,28 @@ begin
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(3),
-        O => FMC_LA_N(3)
+        O => FMC.FMC_LA_N(3)
     );
 
     adc_range_2: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(2),
-        O => FMC_LA_P(3)
+        O => FMC.FMC_LA_P(3)
     );
 
     adc_range_3: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(1),
-        O => FMC_LA_N(2)
+        O => FMC.FMC_LA_N(2)
     );
 
     adc_range_4: OBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
         I => r_i(0),
-        O => FMC_LA_P(2)
+        O => FMC.FMC_LA_P(2)
     );
 
     -- LEDs (somewhat futile as they're placed where they are invisible)
@@ -221,18 +224,18 @@ begin
     i2c_buf_scl: IOBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => "0",
+        I => '0',
         O => a_scl_o,
         T => a_scl_i,
-        IO => FMC_LA_P(23)
+        IO => FMC.FMC_LA_P(23)
     );
 
     i2c_buf_sda: IOBUF generic map (
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => "0",
+        I => '0',
         O => a_sda_o,
         T => a_sda_i,
-        IO => FMC_LA_N(23)
+        IO => FMC.FMC_LA_N(23)
     );
 end;
