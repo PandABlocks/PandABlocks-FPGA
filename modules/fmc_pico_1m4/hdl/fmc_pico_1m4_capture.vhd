@@ -150,8 +150,8 @@ begin
         S  => '0',
         C  => clk_i,
         CE => '1',
-        D  => sdo_i(2),
-        Q1 => sdo_in(2)
+        D  => busy_cmn_i,
+        Q1 => adc_busy
     );
 
     -- Delay data to align with clock.  This needs to take the synchroniser
