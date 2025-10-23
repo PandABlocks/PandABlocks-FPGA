@@ -16,8 +16,8 @@ jobs:
           "pandabox-fmc-acq430",
           "pandabox-fmc-lback-sfp-lback",
           "pandabrick",
-          "xu5-st1-no-fmc",
-          "xu5-st1-fmc-acq430"
+          "xu5-no-fmc",
+          "xu5-fmc-acq430"
           ]
     runs-on:
       group: iris_runners
