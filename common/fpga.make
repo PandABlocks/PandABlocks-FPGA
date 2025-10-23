@@ -239,7 +239,7 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 
-$(IMAGE_DIR)/target-defs: $(TARGET_DIR)/etc/target-defs
+$(IMAGE_DIR)/target-defs: $(TARGET_DIR)/target-defs
 	cp $< $@
 
 $(DEVTREE_DTC): $(DTC_SRC)
