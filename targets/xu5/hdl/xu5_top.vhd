@@ -20,7 +20,7 @@ use work.addr_defines.all;
 use work.top_defines.all;
 use work.interface_types.all;
 
-entity xu5_st1_top is
+entity xu5_top is
 generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
@@ -58,9 +58,9 @@ port (
     I2C_SCL_FPGA        : inout  std_logic;
     I2C_SDA_FPGA        : inout  std_logic
 );
-end xu5_st1_top;
+end;
 
-architecture rtl of xu5_st1_top is
+architecture rtl of xu5_top is
 
 constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
@@ -597,5 +597,5 @@ FMC.FMC_ARR(0).FMC_I2C_SDA_tri <= IIC_FPGA_sda_tri when SYS_I2C_MUX = '1' else '
 FMC.FMC_ARR(0).FMC_I2C_SCL_out <= IIC_FPGA_scl_out;
 FMC.FMC_ARR(0).FMC_I2C_SCL_tri <= IIC_FPGA_scl_tri when SYS_I2C_MUX = '1' else '1';
 
-end rtl;
+end;
 

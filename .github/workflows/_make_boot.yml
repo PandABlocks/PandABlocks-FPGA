@@ -10,7 +10,7 @@ jobs:
           - platform: zynq
             app: pandabox-no-fmc
           - platform: zynqmp
-            app: xu5-st1-no-fmc
+            app: xu5-no-fmc
           - platform: zynqmp
             app: pandabrick
     runs-on:

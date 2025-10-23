@@ -20,7 +20,7 @@ use work.addr_defines.all;
 use work.top_defines.all;
 use work.interface_types.all;
 
-entity PandABox2_top is
+entity pandabox2_top is
 generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
@@ -28,9 +28,9 @@ generic (
     NUM_FMC             : natural := 0;
     MAX_NUM_FMC_MGT     : natural := 0
 );
-end PandABox2_top;
+end;
 
-architecture rtl of PandABox2_top is
+architecture rtl of pandabox2_top is
 
 constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
@@ -424,4 +424,4 @@ port map(
     rdma_done_irq => rdma_done_irq
 );
 
-end rtl;
+end;
