@@ -102,9 +102,6 @@ signal PMACENC_ENCODING         : std_logic_vector(31 downto 0);
 signal PMACENC_ENCODING_WSTB    : std_logic;
 signal PMACENC_BITS             : std_logic_vector(31 downto 0);
 signal PMACENC_BITS_WSTB        : std_logic;
-signal QPERIOD                  : std_logic_vector(31 downto 0);
-signal QPERIOD_WSTB             : std_logic;
-signal QSTATE                   : std_logic_vector(31 downto 0);
 signal PMACENC_HEALTH           : std_logic_vector(31 downto 0);
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn                     : std_logic_vector(31 downto 0);
@@ -131,6 +128,9 @@ signal ABSENC_BITS              : std_logic_vector(31 downto 0);
 signal ABSENC_BITS_WSTB         : std_logic;
 signal SETP                     : std_logic_vector(31 downto 0);
 signal SETP_WSTB                : std_logic;
+signal INCENC_A                 : std_logic_vector(31 downto 0);
+signal INCENC_B                 : std_logic_vector(31 downto 0);
+signal INCENC_Z                 : std_logic_vector(31 downto 0);
 signal RST_ON_Z                 : std_logic_vector(31 downto 0);
 signal STATUS                   : std_logic_vector(31 downto 0);
 signal absenc_STATUS            : std_logic_vector(31 downto 0);
@@ -141,7 +141,6 @@ signal ABSENC_LSB_DISCARD       : std_logic_vector(31 downto 0);
 signal ABSENC_MSB_DISCARD       : std_logic_vector(31 downto 0);
 signal INCENC_HEALTH            : std_logic_vector(31 downto 0);
 signal ABSENC_HEALTH            : std_logic_vector(31 downto 0);
-signal HOMED                    : std_logic_vector(31 downto 0);
 signal ABSENC_ENABLED           : std_logic_vector(31 downto 0);
 signal ABSENC_HOMED             : std_logic_vector(31 downto 0);
 
@@ -226,20 +225,14 @@ port map (
 
     PROTOCOL            => INCENC_PROTOCOL,
     PROTOCOL_WSTB       => INCENC_PROTOCOL_WSTB,
-    BITS                => INCENC_BITS,
-    BITS_WSTB           => INCENC_BITS_WSTB,
-    LSB_DISCARD         => LSB_DISCARD,
-    LSB_DISCARD_WSTB    => open,
-    MSB_DISCARD         => MSB_DISCARD,
-    MSB_DISCARD_WSTB    => open,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
-    HEALTH              => INCENC_HEALTH,
-    HOMED               => HOMED,
-    QPERIOD             => QPERIOD,
-    QSTATE              => QSTATE
+    A                   => INCENC_A,
+    B                   => INCENC_B,
+    Z                   => INCENC_Z,
+    HEALTH              => INCENC_HEALTH
 );
 
 absenc_ctrl : entity work.absenc_ctrl
@@ -301,9 +294,9 @@ port map(
     posn_i              => posn,
     enable_i            => enable,
     -- Encoder I/O Pads
-    -- INCENC_A_o          => INCENC_A_o,
-    -- INCENC_B_o          => INCENC_B_o,
-    -- INCENC_Z_o          => INCENC_Z_o,
+    INCENC_A_o          => INCENC_A(0),
+    INCENC_B_o          => INCENC_B(0),
+    INCENC_Z_o          => INCENC_Z(0),
     ABSENC_DATA_o       => ABSENC_DATA_o,
     --
     clk_out_ext_i       => clk_ext,
@@ -333,22 +326,15 @@ port map(
     PMACENC_PROTOCOL_i  => PMACENC_PROTOCOL(2 downto 0),
     PMACENC_ENCODING_i  => PMACENC_ENCODING(1 downto 0),
     PMACENC_BITS_i      => PMACENC_BITS(7 downto 0),
-    QPERIOD_i           => QPERIOD,
-    QPERIOD_WSTB_i      => QPERIOD_WSTB,
     PMACENC_HEALTH_o    => PMACENC_HEALTH,
-    QSTATE_o            => QSTATE,
 
     INCENC_PROTOCOL_i   => INCENC_PROTOCOL(2 downto 0),
     INCENC_ENCODING_i   => INCENC_ENCODING(1 downto 0),
-    INCENC_BITS_i       => INCENC_BITS(7 downto 0),
-    LSB_DISCARD_i       => LSB_DISCARD(4 downto 0),
-    MSB_DISCARD_i       => MSB_DISCARD(4 downto 0),
     SETP_i              => SETP,
     SETP_WSTB_i         => SETP_WSTB,
     RST_ON_Z_i          => RST_ON_Z,
     STATUS_o            => STATUS,
     INCENC_HEALTH_o     => INCENC_HEALTH,
-    HOMED_o             => HOMED,
 
     -- DCARD_MODE_i        => DCARD_MODE_i,
     ABSENC_PROTOCOL_i   => ABSENC_PROTOCOL(2 downto 0),

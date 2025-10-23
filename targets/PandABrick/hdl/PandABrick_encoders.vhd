@@ -23,9 +23,9 @@ port (
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
     -- Encoder I/O Pads
-    -- INCENC_A_o          : out std_logic;
-    -- INCENC_B_o          : out std_logic;
-    -- INCENC_Z_o          : out std_logic;
+    INCENC_A_o          : out std_logic;
+    INCENC_B_o          : out std_logic;
+    INCENC_Z_o          : out std_logic;
     ABSENC_DATA_o       : out std_logic;
     --
     clk_out_ext_i       : in  std_logic;
@@ -54,22 +54,16 @@ port (
     PMACENC_PROTOCOL_i  : in  std_logic_vector(2 downto 0);
     PMACENC_ENCODING_i  : in  std_logic_vector(1 downto 0);
     PMACENC_BITS_i      : in  std_logic_vector(7 downto 0);
-    QPERIOD_i           : in  std_logic_vector(31 downto 0);
-    QPERIOD_WSTB_i      : in  std_logic;
     PMACENC_HEALTH_o    : out std_logic_vector(31 downto 0);
     QSTATE_o            : out std_logic_vector(31 downto 0);
 
     INCENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
     INCENC_ENCODING_i   : in  std_logic_vector(1 downto 0);
-    INCENC_BITS_i       : in  std_logic_vector(7 downto 0);
-    LSB_DISCARD_i       : in  std_logic_vector(4 downto 0);
-    MSB_DISCARD_i       : in  std_logic_vector(4 downto 0);
     SETP_i              : in  std_logic_vector(31 downto 0);
     SETP_WSTB_i         : in  std_logic;
     RST_ON_Z_i          : in  std_logic_vector(31 downto 0);
     STATUS_o            : out std_logic_vector(31 downto 0);
     INCENC_HEALTH_o     : out std_logic_vector(31 downto 0);
-    HOMED_o             : out std_logic_vector(31 downto 0);
 
     ABSENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
     ABSENC_ENCODING_i   : in  std_logic_vector(1 downto 0);
@@ -100,8 +94,6 @@ architecture rtl of pandabrick_encoders is
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 -- constant c_enDat            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
 
-signal quad_a               : std_logic;
-signal quad_b               : std_logic;
 signal PASSTHROUGH          : std_logic;
 
 signal clk_out_encoder_biss : std_logic;
@@ -145,24 +137,15 @@ port map(
     reset_i             => reset_i,
     posn_i              => posn_i,
     enable_i            => enable_i,
-    QPERIOD_i           => QPERIOD_i,
-    QPERIOD_WSTB_i      => QPERIOD_WSTB_i,
-    QSTATE_o            => QSTATE_o,
-    INCENC_BITS_i       => INCENC_BITS_i,
-    LSB_DISCARD_i       => LSB_DISCARD_i,
-    MSB_DISCARD_i       => MSB_DISCARD_i,
     INCENC_PROTOCOL_i   => INCENC_PROTOCOL_i,
     SETP_i              => SETP_i,
     SETP_WSTB_i         => SETP_WSTB_i,
     RST_ON_Z_i          => RST_ON_Z_i,
     STATUS_o            => STATUS_o,
     INCENC_HEALTH_o     => INCENC_HEALTH_o,
-    HOMED_o             => HOMED_o,
     A_IN_i              => A_IN,
     B_IN_i              => B_IN,
     Z_IN_i              => Z_IN,
-    quad_a_o            => quad_a,
-    quad_b_o            => quad_b,
     inc_posn_o          => inc_posn_o
 );
 
@@ -216,8 +199,6 @@ port map(
     ABSENC_ENABLED_o      => ABSENC_ENABLED,
     UVWT_o                => UVWT_o,
     CLK_IN_i              => CLK_IN,
-    quad_a_i              => quad_a,
-    quad_b_i              => quad_b,
     A_OUT_o               => A_OUT,
     B_OUT_o               => B_OUT,
     Z_OUT_o               => Z_OUT,
@@ -284,9 +265,9 @@ As0_opad <= A_OUT;
 Bs0_opad <= B_OUT;
 Zs0_opad <= Z_OUT;
 
--- INCENC_A_o <= A_IN;
--- INCENC_B_o <= B_IN;
--- INCENC_Z_o <= Z_IN;
+INCENC_A_o <= A_IN;
+INCENC_B_o <= B_IN;
+INCENC_Z_o <= Z_IN;
 
 ABSENC_DATA_o <= DATA_IN;
 

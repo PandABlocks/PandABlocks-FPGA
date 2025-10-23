@@ -25,8 +25,6 @@ port(
     UVWT_o                : out std_logic;
 
     CLK_IN_i              : in std_logic;
-    quad_a_i              : in std_logic;
-    quad_b_i              : in std_logic;
 
     A_OUT_o               : out std_logic;
     B_OUT_o               : out std_logic;
@@ -48,15 +46,12 @@ signal bdat                 : std_logic;
 signal health_biss_slave    : std_logic_vector(31 downto 0);
 begin
 
--- When using the monitor control card, only the B signal is used as this is
--- used to generate the Clock inputted to the Inenc.
-
 -- Assign outputs
-A_OUT_o <= a_ext_i when (PASSTHROUGH_o = '1') else quad_a_i;
-    B_OUT_o <= b_ext_i when (PASSTHROUGH_o = '1') else quad_b_i;
-    Z_OUT_o <= z_ext_i when (PASSTHROUGH_o = '1') else '0';
-    DATA_OUT_o <= data_ext_i when (PASSTHROUGH_o = '1') else
-                bdat when (PMACENC_PROTOCOL_i = c_BISS) else sdat;
+A_OUT_o <= a_ext_i;
+B_OUT_o <= b_ext_i;
+Z_OUT_o <= z_ext_i when (PASSTHROUGH_o = '1') else '0';
+DATA_OUT_o <= data_ext_i when (PASSTHROUGH_o = '1') else
+    bdat when (PMACENC_PROTOCOL_i = c_BISS) else sdat;
 
     --
     -- SSI SLAVE
