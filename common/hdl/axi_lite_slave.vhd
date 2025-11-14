@@ -258,11 +258,7 @@ process (clk_i) begin
                         if vector_and(wstrb_i) then
                             -- Generate write strobe for valid cycle
                             write_strobe_o <= write_strobe;
-                            if write_ack = '1' then
-                                write_state <= WRITE_DONE;
-                            else
-                                write_state <= WRITE_WRITING;
-                            end if;
+                            write_state <= WRITE_WRITING;
                         else
                             -- For invalid write go straight to completion
                             write_state <= WRITE_DONE;
