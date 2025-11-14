@@ -84,12 +84,12 @@ port (
     -- AXI-Lite write interface
     awaddr_i        : in std_logic_vector(ADDR_BITS-1 downto 0);
     awprot_i        : in std_logic_vector(2 downto 0);        -- Ignored
-    awready_o       : out std_logic;
+    awready_o       : out std_logic := '0';
     awvalid_i       : in std_logic;
     --
     wdata_i         : in std_logic_vector(DATA_BITS-1 downto 0);
     wstrb_i         : in std_logic_vector(DATA_BITS/8-1 downto 0);
-    wready_o        : out std_logic;
+    wready_o        : out std_logic := '0';
     wvalid_i        : in std_logic;
     --
     bresp_o         : out std_logic_vector(1 downto 0);
@@ -168,7 +168,7 @@ end function;
 -- ------------------------------------------------------------------------
 -- Reading state
 type read_state_t is (READ_IDLE, READ_READING, READ_DONE);
-signal read_state           : read_state_t;
+signal read_state           : read_state_t := READ_IDLE;
 signal read_module_address  : MOD_RANGE;
 
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
@@ -180,10 +180,8 @@ signal read_data            : std_logic_vector(31 downto 0);
 
 -- The data and address for writes can come separately.
 type write_state_t is (WRITE_IDLE, WRITE_WRITING, WRITE_DONE);
-signal write_state          : write_state_t;
+signal write_state          : write_state_t := WRITE_IDLE;
 signal write_module_address : MOD_RANGE;
-signal awready_out          : std_logic := '0';
-signal wready_out           : std_logic := '0';
 
 signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_ack            : std_logic;
@@ -198,7 +196,7 @@ read_data <= read_data_i(read_module_address);
 
 process (clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if reset_i then
             read_state <= READ_IDLE;
             read_strobe_o <= (others => '0');
             read_address_o <= (others => '0');
@@ -206,7 +204,7 @@ process (clk_i) begin
             case read_state is
                 when READ_IDLE =>
                     -- On valid read request latch read address
-                    if (arvalid_i = '1') then
+                    if arvalid_i then
                         read_module_address <= module_address(araddr_i);
                         read_strobe_o <= read_strobe;
                         read_address_o <= register_address(araddr_i);
@@ -215,13 +213,13 @@ process (clk_i) begin
                 when READ_READING =>
                     -- Wait for read acknowledge from module
                     read_strobe_o <= (others => '0');
-                    if (read_ack = '1') then
+                    if read_ack then
                         rdata_o <= read_data;
                         read_state <= READ_DONE;
                     end if;
                 when READ_DONE =>
                     -- Waiting for master to acknowledge our data.
-                    if (rready_i = '1') then
+                    if rready_i then
                         read_state <= READ_IDLE;
                     end if;
             end case;
@@ -241,23 +239,23 @@ write_ack <= write_ack_i(write_module_address);
 
 process (clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if reset_i then
             write_state <= WRITE_IDLE;
             write_address_o <= (others => '0');
             write_strobe_o <= (others => '0');
-            awready_out <= '0';
-            wready_out <= '0';
+            awready_o <= '0';
+            wready_o <= '0';
         else
             case write_state is
                 when WRITE_IDLE =>
                     -- Wait for valid read and write data
-                    if (awvalid_i = '1' and wvalid_i = '1') then
+                    if awvalid_i and wvalid_i then
                         write_address_o <= register_address(awaddr_i);
                         write_module_address <= module_address(awaddr_i);
                         write_data_o <= wdata_i;
-                        awready_out <= '1';
-                        wready_out <= '1';
-                        if vector_and(wstrb_i) = '1' then
+                        awready_o <= '1';
+                        wready_o <= '1';
+                        if vector_and(wstrb_i) then
                             -- Generate write strobe for valid cycle
                             write_strobe_o <= write_strobe;
                             if write_ack = '1' then
@@ -272,19 +270,19 @@ process (clk_i) begin
                     end if;
 
                 when WRITE_WRITING =>
-                    awready_out <= '0';
-                    wready_out <= '0';
+                    awready_o <= '0';
+                    wready_o <= '0';
                     write_strobe_o <= (others => '0');
-                    if (write_ack = '1') then
+                    if write_ack then
                         write_state <= WRITE_DONE;
                     end if;
 
                 when WRITE_DONE =>
-                    awready_out <= '0';
-                    wready_out <= '0';
+                    awready_o <= '0';
+                    wready_o <= '0';
                     write_strobe_o <= (others => '0');
                     -- Wait for master to accept our response
-                    if (bready_i = '1') then
+                    if bready_i then
                         write_state <= WRITE_IDLE;
                     end if;
             end case;
@@ -292,8 +290,6 @@ process (clk_i) begin
    end if;
 end process;
 
-awready_o <= awready_out;
-wready_o <= wready_out;
 bvalid_o  <= to_std_logic(write_state = WRITE_DONE);
 bresp_o <= "00";
 
