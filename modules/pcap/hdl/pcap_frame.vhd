@@ -58,7 +58,7 @@ signal trig_dly         : std_logic; -- trig_pulse delayed by 3 clk_i periods
 
 signal timestamp        : unsigned(63 downto 0);
 
-signal ts_start_enable  : std_logic;
+signal ts_start_enable  : std_logic := '0';
 signal ts_start         : std_logic_vector(63 downto 0);
 signal ts_start_dly     : std_logic_vector(63 downto 0);
 signal ts_start_o       : std_logic_vector(63 downto 0);

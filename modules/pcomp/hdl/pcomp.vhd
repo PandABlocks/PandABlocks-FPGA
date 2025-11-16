@@ -34,12 +34,12 @@ port (
     PULSES              : in  std_logic_vector(31 downto 0);
     RELATIVE            : in  std_logic_vector(31 downto 0);
     DIR                 : in  std_logic_vector(31 downto 0);
-    health              : out std_logic_vector(31 downto 0);
+    health              : out std_logic_vector(31 downto 0) := (others => '0');
     produced            : out std_logic_vector(31 downto 0);
     state               : out std_logic_vector(31 downto 0) := (others => '0');
     -- Output pulse
-    active_o            : out std_logic;
-    out_o               : out std_logic
+    active_o            : out std_logic := '0';
+    out_o               : out std_logic := '0'
 );
 end pcomp;
 
@@ -64,7 +64,7 @@ signal pcomp_fsm               : fsm_t;
 signal enable_prev             : std_logic;
 signal enable_rise             : std_logic;
 signal enable_fall             : std_logic;
-signal posn_latched            : signed(31 downto 0);
+signal posn_latched            : signed(31 downto 0) := (others => '0');
 signal posn_relative           : signed(31 downto 0);
 signal posn                    : signed(31 downto 0);
 signal pulse_start_pos         : signed(31 downto 0);
@@ -76,10 +76,10 @@ signal pulse_width             : signed(31 downto 0);
 signal pulse_step_pos          : signed(31 downto 0);
 signal pulse_step_neg          : signed(31 downto 0);
 signal pulse_step              : signed(31 downto 0);
-signal pulse_counter           : unsigned(31 downto 0);
-signal next_crossing           : signed(31 downto 0);
-signal last_crossing           : signed(31 downto 0);
-signal dir_pos                 : std_logic;
+signal pulse_counter           : unsigned(31 downto 0) := (others => '0');
+signal next_crossing           : signed(31 downto 0) := (others => '0');
+signal last_crossing           : signed(31 downto 0) := (others => '0');
+signal dir_pos                 : std_logic := '0';
 
 signal exceeded_prestart_pos   : std_logic;
 signal exceeded_prestart_neg   : std_logic;

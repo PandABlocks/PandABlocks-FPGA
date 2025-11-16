@@ -72,6 +72,17 @@ record
     time2       : unsigned(31 downto 0);
 end record;
 
+constant ZERO_SEQ_FRAME : seq_t :=
+(
+    repeats     => (others => '0'),
+    trigger     => (others => '0'),
+    out1        => (others => '0'),
+    out2        => (others => '0'),
+    position    => (others => '0'),
+    time1       => (others => '0'),
+    time2       => (others => '0')
+);
+
 type slow_packet is
 record
     strobe      : std_logic;

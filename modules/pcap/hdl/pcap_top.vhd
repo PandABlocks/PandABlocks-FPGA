@@ -80,7 +80,7 @@ end pcap_top;
 architecture rtl of pcap_top is
 
 signal FRAME_NUM        : std_logic_vector(31 downto 0);
-signal HEALTH           : std_logic_vector(31 downto 0);
+signal HEALTH           : std_logic_vector(31 downto 0) := (others => '0');
 
 signal ARM              : std_logic;
 signal DISARM           : std_logic;

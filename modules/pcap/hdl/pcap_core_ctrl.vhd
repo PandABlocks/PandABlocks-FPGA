@@ -39,19 +39,19 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Block Register Interface.
-    START_WRITE         : out std_logic;
-    WRITE               : out std_logic_vector(31 downto 0);
-    WRITE_WSTB          : out std_logic;
-    ARM                 : out std_logic;
-    DISARM              : out std_logic;
+    START_WRITE         : out std_logic := '0';
+    WRITE               : out std_logic_vector(31 downto 0) := (others => '0');
+    WRITE_WSTB          : out std_logic := '0';
+    ARM                 : out std_logic := '0';
+    DISARM              : out std_logic := '0';
 
-    DMA_RESET           : out std_logic;
-    DMA_START           : out std_logic;
-    DMA_ADDR            : out std_logic_vector(31 downto 0);
-    DMA_ADDR_WSTB       : out std_logic;
-    BLOCK_SIZE          : out std_logic_vector(31 downto 0);
-    TIMEOUT             : out std_logic_vector(31 downto 0);
-    TIMEOUT_WSTB        : out std_logic;
+    DMA_RESET           : out std_logic := '0';
+    DMA_START           : out std_logic := '0';
+    DMA_ADDR            : out std_logic_vector(31 downto 0) := (others => '0');
+    DMA_ADDR_WSTB       : out std_logic := '0';
+    BLOCK_SIZE          : out std_logic_vector(31 downto 0) := (others => '0');
+    TIMEOUT             : out std_logic_vector(31 downto 0) := (others => '0');
+    TIMEOUT_WSTB        : out std_logic := '0';
     IRQ_STATUS          : in  std_logic_vector(31 downto 0)
 );
 end pcap_core_ctrl;

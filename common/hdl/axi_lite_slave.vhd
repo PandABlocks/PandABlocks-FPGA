@@ -97,13 +97,13 @@ port (
     bvalid_o        : out std_logic;
 
     -- Internal read interface
-    read_strobe_o   : out std_logic_vector(MOD_COUNT-1 downto 0);
+    read_strobe_o   : out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '0');
     read_address_o  : out std_logic_vector(PAGE_AW-1 downto 0);
     read_data_i     : in  std32_array(MOD_COUNT-1 downto 0);
     read_ack_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
 
     -- Internal write interface
-    write_strobe_o  : out std_logic_vector(MOD_COUNT-1 downto 0);
+    write_strobe_o  : out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '0');
     write_address_o : out std_logic_vector(PAGE_AW-1 downto 0);
     write_data_o    : out std_logic_vector(31 downto 0);
     write_ack_i     : in  std_logic_vector(MOD_COUNT-1 downto 0)

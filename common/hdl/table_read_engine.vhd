@@ -41,7 +41,7 @@ port (
     m_axi_rvalid        : in  STD_LOGIC;
     -- Slaves' DMA Engine Interface
     dma_req_i           : in  std_logic_vector(SLAVES-1 downto 0);
-    dma_ack_o           : out std_logic_vector(SLAVES-1 downto 0);
+    dma_ack_o           : out std_logic_vector(SLAVES-1 downto 0) := (others => '0');
     dma_done_o          : out std_logic;
     dma_addr_i          : in  std32_array(SLAVES-1 downto 0);
     dma_len_i           : in  std8_array(SLAVES-1 downto 0);

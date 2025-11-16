@@ -24,7 +24,7 @@ port (
     clk_i               : in  std_logic;
     -- Block Input and Outputs
     pos_bus_i           : in  pos_bus_t;
-    posn_o              : out std_logic_vector(31 downto 0);
+    posn_o              : out std_logic_vector(31 downto 0) := (others => '0');
     -- Block Parameters
     POSMUX_SEL_i        : in  std_logic_vector(31 downto 0)
 );

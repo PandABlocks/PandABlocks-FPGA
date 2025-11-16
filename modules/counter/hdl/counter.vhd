@@ -69,9 +69,9 @@ signal counter_end      : signed(31 downto 0) := (others => '0');
 signal STEP_default     : signed(31 downto 0) := (others => '0');
 signal MAX_VAL          : signed(31 downto 0) := c_max_val;
 signal MIN_VAL          : signed(31 downto 0) := c_min_val;
-signal counter_carry    : std_logic;
-signal carry_latch      : std_logic;
-signal carry_end        : std_logic;
+signal counter_carry    : std_logic := '0';
+signal carry_latch      : std_logic := '0';
+signal carry_end        : std_logic := '0';
 
 begin
 

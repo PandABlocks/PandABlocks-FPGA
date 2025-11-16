@@ -21,7 +21,7 @@ port (
     clk_i             : in  std_logic;
     ENABLE_i          : in  std_logic;                
     -- Block Input and Outputs
-    out_o             : out std_logic;
+    out_o             : out std_logic := '0';
     -- Block Parameters
     PERIOD            : in  std_logic_vector(31 downto 0);
     PERIOD_wstb       : in  std_logic;

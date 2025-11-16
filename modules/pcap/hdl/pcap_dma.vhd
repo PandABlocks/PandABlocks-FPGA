@@ -73,27 +73,28 @@ constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_DATA_WIDTH/8;
 
 signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
-signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
+signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0) :=
+    (others => '0');
 signal reset                : std_logic;
 
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
-signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
+signal IRQ_STATUS_T         : std_logic_vector(31 downto 0) := (others => '0');
 signal first_data           : std_logic;
 signal timeout_counter      : unsigned(31 downto 0);
 signal pcap_timeout         : std_logic;
-signal pcap_timeout_latch   : std_logic;
+signal pcap_timeout_latch   : std_logic := '0';
 
-signal dma_start            : std_logic;
+signal dma_start            : std_logic := '0';
 signal dma_done             : std_logic;
-signal dma_irq              : std_logic;
+signal dma_irq              : std_logic := '0';
 signal dma_error            : std_logic;
-signal tlp_count            : unsigned(31 downto 0);
-signal last_tlp             : std_logic;
+signal tlp_count            : unsigned(31 downto 0) := (others => '0');
+signal last_tlp             : std_logic := '0';
 signal axi_awaddr_val       : unsigned(31 downto 0);
 signal axi_wdata_val        : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
-signal next_dmaaddr_valid   : std_logic;
+signal next_dmaaddr_valid   : std_logic := '0';
 signal buffer_full          : std_logic;
 signal pcap_wstb            : std_logic;
 signal writing_sample       : std_logic;
@@ -106,8 +107,8 @@ signal fifo_write_ready     : std_logic;
 signal fifo_full            : std_logic;
 
 signal irq_flags            : std_logic_vector(8 downto 0);
-signal sample_count         : unsigned(22 downto 0);
-signal pcap_completed       : std_logic;
+signal sample_count         : unsigned(22 downto 0) := (others => '0');
+signal pcap_completed       : std_logic := '0';
 
 signal pcap_error           : std_logic;
 signal start_event_detected : std_logic := '0';

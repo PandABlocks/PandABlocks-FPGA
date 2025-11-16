@@ -23,7 +23,7 @@ port (
     inpb_i              : in  std_logic_vector(31 downto 0);
     inpc_i              : in  std_logic_vector(31 downto 0);
     inpd_i              : in  std_logic_vector(31 downto 0);
-    out_o               : out std_logic_vector(31 downto 0);
+    out_o               : out std_logic_vector(31 downto 0) := (others => '0');
     -- Block Parameters and Status
     TYPEA               : in  std_logic_vector(31 downto 0);
     TYPEB               : in  std_logic_vector(31 downto 0);

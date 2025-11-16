@@ -61,9 +61,9 @@ architecture rtl of pcap_bus_delay is
 -- pos_bus is std32_array(PBUSW-1 downto 0);  PBUSW = 18 to 30
 
 -- Block inputs pipeline registers
-signal enable_r1      : std_logic;
-signal trig_r1        : std_logic;
-signal gate_r1        : std_logic;
+signal enable_r1      : std_logic := '0';
+signal trig_r1        : std_logic := '0';
+signal gate_r1        : std_logic := '0';
 signal bit_bus_r1     : bit_bus_t;
 signal pos_bus_r1     : pos_bus_t;
 

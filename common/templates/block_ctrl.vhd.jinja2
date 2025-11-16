@@ -24,8 +24,8 @@ port (
         {% if field in filter_fields("extension_read|read.*") %}
     {{ pad(register.name) }} : in std_logic_vector(31 downto 0);
         {% elif field in filter_fields ("table|time|extension_write|(param|write).*")%}
-    {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
-    {{ pad(register.name + "_wstb") }} : out std_logic;
+    {{ pad(register.name) }} : out std_logic_vector(31 downto 0) := (others => '0');
+    {{ pad(register.name + "_wstb") }} : out std_logic := '0';
         {% endif %}
     {% endfor %}
     {% if field.type in "bit_mux" %}
@@ -51,8 +51,8 @@ architecture rtl of {{ entity }}_ctrl is
 
 {% for field in filter_fields("bit_mux|pos_mux") %}
     {% for register in field.numbered_registers() %}
-signal {{ register.name }}      : std_logic_vector(31 downto 0);
-signal {{ register.name }}_wstb : std_logic;
+signal {{ register.name }} : std_logic_vector(31 downto 0) := (others => '0');
+signal {{ register.name }}_wstb : std_logic := '0';
 
     {% endfor %}
 {% endfor %}

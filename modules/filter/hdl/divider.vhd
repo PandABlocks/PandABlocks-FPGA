@@ -12,7 +12,8 @@ entity divider is
         divisor_i  : in  std_logic_vector(g_divisor_size-1 downto 0);
         divider_i  : in  std_logic_vector(g_divider_size-1 downto 0);
         quot_rdy_o : out std_logic;
-        quot_o     : out std_logic_vector((g_divider_size-g_divisor_size)-1  downto 0));
+        quot_o     : out std_logic_vector((g_divider_size-g_divisor_size)-1 downto 0) := (others => '0')
+  );
 
 end divider;
 
@@ -31,12 +32,12 @@ end function;
 
 
 signal stop     : std_logic;
-signal enable   : std_logic;
+signal enable   : std_logic := '0';
 signal index    : unsigned(log2(g_divisor_size-1) downto 0);
-signal divider  : unsigned(g_divider_size-1 downto 0);
+signal divider  : unsigned(g_divider_size-1 downto 0) := (others => '0');
 signal result   : unsigned(g_divisor_size-1 downto 0);
 
-signal divider_comp : unsigned(31 downto 0);
+signal divider_comp : unsigned(31 downto 0) := (others => '0');
 
 begin
 
