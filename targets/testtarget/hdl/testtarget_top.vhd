@@ -267,7 +267,8 @@ begin
         dma_irq_events_i => dma_irq_events,
         SLOW_FPGA_VERSION => (others => '0'),
         TS_SEC => (others => '0'),
-        TS_TICKS => (others => '0'),
+        -- Dummy value to test register read
+        TS_TICKS => x"11223344",
         MGT_MAC_ADDR => open,
         MGT_MAC_ADDR_WSTB => open
     );
