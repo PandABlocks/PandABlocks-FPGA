@@ -54,7 +54,7 @@ signal ongoing_trig        : std_logic;
 signal mask_length         : unsigned(5 downto 0) := "000000";
 signal mask_addra          : unsigned(5 downto 0) := "000000";
 signal mask_addrb          : unsigned(5 downto 0);
-signal mask_doutb          : std_logic_vector(31 downto 0);
+signal mask_doutb          : std_logic_vector(9 downto 0);
 signal trig_dly            : std_logic;
 signal ongoing_trig_dly    : std_logic;
 
@@ -69,14 +69,14 @@ begin
 mask_spbram : entity work.spbram
 generic map (
     AW          => 6,
-    DW          => 32
+    DW          => 10
 )
 port map (
     addra       => std_logic_vector(mask_addra),
     addrb       => std_logic_vector(mask_addrb),
     clka        => clk_i,
     clkb        => clk_i,
-    dina        => WRITE,
+    dina        => WRITE(9 downto 0),
     doutb       => mask_doutb,
     wea         => WRITE_WSTB
 );
