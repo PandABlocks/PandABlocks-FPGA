@@ -8,7 +8,7 @@ entity filter is
         trig_i   : in  std_logic;
         inp_i    : in  std_logic_vector(31 downto 0);
         enable_i : in  std_logic;
-        out_o    : out std_logic_vector(31 downto 0);
+        out_o    : out std_logic_vector(31 downto 0) := (others => '0');
         ready_o  : out std_logic;
         health   : out std_logic_vector(31 downto 0) := (others => '0')
 );
@@ -23,20 +23,20 @@ constant average       : std_logic_vector(0 downto 0) := "1";
 
 signal stop            : std_logic := '0';
 signal trig_dly        : std_logic;
-signal result_neg      : std_logic;
-signal trig_div_dly    : std_logic;
-signal div_enabled     : std_logic;
+signal result_neg      : std_logic := '0';
+signal trig_div_dly    : std_logic := '0';
+signal div_enabled     : std_logic := '0';
 signal quot_rdy_o      : std_logic;
 signal enable_i_dly    : std_logic;
-signal trig_div_i      : std_logic;
-signal accum_of_err    : std_logic;
-signal div_enabled_err : std_logic;
-signal latch           : signed(31 downto 0);
-signal sum_i           : signed(63 downto 0);
-signal sum_num         : unsigned(31 downto 0);
+signal trig_div_i      : std_logic := '0';
+signal accum_of_err    : std_logic := '0';
+signal div_enabled_err : std_logic := '0';
+signal latch           : signed(31 downto 0) := (others => '0');
+signal sum_i           : signed(63 downto 0) := (others => '0');
+signal sum_num         : unsigned(31 downto 0) := (others => '0');
 signal quot_o          : std_logic_vector(31 downto 0);
-signal divisor_i       : std_logic_vector(31 downto 0);
-signal divider_i       : std_logic_vector(63 downto 0);
+signal divisor_i       : std_logic_vector(31 downto 0) := (others => '0');
+signal divider_i       : std_logic_vector(63 downto 0) := (others => '0');
 
 
 begin

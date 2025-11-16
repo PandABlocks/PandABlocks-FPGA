@@ -41,7 +41,7 @@ architecture arch of fifo is
     subtype ADDRESS_RANGE is natural range 0 to 2**FIFO_BITS-1;
     subtype ADDRESS_RANGE_BITS is natural range FIFO_BITS downto 0;
 
-    signal fifo : vector_array(ADDRESS_RANGE)(DATA_RANGE);
+    signal fifo : vector_array(ADDRESS_RANGE)(DATA_RANGE) := (others => (others => '0'));
     attribute RAM_STYLE : string;
     attribute RAM_STYLE of fifo : signal is MEM_STYLE;
 

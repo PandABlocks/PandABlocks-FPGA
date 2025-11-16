@@ -50,13 +50,13 @@ constant c_bits1           : std_logic_vector(3 downto 0) := "1000"; -- 8
 constant c_bits2           : std_logic_vector(3 downto 0) := "1001"; -- 9
 constant c_bits3           : std_logic_vector(3 downto 0) := "1010"; -- 10
 
-signal ongoing_trig        : std_logic;
+signal ongoing_trig        : std_logic := '0';
 signal mask_length         : unsigned(5 downto 0) := "000000";
 signal mask_addra          : unsigned(5 downto 0) := "000000";
 signal mask_addrb          : unsigned(5 downto 0);
 signal mask_doutb          : std_logic_vector(9 downto 0);
-signal trig_dly            : std_logic;
-signal ongoing_trig_dly    : std_logic;
+signal trig_dly            : std_logic := '0';
+signal ongoing_trig_dly    : std_logic := '0';
 
 
 begin

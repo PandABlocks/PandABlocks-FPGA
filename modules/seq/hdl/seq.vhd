@@ -78,13 +78,13 @@ constant SEQ_FRAMES         : positive := 4096;
 signal TABLE_FRAMES         : std_logic_vector(18 downto 0);
 
 signal next_frame           : seq_t;
-signal current_frame        : seq_t;
+signal current_frame        : seq_t := ZERO_SEQ_FRAME;
 signal load_next            : std_logic;
 
 signal tframe_counter       : unsigned(31 downto 0);
-signal LINE_REPEAT_OUT      : unsigned(31 downto 0);
-signal TABLE_LINE_OUT       : unsigned(18 downto 0);
-signal TABLE_REPEAT_OUT     : unsigned(31 downto 0);
+signal LINE_REPEAT_OUT      : unsigned(31 downto 0) := (others => '0');
+signal TABLE_LINE_OUT       : unsigned(18 downto 0) := (others => '0');
+signal TABLE_REPEAT_OUT     : unsigned(31 downto 0) := (others => '0');
 
 type state_t is (UNREADY, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
@@ -116,7 +116,6 @@ signal next_pos_inp         : std_logic;
 signal next_ts              : unsigned(31 downto 0);
 
 signal start : std_logic := '0';
-signal table_done : std_logic;
 signal frame_valid : std_logic;
 signal transfer_busy : std_logic;
 signal frames_room : std_logic_vector(11 downto 0);

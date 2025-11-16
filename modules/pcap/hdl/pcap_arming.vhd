@@ -33,7 +33,7 @@ port (
     pcap_done_o         : out std_logic;
     pcap_start_event_o  : out std_logic;
     timestamp_o         : out std_logic_vector(63 downto 0);
-    pcap_status_o       : out std_logic_vector(2 downto 0)
+    pcap_status_o       : out std_logic_vector(2 downto 0) := (others => '0')
 );
 end pcap_arming;
 
@@ -42,12 +42,12 @@ architecture rtl of pcap_arming is
 type pcap_arm_t is (IDLE, ARMED, ENABLED, WAIT_ONGOING_WRITE);
 signal arm_fsm                  : pcap_arm_t;
 
-signal timestamp                : unsigned(63 downto 0);
+signal timestamp                : unsigned(63 downto 0) := (others => '0');
 signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
 signal abort_trig               : std_logic;
-signal pcap_armed               : std_logic;
-signal disable_armed            : std_logic;
+signal pcap_armed               : std_logic := '0';
+signal disable_armed            : std_logic := '0';
 signal first_enable             : std_logic := '0';
 
 begin

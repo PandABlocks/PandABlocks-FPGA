@@ -63,9 +63,9 @@ signal wvalid               : std_logic := '0';
 signal wlast                : std_logic;
 signal bready               : std_logic;
 signal wnext                : std_logic;
-signal aw_throttle          : std_logic;
-signal w_throttle           : std_logic;
-signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0);
+signal aw_throttle          : std_logic := '0';
+signal w_throttle           : std_logic := '0';
+signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0) := (others => '0');
 
 begin
 
