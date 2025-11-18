@@ -5,19 +5,19 @@ env:
   WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
 
 jobs:
-  make_zpkg:
+  make_packages:
     strategy:
       fail-fast: false
       matrix:
         app: [
-          "PandABox-no-fmc",
-          "PandABox-fmc_24vio",
-          "PandABox-fmc_acq427",
-          "PandABox-fmc_acq430",
-          "PandABox-fmc_lback-sfp_lback",
-          "PandABrick",
-          "xu5_st1-no-fmc",
-          "xu5_st1-fmc_acq430"
+          "pandabox-no-fmc",
+          "pandabox-fmc-24vio",
+          "pandabox-fmc-acq427",
+          "pandabox-fmc-acq430",
+          "pandabox-fmc-lback-sfp-lback",
+          "pandabrick",
+          "xu5-no-fmc",
+          "xu5-fmc-acq430"
           ]
     runs-on:
       group: iris_runners
@@ -37,28 +37,20 @@ jobs:
       - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
-      # Make zpkgs
-      - name: build carrier_ip and zpkg
-        id: make_zpkg
+      # Make ipks
+      - name: build carrier_ip and ipks
+        id: make_ipks
         run: |
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }}
-          tini -s -- make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
           tini -s -- make WORK_DIR=$WORK_DIR ipk APP_NAME=${{ matrix.app }}
           # Documentation is the same for all
-          if [[ ${{ matrix.app }} = PandABox-no-fmc ]]; then
+          if [[ ${{ matrix.app }} = pandabox-no-fmc ]]; then
               tini -s -- make WORK_DIR=$WORK_DIR doc-ipk APP_NAME=${{ matrix.app }}
           fi
 
       # Artifacts
-      - name: Upload zpkg
-        uses: actions/upload-artifact@v4
-        with:
-          name: zpkgs-${{ matrix.app }}
-          path: /build/panda-fpga@*.zpg
-          if-no-files-found: error
-
       - name: Upload ipk
         uses: actions/upload-artifact@v4
         with:
