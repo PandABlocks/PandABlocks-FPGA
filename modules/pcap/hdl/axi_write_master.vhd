@@ -58,8 +58,8 @@ end axi_write_master;
 architecture rtl of axi_write_master is
 
 signal AXI_BURST_LEN        : unsigned(AXI_BURST_WIDTH-1 downto 0);
-signal awvalid              : std_logic;
-signal wvalid               : std_logic;
+signal awvalid              : std_logic := '0';
+signal wvalid               : std_logic := '0';
 signal wlast                : std_logic;
 signal bready               : std_logic;
 signal wnext                : std_logic;

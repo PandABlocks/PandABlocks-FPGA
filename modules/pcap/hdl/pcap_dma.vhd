@@ -63,28 +63,14 @@ port (
     m_axi_wlast         : out std_logic;
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0)
 );
-end pcap_dma;
+end;
 
 architecture rtl of pcap_dma is
 
 -- Bit-width required to represent maximum burst length (5)
 constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 -- Number of byte per AXI burst
-constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
-
-component fifo_1K32_ft
-port (
-    clk                 : in std_logic;
-    srst                : in std_logic;
-    din                 : in std_logic_vector(31 DOWNTO 0);
-    wr_en               : in std_logic;
-    rd_en               : in std_logic;
-    dout                : out std_logic_vector(31 DOWNTO 0);
-    full                : out std_logic;
-    empty               : out std_logic;
-    data_count          : out std_logic_vector(10 downto 0)
-);
-end component;
+constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_DATA_WIDTH/8;
 
 signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
 signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
@@ -112,11 +98,11 @@ signal buffer_full          : std_logic;
 signal pcap_wstb            : std_logic;
 signal writing_sample       : std_logic;
 
-signal fifo_data_count      : std_logic_vector(10 downto 0);
 signal fifo_count           : unsigned(10 downto 0);
 signal transfer_size        : unsigned(AXI_BURST_WIDTH-1 downto 0);
 signal fifo_rd_en           : std_logic;
 signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
+signal fifo_write_ready     : std_logic;
 signal fifo_full            : std_logic;
 
 signal irq_flags            : std_logic_vector(8 downto 0);
@@ -151,26 +137,25 @@ BLOCK_TLP_SIZE <= to_unsigned((to_integer(unsigned(BLOCK_SIZE)) / BURST_LEN),32)
 --  pcap_status_i[2] : dma error
 pcap_error <= pcap_status_i(2) or pcap_status_i(1);
 
---
--- 32bit FIFO with 1K sample depth
---
-dma_fifo_inst : fifo_1K32_ft
-port map (
-    srst            => reset,
-    clk             => clk_i,
-    din             => pcap_dat_i,
-    wr_en           => pcap_wstb_i,
-    rd_en           => fifo_rd_en,
-    dout            => fifo_dout,
-    full            => fifo_full,
-    empty           => open,
-    data_count      => fifo_data_count
+dma_fifo_inst : entity work.fifo generic map (
+    FIFO_BITS => 10,
+    DATA_WIDTH => 32
+) port map (
+    clk_i => clk_i,
+    write_valid_i => pcap_wstb_i,
+    write_ready_o => fifo_write_ready,
+    write_data_i => pcap_dat_i,
+    read_valid_o => open,
+    read_ready_i => fifo_rd_en,
+    read_data_o => fifo_dout,
+    reset_fifo_i => reset,
+    fifo_depth_o => fifo_count
 );
+fifo_full <= not fifo_write_ready;
 
-fifo_count <= unsigned(fifo_data_count);
 transfer_size <= to_unsigned(AXI_BURST_LEN, AXI_BURST_WIDTH)
-                   when (fifo_count > AXI_BURST_LEN) else
-                     unsigned(fifo_data_count(AXI_BURST_WIDTH-1 downto 0));
+                     when fifo_count > AXI_BURST_LEN else
+                         fifo_count(AXI_BURST_WIDTH-1 downto 0);
 
 
 process (clk_i) begin
@@ -472,5 +457,4 @@ port map (
 
 IRQ_STATUS <= IRQ_STATUS_T;
 
-end rtl;
-
+end;
