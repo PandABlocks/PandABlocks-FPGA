@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# LED daemon definitions
+LED_GPIO_BASE=334
+STA_LED_OFFSET=25
+DIA_LED_OFFSET=24
+
+get_mac_address() { :; }
