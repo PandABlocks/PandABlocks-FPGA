@@ -20,12 +20,8 @@ jobs:
   make_packages:
     uses: ./.github/workflows/_make_packages.yml
 
-  # cocotb tests
-  cocotb_test:
-    uses: ./.github/workflows/_cocotb_test.yml
-
   release:
-    needs: [ make_boot, make_packages, test_hdl, test_matrix, test_python_autogen, cocotb_test ]
+    needs: [ make_boot, make_packages, test_hdl, test_matrix, test_python_autogen ]
     uses: ./.github/workflows/_release.yml
 
   # Generate job matrix to evenly split tests

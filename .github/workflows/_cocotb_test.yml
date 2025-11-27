@@ -7,14 +7,14 @@ jobs:
     steps:
       # Git repositories
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
       # Login into ghcr
       - name: login to ghcr
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -29,7 +29,7 @@ jobs:
             /bin/bash -c \
             "ln -s CONFIG.example CONFIG && make cocotb_tests"
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           name: nvc-coverage

@@ -2,10 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.support.all;
-use work.top_defines.all;
-
 entity table_read_engine_client_transfer_manager is
 generic (
     AXI_BURST_LEN : integer := 256

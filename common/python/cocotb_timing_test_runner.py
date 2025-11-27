@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 import logging
-import subprocess
-from configparser import ConfigParser
-from pathlib import Path
-from typing import List
+import os
 import pytest
+import subprocess
+import sys
+
+from pathlib import Path
 from cocotb_tools import runner  # type: ignore
 from dataclasses import dataclass
-import sys
-logger = logging.getLogger(__name__)
+
+log = logging.getLogger(__name__)
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
@@ -16,32 +17,7 @@ MODULES_PATH = TOP_PATH / "modules"
 WORKING_DIR = Path.cwd()
 
 sys.path.insert(1, str(SCRIPT_DIR_PATH))
-
-
-def read_ini(path: List[str] | str) -> ConfigParser:
-    """Read INI file and return its contents.
-
-    Args:
-        path: Path to INI file.
-    Returns:
-        ConfigParser object containing INI file.
-    """
-    app_ini = ConfigParser()
-    app_ini.read(path)
-    return app_ini
-
-
-def get_timing_inis(module: str) -> dict[str, ConfigParser]:
-    """Get a module's timing ini files.
-
-    Args:
-        module: Name of module.
-    Returns:
-        Dictionary of filepath: file contents for any timing.ini files in the
-        module directory.
-    """
-    ini_paths = (MODULES_PATH / module).glob("*.timing.ini")
-    return {str(path): read_ini(str(path.resolve())) for path in ini_paths}
+from cocotb_simulate_test import get_timing_inis
 
 
 def get_module_build_args(module: str, panda_build_dir: str | Path) -> list[str]:
@@ -93,9 +69,9 @@ def order_hdl_files(
             ]
         return ordered_hdl_files
     except FileNotFoundError as error:
-        logger.warning(f"Likely that the following command failed:\n{command_str}")
-        logger.warning(error)
-        logger.warning("HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!")
+        log.warning(f"Likely that the following command failed:\n{command_str}")
+        log.warning(error)
+        log.warning("HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!")
         return hdl_files
 
 
@@ -130,9 +106,9 @@ def get_module_hdl_files(
         extra_files_2 = []
     result = extra_files_2 + list((module_dir_path / "hdl").glob("*.vhd"))
     ordered = order_hdl_files(result, build_dir, top_level)
-    logger.info("Gathering the following VHDL files:")
+    log.info("Gathering the following VHDL files:")
     for my_file in ordered:
-        logger.info(my_file)
+        log.info(my_file)
     return ordered
 
 
@@ -401,7 +377,7 @@ def get_cocotb_testable_modules():
         List of names of testable modules.
     """
     modules = MODULES_PATH.glob("*/*.timing.ini")
-    return list(module.parent.name for module in modules)
+    return list(sorted(set(module.parent.name for module in modules)))
 
 
 @dataclass
@@ -417,13 +393,18 @@ tests_info: list[TestInfo] = []
 
 
 def _populate_test_info(tests_info):
-    modules = get_cocotb_testable_modules()
+    env_modules = os.getenv("MODULES", "")
+    modules = env_modules.split(",") if env_modules else \
+        get_cocotb_testable_modules()
+
+    env_tests = os.getenv("TESTS", "")
+    tests = env_tests.split(",") if env_tests else []
     for module in modules:
         timing_inis = get_timing_inis(module)
         for ini_path, timing_ini in timing_inis.items():
             sections = timing_ini.sections()
             for section in sections:
-                if section.strip() != ".":
+                if section.strip() != "." and (not tests or (section in tests)):
                     test_name = section
                     tests_info.append(
                         TestInfo(module=module,
@@ -448,7 +429,7 @@ def test_module_test(info, sim, panda_build_dir, skip, collect):
         pytest.skip(f"Module {info.module} skipped")
 
     if info.module not in modules_data:
-        build_dir = f"sim_build_{info.module}"
+        build_dir = f"{panda_build_dir}/sim_build_{info.module}"
         build_args = get_simulator_build_args(sim)
         build_args += get_module_build_args(info.module, panda_build_dir)
         top_level = get_module_top_level(info.module, panda_build_dir)
