@@ -17,7 +17,7 @@ Running the tests
 
 You can run the tests via the following command::
 
-    make cocotb_tests MODULE=module1,module2,... TEST="test1,,test2,,..." SIMULATOR=nvc/ghdl
+    make cocotb_tests MODULES=module1,module2,... TESTS="test1,,test2,,..." SIMULATOR=nvc/ghdl
 
 By default, all testbenches will be run, and the NVC simulator will be used.
 When parsing multiple tests, a double comma must be used to seperate them as

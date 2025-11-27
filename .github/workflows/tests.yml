@@ -1,0 +1,16 @@
+name: Tests CI
+
+on:
+  # Only run on changes to branches with open PRs
+  pull_request:
+    types: [opened, edited, synchronize]
+  # Run after PR merged, on implicit push, and on tag pushes
+  push:
+    tags:
+      - '*'
+    branches: [master]
+
+jobs:
+  # cocotb tests
+  cocotb_test:
+    uses: ./.github/workflows/_cocotb_test.yml

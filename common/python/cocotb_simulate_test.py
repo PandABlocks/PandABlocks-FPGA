@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 import csv
-import os
-from configparser import ConfigParser
-from pathlib import Path
-
 import cocotb
 import cocotb.handle
+import logging
+import os
 import pandas as pd
+
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
+from configparser import ConfigParser
 from dma_driver import DMADriver
+from pathlib import Path
+
+
+module = os.getenv("module", "unknown")
+log = logging.getLogger(f'test.module.{module}')
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
@@ -150,6 +155,7 @@ def do_assignments(dut: Dut, assignments: dict[str, int], signals_info: SignalsI
             val = get_bus_value(
                 int(getattr(dut, signal_name).value), n_bits, val, index
             )
+        log.debug("Assignment: %s=%s", signal_name, val)
         assign(dut, signal_name, val)
 
 
@@ -166,16 +172,17 @@ def check_conditions(
     errors: list[str] = []
     values: dict[str, tuple[int, int]] = {}
     for signal_name, val in conditions.items():
+        log.debug('Condition: %s==%s', signal_name, val)
         if val < 0:
-            sim_val = getattr(dut, signal_name).value.signed_integer
+            sim_val = getattr(dut, signal_name).value.to_signed()
         else:
-            sim_val = getattr(dut, signal_name).value
+            sim_val = getattr(dut, signal_name).value.to_unsigned()
         values[signal_name] = (int(val), int(sim_val))
         if sim_val != val:
             error = "Signal {} = {}, expecting {}. Ticks = {}".format(
                 signal_name, sim_val, val, ts
             )
-            dut._log.error(error)
+            log.error(error)
             errors.append(error)
     return errors, values
 
@@ -410,16 +417,21 @@ async def simulate(
     Returns:
         Dictionaries containing signal values and timing errors.
     """
-    last_ts = max(max(assignments_schedule.keys()), max(conditions_schedule.keys()))
+    log.debug("Starting timing simulation")
+    last_ts = max(max(assignments_schedule.keys()),
+                  max(conditions_schedule.keys()))
     clkedge = RisingEdge(dut.clk_i)
     cocotb.start_soon(Clock(dut.clk_i, 1, units="ns").start(start_high=False))
-    ts = 0
     await initialise_dut(dut, signals_info)
     await clkedge
-    conditions: dict[str, int] = {}
+    condition_signals = (key for conditions in conditions_schedule.values()
+                         for key in conditions.keys())
+    conditions: dict[str, int] = {signal: 0 for signal in condition_signals}
     timing_errors: dict[int, list[str]] = {}
     values: dict[int, dict[str, tuple[int, int]]] = {}
+    ts = 1
     while ts <= last_ts:
+        log.debug("ts = %d", ts)
         do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
         update_conditions(conditions, conditions_schedule.get(ts, {}), signals_info)
         await ReadOnly()
@@ -487,7 +499,7 @@ async def section_timing_test(
             for tick, messages in timing_errors.items():
                 for message in messages:
                     writer.writerow([tick, message])
-        dut._log.info(f"Errors written to {filename}")
+        log.info(f"Errors written to {filename}")
     if collect:
         collect_values(values, test_name)
 
@@ -506,6 +518,10 @@ async def module_timing_test(dut: Dut):
     panda_build_dir = os.getenv("panda_build_dir")
     timing_ini_path = os.getenv("timing_ini_path")
     collect = True if os.getenv("collect") == "True" else False
+    log_level = os.getenv("module_log_level", "")
+    if log_level:
+        log.setLevel(int(log_level))
+
     block_ini = get_block_ini(module)
     timing_inis = get_timing_inis(module)
     timing_ini = timing_inis[timing_ini_path]

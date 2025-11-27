@@ -253,12 +253,18 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 hdl_timing: $(TIMING_BUILD_DIRS)
 .PHONY: hdl_timing
 
-MODULE = all
 SIMULATOR = nvc
-# e.g. make cocotb_tests MODULE=pulse TEST="No delay or stretch"
+# e.g. make cocotb_tests MODULES=pulse
+# or   make cocotb_tests TESTS="No delay or stretch"
 cocotb_tests: $(AUTOGEN_BUILD_DIR)
-	$(PYTHON) -m pytest $(TOP)/common/python/cocotb_timing_test_runner.py -v --panda-build-dir $(BUILD_DIR) --sim $(SIMULATOR)
+	$(PYTHON) -m pytest $(TOP)/common/python/cocotb_timing_test_runner.py -v \
+	    $(COCOTB_PYTEST_EXTRA_ARGS) --panda-build-dir $(BUILD_DIR) --sim $(SIMULATOR)
 .PHONY: cocotb_tests
+
+debug_cocotb_tests: COCOTB_PYTEST_EXTRA_ARGS=-s
+debug_cocotb_tests: export module_log_level=10
+debug_cocotb_tests: cocotb_tests
+.PHONY: debug_cocotb_tests
 
 # ------------------------------------------------------------------------------
 # FPGA build
