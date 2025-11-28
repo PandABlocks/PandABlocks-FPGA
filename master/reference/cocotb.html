@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing with cocotb &mdash; PandABlocks-FPGA 4.1-11-g981dacf
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Running the tests" href="testing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PandABlocks-FPGA
+              <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.1-11-g981dacf
+
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing.html">Running the tests</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Testing with cocotb</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#about-cocotb">About cocotb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-it-works">How It Works</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#writing-tests-for-new-modules">Writing Tests for New Modules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#more-details">More details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing with cocotb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#about-cocotb">About cocotb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#results">Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#timing-errors">Timing Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#waveforms">Waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coverage">Coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How It Works</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script-arguments-and-options">Script Arguments and Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-tests-for-new-modules">Writing Tests for New Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-details">More details</a></li>
+</ul>
+</li>
+</ul>
+
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Testing with cocotb</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/cocotb.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="testing-with-cocotb">
+<span id="cocotb-reference"></span><h1>Testing with cocotb<a class="headerlink" href="#testing-with-cocotb" title="Permalink to this heading"></a></h1>
+<p>Any module with a <code class="xref any docutils literal notranslate"><span class="pre">timing.ini</span></code> file can be tested using the <strong>cocotb</strong> test runner.</p>
+<div class="section" id="about-cocotb">
+<h2>About cocotb<a class="headerlink" href="#about-cocotb" title="Permalink to this heading"></a></h2>
+<p><strong>Cocotb</strong> is an open-source Python library for simulating VHDL or Verilog
+designs. It allows you to write and drive testbenches in Python, using a
+simulator like <strong>GHDL</strong> or <strong>NVC</strong> under the hood.</p>
+</div>
+<div class="section" id="running-the-tests">
+<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h2>
+<p>You can run the tests via the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">cocotb_tests</span> <span class="n">MODULES</span><span class="o">=</span><span class="n">module1</span><span class="p">,</span><span class="n">module2</span><span class="p">,</span><span class="o">...</span> <span class="n">TESTS</span><span class="o">=</span><span class="s2">&quot;test1,,test2,,...&quot;</span> <span class="n">SIMULATOR</span><span class="o">=</span><span class="n">nvc</span><span class="o">/</span><span class="n">ghdl</span>
+</pre></div>
+</div>
+<p>By default, all testbenches will be run, and the NVC simulator will be used.
+When parsing multiple tests, a double comma must be used to seperate them as
+the names of some tests contain commas.</p>
+</div>
+<div class="section" id="results">
+<h2>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h2>
+<p>A simulation build directory will be created for every module tested in a run.
+This directory is called <code class="xref any docutils literal notranslate"><span class="pre">sim_build_{module_name}</span></code>, and contains subdirectories
+for each test that was run.</p>
+<img alt="reference/sim_build_clock.png" src="reference/sim_build_clock.png" />
+<div class="section" id="timing-errors">
+<h3>Timing Errors<a class="headerlink" href="#timing-errors" title="Permalink to this heading"></a></h3>
+<p>If a condition fails, a timing error is recorded. A test has failed if any
+timing errors have occurred during its execution.</p>
+<p>As well as being displayed in the terminal, any timing errors will be saved to
+a file in the subdirectory of the test where the error occurred.</p>
+<img alt="../_images/errors_csv.png" src="../_images/errors_csv.png" />
+<p>A table of expected vs actual signal values is produced and can be found in the
+same place, in the form of a <code class="xref any docutils literal notranslate"><span class="pre">.csv</span></code> and <code class="xref any docutils literal notranslate"><span class="pre">.html</span></code> file. This is collected for any
+signal whos value is checked at some point during the test.</p>
+<img alt="../_images/values_table.png" src="../_images/values_table.png" />
+</div>
+<div class="section" id="waveforms">
+<h3>Waveforms<a class="headerlink" href="#waveforms" title="Permalink to this heading"></a></h3>
+<p>A <code class="xref any docutils literal notranslate"><span class="pre">wave.vcd</span></code> file can be found in each tests subdirectory. This can be opened
+with <strong>GTKWave</strong> to inspect the signal waveforms.</p>
+<img alt="../_images/waveform.png" src="../_images/waveform.png" />
+</div>
+<div class="section" id="coverage">
+<h3>Coverage<a class="headerlink" href="#coverage" title="Permalink to this heading"></a></h3>
+<p>A coverage report will be generated if the NVC simulator has been used. This
+be found in the coverage subdirectory of the simulation directory.</p>
+<img alt="../_images/coverage_report.png" src="../_images/coverage_report.png" />
+</div>
+</div>
+<div class="section" id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h2>
+<p>The runner utilizes a module’s <code class="xref any docutils literal notranslate"><span class="pre">timing.ini</span></code> file to create a schedule for:</p>
+<ul class="simple">
+<li><p>Assigning input signals.</p></li>
+<li><p>Checking conditions on output signals.</p></li>
+</ul>
+<p>The runner uses Cocotb to simulate and verify the module according to this
+schedule. To set up tests and initialize signals correctly, some information
+about the module is needed. Most of this information can be derived from the
+module’s <code class="xref any docutils literal notranslate"><span class="pre">block.ini</span></code> file. For more complex modules (e.g. those dependent on
+other HDL files), some additional information might be necessary, such as:</p>
+<ul class="simple">
+<li><p>Paths to required HDL files.</p></li>
+<li><p>Specific signal details.</p></li>
+<li><p>Name of top-level entity</p></li>
+</ul>
+<p>This extra information is provided in a <code class="xref any docutils literal notranslate"><span class="pre">test_config.py</span></code> file located in the
+module directory.</p>
+<div class="section" id="script-arguments-and-options">
+<h3>Script Arguments and Options<a class="headerlink" href="#script-arguments-and-options" title="Permalink to this heading"></a></h3>
+<p>The runner script can be run directly without using <code class="xref any docutils literal notranslate"><span class="pre">make</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">common</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">cocotb_timing_test_runner</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">module</span><span class="p">}</span> <span class="p">{</span><span class="n">test</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Positional Arguments</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/2.7/glossary.html#term-module" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">module</span></code></a>: The name of the module to test. Multiple modules can be specified, separated by commas. Use <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#all" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">all</span></code></a> to test all modules with a <code class="xref any docutils literal notranslate"><span class="pre">timing.ini</span></code> file.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/2.7/library/test.html#module-test" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">test</span></code></a> (optional): The name of a specific test to run.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Optional Flags</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="xref any docutils literal notranslate"><span class="pre">--sim</span> <span class="pre">{nvc/ghdl}</span></code>: Specify the simulator (default: <code class="xref any docutils literal notranslate"><span class="pre">nvc</span></code>). With NVC, coverage data will be collected.</p></li>
+<li><p><code class="xref any docutils literal notranslate"><span class="pre">--skip</span> <span class="pre">{module1,module2,...}</span></code>: List of modules to skip during testing.</p></li>
+<li><p><code class="xref any docutils literal notranslate"><span class="pre">--panda-build-dir</span> <span class="pre">{path}</span></code>: Specify the directory where autogenerated HDL files (e.g., from <code class="xref any docutils literal notranslate"><span class="pre">make</span> <span class="pre">autogen</span></code>) are located. Defaults to <code class="xref any docutils literal notranslate"><span class="pre">/build</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/2.7/using/cmdline.html#cmdoption-c" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">-c</span></code></a>: Save expected and actual output signal values in a <code class="xref any docutils literal notranslate"><span class="pre">.csv</span></code> and <code class="xref any docutils literal notranslate"><span class="pre">.html</span></code> file.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="writing-tests-for-new-modules">
+<h2>Writing Tests for New Modules<a class="headerlink" href="#writing-tests-for-new-modules" title="Permalink to this heading"></a></h2>
+<p>To test a new module using this runner, ensure the module directory contains:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="xref any docutils literal notranslate"><span class="pre">{module}.block.ini</span></code>: Describes signals involved in the module.</p></li>
+<li><p><code class="xref any docutils literal notranslate"><span class="pre">{module}.timing.ini</span></code>: Contains schedule for signal assignments and condition checks.</p></li>
+</ul>
+</div></blockquote>
+<p>Add a <code class="xref any docutils literal notranslate"><span class="pre">test_config.py</span></code> file (if needed) to include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Paths to additional HDL files.</p></li>
+<li><p>Any extra signal information not covered in <code class="xref any docutils literal notranslate"><span class="pre">block.ini</span></code>.</p></li>
+<li><p>Top-level entity to be tested.</p></li>
+</ul>
+</div></blockquote>
+<p>Modules with <code class="xref any docutils literal notranslate"><span class="pre">timing.ini</span></code> files are automatically identified as testable. The
+module may fail tests until <code class="xref any docutils literal notranslate"><span class="pre">block.ini</span></code> and <code class="xref any docutils literal notranslate"><span class="pre">test_config.py</span></code> are configured
+correctly.</p>
+<p>Modules using IP are currently unsupported.</p>
+</div>
+<div class="section" id="more-details">
+<h2>More details<a class="headerlink" href="#more-details" title="Permalink to this heading"></a></h2>
+<p>Cocotb provides a Python simulator object to:</p>
+<ol class="arabic simple">
+<li><p><strong>Build the Simulation</strong>: The <code class="xref any docutils literal notranslate"><span class="pre">.build()</span></code> method runs the analysis and evaluation stages.</p></li>
+<li><p><strong>Run the Test</strong>: The <code class="xref any docutils literal notranslate"><span class="pre">.test()</span></code> method starts the simulation.</p></li>
+</ol>
+<p><strong>Key points</strong>:</p>
+<ul class="simple">
+<li><p>The <code class="xref any docutils literal notranslate"><span class="pre">test()</span></code> method takes a <code class="xref any docutils literal notranslate"><span class="pre">test_module</span></code> argument to locate the test.</p></li>
+<li><p>Cocotb scans the test module for functions decorated with <code class="xref any docutils literal notranslate"><span class="pre">&#64;cocotb.test()</span></code>, which define the test logic.</p></li>
+</ul>
+<p>In this setup:</p>
+<ul class="simple">
+<li><p>The test module is <code class="xref any docutils literal notranslate"><span class="pre">cocotb_simulate_test.py</span></code>.</p></li>
+<li><p>The decorated function is <code class="xref any docutils literal notranslate"><span class="pre">module_timing_test(dut)</span></code>.</p></li>
+<li><p>Cocotb calls this function, passing the <strong>Design Under Test (DUT)</strong> object, which provides access to the module’s signals for assignments and condition checks.</p></li>
+</ul>
+<p>Timing is measured by counting clock signal rising edges to synchronize
+assignments and condition checks.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="testing.html" class="btn btn-neutral float-left" title="Running the tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2015, Diamond Light Source.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
