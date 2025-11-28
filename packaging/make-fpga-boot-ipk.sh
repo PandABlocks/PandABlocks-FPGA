@@ -16,10 +16,7 @@ usage()
 TOP_DIR="$1"
 BUILD_DIR="$2"
 TARGET="$3"
-LOWER_TARGET="${TARGET,,}"
-# Target is sanitised to be compatible with yocto naming rules
-SANE_TARGET="${LOWER_TARGET//_/-}"
-VERSION="${SANE_TARGET}-$4"
+VERSION="${TARGET}-$4"
 # Package metadata
 PACKAGE="panda-fpga-boot"
 DESCRIPTION="PandABlocks-FPGA boot files for $TARGET"

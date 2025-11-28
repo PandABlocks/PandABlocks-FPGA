@@ -58,6 +58,14 @@ def jinja_env(path):
     return env
 
 
+def validate_app_name(app):
+    # Make sure the app name is consistent with yocto package naming rules
+    assert app, "App name cannot be empty"
+    for char in app:
+        assert char.islower() or char.isdigit() or char == '-', \
+            "App name can contain only lower-case characters, digits or '-'"
+
+
 class AppGenerator(object):
     def __init__(self, app, app_build_dir, testPath=""):
         # type: (str, str, str) -> None
@@ -66,6 +74,7 @@ class AppGenerator(object):
             "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
+        validate_app_name(self.app_name)
         self.testPath = testPath
         # Create a Jinja2 environment in the templates dir
         self.env = jinja_env(TEMPLATES)
