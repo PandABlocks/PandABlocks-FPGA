@@ -63,8 +63,6 @@ signal wvalid               : std_logic := '0';
 signal wlast                : std_logic;
 signal bready               : std_logic;
 signal wnext                : std_logic;
-signal aw_throttle          : std_logic := '0';
-signal w_throttle           : std_logic := '0';
 signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0) := (others => '0');
 
 begin
@@ -124,25 +122,12 @@ begin
     if rising_edge(clk_i) then
         if reset_i then
             awvalid <= '0';
-        -- If previously not valid and no throttling, start next transaction
-        elsif not awvalid and not aw_throttle then
-            awvalid <= '1';
         -- Once asserted, VALIDs cannot be deasserted, so AWVALID
         -- must wait until transaction is accepted before throttling.
         elsif m_axi_awready and awvalid then
             awvalid <= '0';
-        end if;
-
-        -- aw_throttle is used to issue one address per dma start
-        -- for synchronisation with data channel
-        if reset_i then
-            aw_throttle <= '1';
         elsif dma_start then
-            aw_throttle <= '0';
-        elsif awvalid and m_axi_awready and not aw_throttle then
-            aw_throttle <= '1';
-        else
-            aw_throttle <= aw_throttle;
+            awvalid <= '1';
         end if;
     end if;
 end process;
@@ -164,25 +149,12 @@ begin
     if rising_edge(clk_i) then
         if reset_i then
             wvalid <= '0';
-        -- If previously not valid and not throttling, start next transaction
-        elsif not wvalid and not w_throttle then
-            wvalid <= '1';
         -- Once asserted, VALIDs cannot be deasserted, so WVALID
         -- must wait until burst is complete with WLAST
         elsif wnext and wlast then
             wvalid <= '0';
-        end if;
-
-        -- w_throttle is used to issue one data burst per dma start
-        -- for synchronisation with addr channel
-        if reset_i then
-            w_throttle <= '1';
         elsif dma_start then
-            w_throttle <= '0';
-        elsif wvalid and m_axi_wready and not w_throttle then
-            w_throttle <= '1';
-        else
-            w_throttle <= w_throttle;
+            wvalid <= '1';
         end if;
     end if;
 end process;
