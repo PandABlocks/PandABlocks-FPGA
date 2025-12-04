@@ -17,11 +17,8 @@ TOP_DIR="$1"
 BUILD_DIR="$2"
 APP="$3"
 VERSION="$4"
-LOWER_APP="${APP,,}"
-# App is sanitised to be compatible with yocto naming rules
-SANE_APP="${LOWER_APP//_/-}"
 # Package metadata
-PACKAGE="panda-fpga-${SANE_APP}"
+PACKAGE="panda-fpga-${APP}"
 DESCRIPTION="PandABlocks-FPGA machine-dependent package"
 DEPENDS="panda-fpga-loader"
 # Temporary work directory to build the package
