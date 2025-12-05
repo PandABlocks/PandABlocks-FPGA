@@ -20,10 +20,10 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    OUTA_o              : out std_logic;
-    OUTB_o              : out std_logic;
-    OUTC_o              : out std_logic;
-    OUTD_o              : out std_logic;
+    OUTA_o              : out std_logic := '0';
+    OUTB_o              : out std_logic := '0';
+    OUTC_o              : out std_logic := '0';
+    OUTD_o              : out std_logic := '0';
     -- Block Parameters
     A                   : in  std_logic_vector(31 downto 0);
     B                   : in  std_logic_vector(31 downto 0);
