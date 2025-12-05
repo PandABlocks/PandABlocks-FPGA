@@ -54,7 +54,7 @@ end axi_read_master;
 
 architecture rtl of axi_read_master is
 
-signal arvalid          : std_logic;
+signal arvalid          : std_logic := '0';
 signal rready           : std_logic;
 
 begin
