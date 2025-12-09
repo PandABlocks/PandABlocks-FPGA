@@ -30,9 +30,6 @@ port (
     BIT_DLY_i           : in  std_logic_vector(31 downto 0)
 );
 
-  attribute keep_hierarchy            : string;
-  attribute keep_hierarchy of bitmux  : entity is "yes";
-
 end bitmux;
 
 architecture rtl of bitmux is
