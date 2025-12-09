@@ -15,7 +15,7 @@ requires-python = ">=3.11,<3.14"
 # tests/requirements.txt; the rest are imported by the cocotb tests and tooling).
 # pandai2c is intentionally absent: it is provided on the PandA target, not PyPI.
 dependencies = [
-    "cocotb",
+    "cocotb>=2.1.0",
     "jinja2",
     "matplotlib",
     "numpy",
