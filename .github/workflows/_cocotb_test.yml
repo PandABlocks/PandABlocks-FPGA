@@ -27,7 +27,9 @@ jobs:
           set -euo pipefail
           sudo mkdir -p /build && sudo chmod -R 777 /build
           ln -s CONFIG.example CONFIG
+          sed -i 's|APP_NAME = .\+|APP_NAME = testtarget|g' CONFIG
           uv run --locked make cocotb_tests
+          uv run --locked make cocotb_system_tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
