@@ -255,7 +255,7 @@ process (clk_i) begin
                         write_data_o <= wdata_i;
                         awready_o <= '1';
                         wready_o <= '1';
-                        if vector_and(wstrb_i) then
+                        if vector_and(wstrb_i) = '1' then
                             -- Generate write strobe for valid cycle
                             write_strobe_o <= write_strobe;
                             write_state <= WRITE_WRITING;
