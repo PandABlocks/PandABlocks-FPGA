@@ -290,6 +290,17 @@ debug_cocotb_system_tests: COCOTB_PYTEST_EXTRA_ARGS=-s
 debug_cocotb_system_tests: cocotb_system_tests
 .PHONY: debug_cocotb_tests
 
+
+run_sim_server: $(AUTOGEN_BUILD_DIR)
+	$(PYTHON) $(TOP)/common/python/testtarget/sim_server.py \
+		--build-dir $(BUILD_DIR)
+.PHONY: run_sim_server
+
+debug_run_sim_server: export sim_server_log_level=10
+debug_run_sim_server: export dump_waveform=1
+debug_run_sim_server: run_sim_server
+.PHONY: debug_run_sim_server
+
 # ------------------------------------------------------------------------------
 # FPGA build
 
