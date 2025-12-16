@@ -133,7 +133,11 @@ begin
         if (POS_READ_RST = '1') then
             p_index <= (others => '0');
         elsif (POS_READ_RSTB = '1') then
-            p_index <= p_index + 1;
+            if p_index = PBUSW - 1 then
+                p_index <= (others => '0');
+            else
+                p_index <= p_index + 1;
+            end if;
         end if;
 
         pbus_prev <= pbus;
