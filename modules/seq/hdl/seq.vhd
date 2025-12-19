@@ -362,7 +362,6 @@ if rising_edge(clk_i) then
                 abort_dma <= '1';
             end if;
         end if;
-        reset_repeat_count(0);
     else
         -- State Machine
         case seq_sm is
