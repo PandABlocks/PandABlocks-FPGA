@@ -61,181 +61,181 @@ begin
 
 
     -- Clock and conversion request
-    -- cnv_sck : entity work.obuf_array generic map (
-    --     COUNT => 2,
-    --     IOSTANDARD => "LVCMOS18"
-    -- ) port map (
-    --     i_i(0) => cnv_i,
-    --     i_i(1) => sck_i,
-    --     o_o(0) => FMC_LA_P(4),
-    --     o_o(1) => FMC_LA_N(4)
-    -- );
+    cnv_sck : entity work.obuf_array generic map (
+        COUNT => 2,
+        IOSTANDARD => "LVCMOS18"
+    ) port map (
+        i_i(0) => cnv_i,
+        i_i(1) => sck_i,
+        o_o(0) => FMC.FMC_LA_P(4),
+        o_o(1) => FMC.FMC_LA_N(4)
+    );
     
     -- Clock and conversion request
-    cnv_buf: OBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map(
-        I => cnv_i,
-        O => FMC.FMC_LA_P(4)
-    );
+    -- cnv_buf: OBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map(
+    --     I => cnv_i,
+    --     O => FMC.FMC_LA_P(4)
+    -- );
 
-    sck_buf : OBUF generic map(
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => sck_i,
-        O => FMC.FMC_LA_N(4)
-    );
+    -- sck_buf : OBUF generic map(
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => sck_i,
+    --     O => FMC.FMC_LA_N(4)
+    -- );
 
 
     -- Conversion status and data clock
-    -- busy_sck : entity work.ibuf_array generic map (
-    --     COUNT => 2,
-    --     IOSTANDARD => "LVCMOS18"
-    -- ) port map (
-    --     i_i(0) => FMC_LA_N(8),
-    --     i_i(1) => FMC_LA_P(8),
-    --     o_o(0) => busy_cmn_o,
-    --     o_o(1) => sck_rtrn_o
-    -- );
+    busy_sck : entity work.ibuf_array generic map (
+        COUNT => 2,
+        IOSTANDARD => "LVCMOS18"
+    ) port map (
+        i_i(0) => FMC.FMC_LA_N(8),
+        i_i(1) => FMC.FMC_LA_P(8),
+        o_o(0) => busy_cmn_o,
+        o_o(1) => sck_rtrn_o
+    );
 
     -- Conversion status and data clock
-    busy_buf_array : IBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => FMC.FMC_LA_N(8),
-        O => busy_cmn_o
-    );
-
-    sck_buf_array : IBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => FMC.FMC_LA_P(8),
-        O => sck_rtrn_o
-    );
-
-    -- Converted data
-    -- adc_data : entity work.ibuf_array generic map (
-    --     COUNT => 4,
+    -- busy_buf_array : IBUF generic map (
     --     IOSTANDARD => "LVCMOS18"
     -- ) port map (
-    --     i_i(0) => FMC_LA_N(11),
-    --     i_i(1) => FMC_LA_P(11),
-    --     i_i(2) => FMC_LA_N(7),
-    --     i_i(3) => FMC_LA_P(7),
-    --     o_o => sdo_out
+    --     I => FMC.FMC_LA_N(8),
+    --     O => busy_cmn_o
     -- );
-    -- sdo_o <= reverse(sdo_out);
+
+    -- sck_buf_array : IBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => FMC.FMC_LA_P(8),
+    --     O => sck_rtrn_o
+    -- );
 
     -- Converted data
-    conv_array_1 : IBUF generic map (
+    adc_data : entity work.ibuf_array generic map (
+        COUNT => 4,
         IOSTANDARD => "LVCMOS18"
     ) port map (
-        I => FMC.FMC_LA_N(11),
-        O => sdo_out(0)
+        i_i(0) => FMC.FMC_LA_N(11),
+        i_i(1) => FMC.FMC_LA_P(11),
+        i_i(2) => FMC.FMC_LA_N(7),
+        i_i(3) => FMC.FMC_LA_P(7),
+        o_o => sdo_out
     );
-
-    conv_array_2 : IBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => FMC.FMC_LA_P(11),
-        O => sdo_out(1)
-    );
-
-    conv_array_3 : IBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => FMC.FMC_LA_N(7),
-        O => sdo_out(2)
-    );
-
-    conv_array_4 : IBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => FMC.FMC_LA_P(7),
-        O => sdo_out(3)
-    );
-
     sdo_o <= reverse(sdo_out);
 
-    -- ADC range selection
-    -- adc_range : entity work.obuf_array generic map (
-    --     COUNT => 4,
+    -- Converted data
+    -- conv_array_1 : IBUF generic map (
     --     IOSTANDARD => "LVCMOS18"
     -- ) port map (
-    --     i_i => reverse(r_i),
-    --     o_o(0) => FMC_LA_N(3),
-    --     o_o(1) => FMC_LA_P(3),
-    --     o_o(2) => FMC_LA_N(2),
-    --     o_o(3) => FMC_LA_P(2)
+    --     I => FMC.FMC_LA_N(11),
+    --     O => sdo_out(0)
     -- );
+
+    -- conv_array_2 : IBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => FMC.FMC_LA_P(11),
+    --     O => sdo_out(1)
+    -- );
+
+    -- conv_array_3 : IBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => FMC.FMC_LA_N(7),
+    --     O => sdo_out(2)
+    -- );
+
+    -- conv_array_4 : IBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => FMC.FMC_LA_P(7),
+    --     O => sdo_out(3)
+    -- );
+
+    -- sdo_o <= reverse(sdo_out);
+
+    -- ADC range selection
+    adc_range : entity work.obuf_array generic map (
+        COUNT => 4,
+        IOSTANDARD => "LVCMOS18"
+    ) port map (
+        i_i => reverse(r_i),
+        o_o(0) => FMC.FMC_LA_N(3),
+        o_o(1) => FMC.FMC_LA_P(3),
+        o_o(2) => FMC.FMC_LA_N(2),
+        o_o(3) => FMC.FMC_LA_P(2)
+    );
     
-    adc_range_1: OBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => r_i(3),
-        O => FMC.FMC_LA_N(3)
-    );
+    -- adc_range_1: OBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => r_i(3),
+    --     O => FMC.FMC_LA_N(3)
+    -- );
 
-    adc_range_2: OBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => r_i(2),
-        O => FMC.FMC_LA_P(3)
-    );
+    -- adc_range_2: OBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => r_i(2),
+    --     O => FMC.FMC_LA_P(3)
+    -- );
 
-    adc_range_3: OBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => r_i(1),
-        O => FMC.FMC_LA_N(2)
-    );
+    -- adc_range_3: OBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => r_i(1),
+    --     O => FMC.FMC_LA_N(2)
+    -- );
 
-    adc_range_4: OBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => r_i(0),
-        O => FMC.FMC_LA_P(2)
-    );
+    -- adc_range_4: OBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => r_i(0),
+    --     O => FMC.FMC_LA_P(2)
+    -- );
 
     -- LEDs (somewhat futile as they're placed where they are invisible)
-    -- leds : entity work.obuf_array generic map (
-    --     COUNT => 2,
-    --     IOSTANDARD => "LVCMOS18"
-    -- ) port map (
-    --     i_i => led_i,
-    --     o_o(0) => FMC_LA_P(5),
-    --     o_o(1) => FMC_LA_N(5)
-    -- );
+    leds : entity work.obuf_array generic map (
+        COUNT => 2,
+        IOSTANDARD => "LVCMOS18"
+    ) port map (
+        i_i => led_i,
+        o_o(0) => FMC.FMC_LA_P(5),
+        o_o(1) => FMC.FMC_LA_N(5)
+    );
 
     -- I2C interface, configured to operate in open collector mode
-    -- i2c : entity work.iobuf_array generic map (
-    --     COUNT => 2,
+    i2c : entity work.iobuf_array generic map (
+        COUNT => 2,
+        IOSTANDARD => "LVCMOS18"
+    ) port map (
+        i_i => "00",
+        o_o(0) => a_scl_o,
+        o_o(1) => a_sda_o,
+        t_i(0) => a_scl_i,
+        t_i(1) => a_sda_i,
+        io_io(0) => FMC.FMC_LA_P(23),
+        io_io(1) => FMC.FMC_LA_N(23)
+    );
+
+    -- i2c_buf_scl: IOBUF generic map (
     --     IOSTANDARD => "LVCMOS18"
     -- ) port map (
-    --     i_i => "00",
-    --     o_o(0) => a_scl_o,
-    --     o_o(1) => a_sda_o,
-    --     t_i(0) => a_scl_i,
-    --     t_i(1) => a_sda_i,
-    --     io_io(0) => FMC_LA_P(23),
-    --     io_io(1) => FMC_LA_N(23)
+    --     I => '0',
+    --     O => a_scl_o,
+    --     T => a_scl_i,
+    --     IO => FMC.FMC_LA_P(23)
     -- );
 
-    i2c_buf_scl: IOBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => '0',
-        O => a_scl_o,
-        T => a_scl_i,
-        IO => FMC.FMC_LA_P(23)
-    );
-
-    i2c_buf_sda: IOBUF generic map (
-        IOSTANDARD => "LVCMOS18"
-    ) port map (
-        I => '0',
-        O => a_sda_o,
-        T => a_sda_i,
-        IO => FMC.FMC_LA_N(23)
-    );
+    -- i2c_buf_sda: IOBUF generic map (
+    --     IOSTANDARD => "LVCMOS18"
+    -- ) port map (
+    --     I => '0',
+    --     O => a_sda_o,
+    --     T => a_sda_i,
+    --     IO => FMC.FMC_LA_N(23)
+    -- );
 end;
