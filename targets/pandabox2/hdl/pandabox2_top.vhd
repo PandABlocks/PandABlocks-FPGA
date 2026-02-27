@@ -28,6 +28,10 @@ generic (
     NUM_FMC             : natural := 0;
     MAX_NUM_FMC_MGT     : natural := 0
 );
+port (
+    PANEL_F_DO_P        : out std_logic_vector(1 downto 0);
+    PANEL_F_DO_N        : out std_logic_vector(1 downto 0)
+);
 end;
 
 architecture rtl of pandabox2_top is
@@ -135,6 +139,7 @@ signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
+signal PANEL_F_DO           : std_logic_vector(LVDSOUT_NUM-1 downto 0);
 signal pll_locked           : std_logic;
 signal calibration_ready    : std_logic;
 
@@ -352,7 +357,6 @@ table_engine : entity work.table_read_engine generic map(
     dma_data_o          => rdma_data,
     dma_valid_o         => rdma_valid
 );
-
 dma_irq_events(DMA_USERS_COUNT-1 downto 0) <= rdma_irq;
 dma_irq_events(DMA_USERS_COUNT+15 downto 16) <= rdma_done_irq;
 IRQ(1) <= or dma_irq_events;
@@ -437,4 +441,32 @@ port map(
     rdma_done_irq => rdma_done_irq
 );
 
+obufds_gen : for I in 0 to LVDSOUT_NUM-1 generate
+    obufds_inst : OBUFDS port map (
+       O => PANEL_F_DO_P(I),
+       OB => PANEL_F_DO_N(I),
+       I => PANEL_F_DO(I)
+    );
+end generate;
+
+lvdsout_zynqmp_inst : entity work.lvdsout_zynqmp_top
+port map (
+    clk_i               => clk0,
+    clk_4x_i            => clk0_4x,
+    calibration_ready_i => calibration_ready,
+    reset_i             => reset0,
+
+    read_strobe_i       => read_strobe(LVDSOUT_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(LVDSOUT_CS),
+    read_ack_o          => read_ack(LVDSOUT_CS),
+
+    write_strobe_i      => write_strobe(LVDSOUT_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(LVDSOUT_CS),
+
+    bit_bus_i           => bit_bus,
+    pad_o               => PANEL_F_DO
+);
 end;
