@@ -70,7 +70,6 @@ signal FCLK_CLK0_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 signal EXTCLK               : std_logic := '1';
-signal sma_pll_locked       : std_logic;
 signal clk_src_sel          : std_logic_vector(1 downto 0);
 signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
@@ -570,19 +569,21 @@ port map(
     FMC_MGT => FMC_MGT
 );
 
-us_system_top_inst : entity work.us_system_top
+system_zynqmp_top_inst : entity work.system_zynqmp_top
 port map (
     clk_i               => FCLK_CLK0,
     sys_i2c_mux_o       => SYS_I2C_MUX,
-    read_strobe_i       => read_strobe(US_SYSTEM_CS),
+    pll_locked_i        => '1',
+    calibration_ready_i => '0',
+    read_strobe_i       => read_strobe(SYSTEM_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(US_SYSTEM_CS),
-    read_ack_o          => read_ack(US_SYSTEM_CS),
+    read_data_o         => read_data(SYSTEM_CS),
+    read_ack_o          => read_ack(SYSTEM_CS),
 
-    write_strobe_i      => write_strobe(US_SYSTEM_CS),
+    write_strobe_i      => write_strobe(SYSTEM_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(US_SYSTEM_CS)
+    write_ack_o         => write_ack(SYSTEM_CS)
 );
 
 -- Mux/Demux for FPGA I2C

@@ -382,19 +382,19 @@ port map (
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
-us_system_top_inst : entity work.us_system_top
+system_zynqmp_top_inst : entity work.system_zynqmp_top
 port map (
-    clk_i               => FCLK_CLK0,
+    clk_i               => clk0,
     sys_i2c_mux_o       => SYS_I2C_MUX,
-    read_strobe_i       => read_strobe(US_SYSTEM_CS),
+    read_strobe_i       => read_strobe(SYSTEM_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(US_SYSTEM_CS),
-    read_ack_o          => read_ack(US_SYSTEM_CS),
+    read_data_o         => read_data(SYSTEM_CS),
+    read_ack_o          => read_ack(SYSTEM_CS),
 
-    write_strobe_i      => write_strobe(US_SYSTEM_CS),
+    write_strobe_i      => write_strobe(SYSTEM_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(US_SYSTEM_CS)
+    write_ack_o         => write_ack(SYSTEM_CS)
 );
 
 softblocks_inst : entity work.soft_blocks
