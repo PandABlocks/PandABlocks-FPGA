@@ -35,11 +35,12 @@ architecture rtl of pandabox2_top is
 constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- PS Block
-signal FCLK_CLK0            : std_logic;
-signal FCLK_CLK0_PS         : std_logic;
-signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
-signal FCLK_RESET0          : std_logic;
-
+signal clk0                 : std_logic;
+signal clk0_4x              : std_logic;
+signal reset0               : std_logic;
+signal P_RESET              : std_logic_vector(0 downto 0);
+signal CLK125               : std_logic;
+signal CLK300               : std_logic;
 signal M00_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot       : std_logic_vector ( 2 downto 0 );
 signal M00_AXI_awvalid      : std_logic;
@@ -101,7 +102,7 @@ signal S_AXI_HP1_rready     : STD_LOGIC;
 signal S_AXI_HP1_rresp      : STD_LOGIC_VECTOR ( 1 downto 0 );
 signal S_AXI_HP1_rvalid     : STD_LOGIC;
 
-signal IRQ_F2P              : std_logic_vector(1 downto 0);
+signal IRQ                  : std_logic_vector(1 downto 0);
 
 -- Configuration and Status Interface Block
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
@@ -134,23 +135,32 @@ signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
+signal pll_locked           : std_logic;
+signal calibration_ready    : std_logic;
 
 begin
 
--- Internal clocks and resets
-FCLK_RESET0 <= not FCLK_RESET0_N(0);
-FCLK_CLK0 <= FCLK_CLK0_PS;
+-- Internal clocks
+clocking_inst : entity work.clocking port map(
+    clk_i => CLK125,
+    clk300_i => CLK300,
+    clk_o => clk0,
+    clk_4x_o => clk0_4x,
+    locked_o => pll_locked,
+    calibration_ready_o => calibration_ready
+);
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
 ---------------------------------------------------------------------------
 ps : entity work.panda_ps
 port map (
-    FCLK_CLK0                   => FCLK_CLK0_PS,
-    PL_CLK                      => FCLK_CLK0,
-    FCLK_RESET0_N               => FCLK_RESET0_N,
+    PL_CLK                      => clk0,
+    P_RESET                     => P_RESET,
+    CLK125                      => CLK125,
+    CLK300                      => CLK300,
 
-    IRQ_F2P                     => IRQ_F2P,
+    IRQ                         => IRQ,
 
     M00_AXI_araddr              => M00_AXI_araddr,
     M00_AXI_arprot              => M00_AXI_arprot,
@@ -212,6 +222,7 @@ port map (
     S_AXI_HP1_rresp             => S_AXI_HP1_rresp,
     S_AXI_HP1_rvalid            => S_AXI_HP1_rvalid
 );
+reset0 <= P_RESET(0);
 
 ---------------------------------------------------------------------------
 -- Control and Status Memory Interface
@@ -219,8 +230,8 @@ port map (
 ---------------------------------------------------------------------------
 axi_lite_slave_inst : entity work.axi_lite_slave
 port map (
-    clk_i                       => FCLK_CLK0,
-    reset_i                     => FCLK_RESET0,
+    clk_i                       => clk0,
+    reset_i                     => reset0,
 
     araddr_i                    => M00_AXI_araddr,
     arprot_i                    => M00_AXI_arprot,
@@ -262,8 +273,8 @@ port map (
 ---------------------------------------------------------------------------
 pcap_inst : entity work.pcap_top
 port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
+    clk_i               => clk0,
+    reset_i             => reset0,
     m_axi_awaddr        => S_AXI_HP0_awaddr,
     m_axi_awburst       => S_AXI_HP0_awburst,
     m_axi_awcache       => S_AXI_HP0_awcache,
@@ -302,7 +313,7 @@ port map (
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
     pcap_actv_o         => pcap_active(0),
-    pcap_irq_o          => IRQ_F2P(0)
+    pcap_irq_o          => IRQ(0)
 );
 
 ---------------------------------------------------------------------------
@@ -311,8 +322,8 @@ port map (
 table_engine : entity work.table_read_engine generic map(
     SLAVES => DMA_USERS_COUNT
 ) port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
+    clk_i               => clk0,
+    reset_i             => reset0,
     -- Zynq HP1 Bus
     m_axi_araddr        => S_AXI_HP1_araddr,
     m_axi_arburst       => S_AXI_HP1_arburst,
@@ -344,7 +355,7 @@ table_engine : entity work.table_read_engine generic map(
 
 dma_irq_events(DMA_USERS_COUNT-1 downto 0) <= rdma_irq;
 dma_irq_events(DMA_USERS_COUNT+15 downto 16) <= rdma_done_irq;
-IRQ_F2P(1) <= or dma_irq_events;
+IRQ(1) <= or dma_irq_events;
 
 ---------------------------------------------------------------------------
 -- REG (System, Position Bus and Special Register Readbacks)
@@ -354,7 +365,7 @@ generic map (
     NUM_MGT => NUM_MGT
 )
 port map (
-    clk_i               => FCLK_CLK0,
+    clk_i               => clk0,
 
     read_strobe_i       => read_strobe(REG_CS),
     read_address_i      => read_address,
@@ -386,6 +397,8 @@ system_zynqmp_top_inst : entity work.system_zynqmp_top
 port map (
     clk_i               => clk0,
     sys_i2c_mux_o       => SYS_I2C_MUX,
+    pll_locked_i        => pll_locked,
+    calibration_ready_i => calibration_ready,
     read_strobe_i       => read_strobe(SYSTEM_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(SYSTEM_CS),
@@ -399,8 +412,8 @@ port map (
 
 softblocks_inst : entity work.soft_blocks
 port map(
-    FCLK_CLK0 => FCLK_CLK0,
-    FCLK_RESET0 => FCLK_RESET0,
+    FCLK_CLK0 => clk0,
+    FCLK_RESET0 => reset0,
     read_strobe => read_strobe,
     read_address => read_address,
     read_data => read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT),

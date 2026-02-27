@@ -269,20 +269,23 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
-  set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
-  set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
-  set IRQ_F2P [ create_bd_port -dir I -from 1 -to 0 -type intr IRQ_F2P ]
+  set IRQ [ create_bd_port -dir I -from 1 -to 0 -type intr IRQ ]
   set_property -dict [ list \
    CONFIG.PortWidth {2} \
    CONFIG.SENSITIVITY {EDGE_RISING} \
- ] $IRQ_F2P
+ ] $IRQ
   set PL_CLK [ create_bd_port -dir I -type clk -freq_hz 125000000 PL_CLK ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {S_AXI_HP0:S_AXI_HP1:M00_AXI} \
  ] $PL_CLK
+  set CLK125 [ create_bd_port -dir O -type clk CLK125 ]
+  set CLK300 [ create_bd_port -dir O -type clk CLK300 ]
+  set P_RESET [ create_bd_port -dir O -from 0 -to 0 -type rst P_RESET ]
 
   # Create instance: proc_sys_reset_0, and set properties
   set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
+  set_property CONFIG.C_NUM_PERP_RST {1} $proc_sys_reset_0
+
 
   # Create instance: smartconnect_0, and set properties
   set smartconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 smartconnect_0 ]
@@ -796,7 +799,7 @@ MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#MDIO 0
     CONFIG.PSU__CRL_APB__I2C0_REF_CTRL__ACT_FREQMHZ {100.000000} \
     CONFIG.PSU__CRL_APB__I2C0_REF_CTRL__FREQMHZ {100} \
     CONFIG.PSU__CRL_APB__I2C0_REF_CTRL__SRCSEL {IOPLL} \
-    CONFIG.PSU__CRL_APB__I2C1_REF_CTRL__ACT_FREQMHZ {100.000000} \
+    CONFIG.PSU__CRL_APB__I2C1_REF_CTRL__ACT_FREQMHZ {100} \
     CONFIG.PSU__CRL_APB__I2C1_REF_CTRL__FREQMHZ {100} \
     CONFIG.PSU__CRL_APB__I2C1_REF_CTRL__SRCSEL {IOPLL} \
     CONFIG.PSU__CRL_APB__IOPLL_CTRL__FRACFREQ {27.138} \
@@ -823,7 +826,9 @@ MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#MDIO 0
     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__ACT_FREQMHZ {125.000000} \
     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {125} \
     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL {IOPLL} \
-    CONFIG.PSU__CRL_APB__PL1_REF_CTRL__ACT_FREQMHZ {100} \
+    CONFIG.PSU__CRL_APB__PL1_REF_CTRL__ACT_FREQMHZ {300.000000} \
+    CONFIG.PSU__CRL_APB__PL1_REF_CTRL__FREQMHZ {300} \
+    CONFIG.PSU__CRL_APB__PL1_REF_CTRL__SRCSEL {IOPLL} \
     CONFIG.PSU__CRL_APB__PL2_REF_CTRL__ACT_FREQMHZ {100} \
     CONFIG.PSU__CRL_APB__PL3_REF_CTRL__ACT_FREQMHZ {100} \
     CONFIG.PSU__CRL_APB__QSPI_REF_CTRL__ACT_FREQMHZ {200.000000} \
@@ -964,7 +969,7 @@ MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#MDIO 0
     CONFIG.PSU__FPD_SLCR__WDT1__ACT_FREQMHZ {100} \
     CONFIG.PSU__FPD_SLCR__WDT1__FREQMHZ {100} \
     CONFIG.PSU__FPGA_PL0_ENABLE {1} \
-    CONFIG.PSU__FPGA_PL1_ENABLE {0} \
+    CONFIG.PSU__FPGA_PL1_ENABLE {1} \
     CONFIG.PSU__FPGA_PL2_ENABLE {0} \
     CONFIG.PSU__FPGA_PL3_ENABLE {0} \
     CONFIG.PSU__FP__POWER__ON {1} \
@@ -1128,7 +1133,8 @@ MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#GPIO2 MIO#MDIO 0
     CONFIG.PSU__PCIE__SUBSYSTEM_VENDOR_ID {} \
     CONFIG.PSU__PCIE__VENDOR_ID {} \
     CONFIG.PSU__PJTAG__PERIPHERAL__ENABLE {0} \
-    CONFIG.PSU__PL_CLK0_BUF {TRUE} \
+    CONFIG.PSU__PL_CLK0_BUF {FALSE} \
+    CONFIG.PSU__PL_CLK1_BUF {TRUE} \
     CONFIG.PSU__PL__POWER__ON {1} \
     CONFIG.PSU__PMU__PERIPHERAL__ENABLE {0} \
     CONFIG.PSU__PRESET_APPLIED {0} \
@@ -1303,11 +1309,12 @@ Port;FD4A0000;FD4AFFFF;0|FPD;DPDMA;FD4C0000;FD4CFFFF;0|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_FPD [get_bd_intf_pins smartconnect_0/S00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD]
 
   # Create port connections
-  connect_bd_net -net IRQ_F2P_1 [get_bd_ports IRQ_F2P] [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
+  connect_bd_net -net IRQ_F2P_1 [get_bd_ports IRQ] [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
   connect_bd_net -net PL_CLK_1 [get_bd_ports PL_CLK] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins smartconnect_1/aclk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/saxihp0_fpd_aclk]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins smartconnect_1/aresetn]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_ports FCLK_RESET0_N]
-  connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_ports FCLK_CLK0]
+  connect_bd_net -net proc_sys_reset_0_peripheral_reset [get_bd_pins proc_sys_reset_0/peripheral_reset] [get_bd_ports P_RESET]
+  connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_ports CLK125]
+  connect_bd_net -net zynq_ultra_ps_e_0_pl_clk1 [get_bd_pins zynq_ultra_ps_e_0/pl_clk1] [get_bd_ports CLK300]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_resetn0 [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 
   # Create address segments
