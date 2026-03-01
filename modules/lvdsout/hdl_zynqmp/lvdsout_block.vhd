@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity lvdsout_zynqmp_block is
+entity lvdsout_block is
 port (
     -- Clock and Reset
     clk_i : in std_logic;
@@ -24,7 +24,7 @@ port (
 );
 end;
 
-architecture rtl of lvdsout_zynqmp_block is
+architecture rtl of lvdsout_block is
     signal pad_iob : std_logic;
 begin
     FINE_DELAY_GEN1: if FINE_DELAY_OPTION = '1' generate

@@ -8,7 +8,7 @@ use work.addr_defines.all;
 use work.top_defines.all;
 use work.support.all;
 
-entity lvdsout_zynqmp_top is
+entity lvdsout_top is
 port (
     -- Clocks and Resets
     clk_i : in std_logic;
@@ -31,7 +31,7 @@ port (
 );
 end;
 
-architecture rtl of lvdsout_zynqmp_top is
+architecture rtl of lvdsout_top is
     signal read_strobe : std_logic_vector(LVDSOUT_NUM-1 downto 0);
     signal read_data : std32_array(LVDSOUT_NUM-1 downto 0);
     signal write_strobe : std_logic_vector(LVDSOUT_NUM-1 downto 0);
@@ -48,15 +48,15 @@ begin
     read_ack_o <= or_reduce(read_ack);
     read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
-    -- lvdsout_zynqmp Block
-    LVDSOUT_ZYNQMP_GEN : for I in 0 to (LVDSOUT_NUM-1) generate
+    -- LVDSOUT_Block
+    LVDSOUT_GEN : for I in 0 to (LVDSOUT_NUM-1) generate
         -- Sub-module address decoding
         read_strobe(I) <=
             compute_block_strobe(read_address_i, I) and read_strobe_i;
         write_strobe(I) <=
             compute_block_strobe(write_address_i, I) and write_strobe_i;
         -- Control System Interface
-        lvdsout_zynqmp_ctrl_inst : entity work.lvdsout_zynqmp_ctrl
+        lvdsout_ctrl_inst : entity work.lvdsout_ctrl
         port map (
             clk_i => clk_i,
             reset_i => reset_i,
@@ -77,7 +77,7 @@ begin
             write_data_i => write_data_i,
             write_ack_o => write_ack(I)
         );
-        lvdsout_zynqmp_block : entity work.lvdsout_zynqmp_block
+        lvdsout_block : entity work.lvdsout_block
         port map (
             -- Clock and Reset
             clk_i => clk_i,
