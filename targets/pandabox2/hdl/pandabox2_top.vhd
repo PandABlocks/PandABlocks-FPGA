@@ -449,7 +449,7 @@ obufds_gen : for I in 0 to LVDSOUT_NUM-1 generate
     );
 end generate;
 
-lvdsout_zynqmp_inst : entity work.lvdsout_zynqmp_top
+lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i               => clk0,
     clk_4x_i            => clk0_4x,
