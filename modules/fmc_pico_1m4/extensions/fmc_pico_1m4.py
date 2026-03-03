@@ -1,9 +1,8 @@
-# Extension module to support FMC ADC427
-try:
-    from i2c import smbus2
-    import struct
-except ImportError:
-    from pandai2c import smbus2
+# Extension module to support FMC PICO-1M4
+
+from pandai2c import eeprom, smbus2
+
+import struct
 
 # The absolute address on the EEPROM based on the documentation
 #   0xCD Magic number 0
@@ -49,6 +48,12 @@ lookup_write_bit_map = {
 }
 
 lookup_read_bit_map = {
+    'chn0' : [0xD5,0xD9],
+    'chn1' : [0xDD,0xE1],
+    'chn2' : [0xE5, 0xE9],
+    'chn3' : [0xED,0xF1]
+}
+lookup_read_bit_map = {
     'chn0_gain' : 0xD5,
     'chn0_offset' : 0xD9,
     'chn1_gain' : 0xDD,
@@ -58,36 +63,19 @@ lookup_read_bit_map = {
     'chn3_gain' : 0xED,
     'chn3_offset' : 0xF1
 }
-
-
 class GPIO_Helper:
     def __init__(self):
-        self.bus = smbus2.SMBus(0)
+        # we cache the memory, it is not expected to change
+        self.memory = eeprom.read_address(length=0x140)
 
-    def read_input_bits(self, address):
-        return self.bus.read_i2c_block_data(0x50, address, 4)
-
-    def write_output_bits(self, bits):
-        self.bus.write_i2c_block_data(0x50, 0x84, bits)
+    def read_dword(self, address):
+        assert address + 4 <= len(self.memory)
+        return self.memory[address:address+4]
 
     def read_bit(self, address):
-        contents = self.read_input_bits(address)
+        contents = self.read_dword(address)
         return struct.unpack('<f', bytes(contents))[0]
     
-    def write_bits(self, value, byte_ix, offset, width):
-        mask = ((1 << width) - 1) << offset
-        shift_value = (value << offset) & mask
-        self.outputs[byte_ix] = (self.outputs[byte_ix] & ~mask) | shift_value
-        self.write_output_bits(self.outputs)
-
-    def write_adc_gain(self, value, *args):
-        self.write_bits(value, *args)
-        return (value,)
-
-    def write_dac_gain(self, *args):
-        # dac_gains do not write to a register and should not return a value
-        self.write_bits(*args)
-
 
 # We need a single GPIO controller shared between the ADC and DAC extensions.
 gpio_helper = GPIO_Helper()
@@ -98,10 +86,5 @@ class Extension:
         pass
 
     def parse_read(self, request):
-        address = lookup_read_bit_map[request]
-        return lambda _: gpio_helper.read_bit(address)
-
-    def parse_write(self, request):
-        action, offsets = lookup_write_bit_map[request]
-        action = getattr(gpio_helper, action)
-        return lambda _, value: action(value, *offsets)
+        gain, offset = lookup_read_bit_map[request]
+        return lambda x,value: (x+gpio_helper.read_bit(gain)) + gpio_helper.read_bit(offset)
