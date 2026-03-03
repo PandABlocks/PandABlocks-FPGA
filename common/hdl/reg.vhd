@@ -40,18 +40,18 @@ architecture rtl of reg is
 
 type bit16_array is array(natural range <>) of std_logic_vector(15 downto 0);
 
-signal sbus                 : bit16_array(7 downto 0);
-signal sbus_prev            : bit16_array(7 downto 0);
-signal sbus_latched         : bit16_array(7 downto 0);
-signal index                : unsigned(2 downto 0);
-signal sbus_change          : bit16_array(7 downto 0);
+signal sbus                 : bit16_array(7 downto 0) := (others => (others => '0'));
+signal sbus_prev            : bit16_array(7 downto 0) := (others => (others => '0'));
+signal sbus_latched         : bit16_array(7 downto 0) := (others => (others => '0'));
+signal index                : unsigned(2 downto 0) := (others => '0');
+signal sbus_change          : bit16_array(7 downto 0) := (others => (others => '0'));
 signal sbus_change_latched  : bit16_array(7 downto 0);
 
-signal pbus                 : pos_bus_t;
-signal pbus_prev            : pos_bus_t;
-signal pbus_latched         : pos_bus_t;
-signal p_index              : unsigned(4 downto 0);
-signal pbus_change          : std_logic_vector(31 downto 0);
+signal pbus                 : pos_bus_t := (others => (others => '0'));
+signal pbus_prev            : pos_bus_t := (others => (others => '0'));
+signal pbus_latched         : pos_bus_t := (others => (others => '0'));
+signal p_index              : unsigned(4 downto 0) := (others => '0');
+signal pbus_change          : std_logic_vector(31 downto 0) := (others => '0');
 signal pbus_change_latched  : std_logic_vector(31 downto 0);
 
 begin
@@ -133,7 +133,11 @@ begin
         if (POS_READ_RST = '1') then
             p_index <= (others => '0');
         elsif (POS_READ_RSTB = '1') then
-            p_index <= p_index + 1;
+            if p_index = PBUSW - 1 then
+                p_index <= (others => '0');
+            else
+                p_index <= p_index + 1;
+            end if;
         end if;
 
         pbus_prev <= pbus;

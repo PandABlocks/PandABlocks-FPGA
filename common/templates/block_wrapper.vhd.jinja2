@@ -57,7 +57,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0) := (others => '0');
     write_ack_o         : out std_logic
 );
-end {{ entity }}_wrapper;
+end;
 
 architecture rtl of {{ entity }}_wrapper is
 
@@ -83,13 +83,24 @@ signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
 signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 signal read_ack         : std_logic_vector(NUM-1 downto 0);
 signal write_ack        : std_logic_vector(NUM-1 downto 0);
+signal inst_read_index  : natural := 0;
 
 begin
 
     -- Acknowledgement to AXI Lite interface
     write_ack_o <= or_reduce(write_ack);
     read_ack_o <= or_reduce(read_ack);
-    read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
+    read_data_o <= read_data(inst_read_index);
+
+    process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if read_strobe_i then
+                inst_read_index <=
+                    to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW)));
+            end if;
+        end if;
+    end process;
 
     -- Generate NUM instances of the blocks
     GEN : FOR I IN 0 TO (NUM-1) GENERATE
@@ -169,4 +180,4 @@ begin
 
     END GENERATE;
 
-end rtl;
+end;
