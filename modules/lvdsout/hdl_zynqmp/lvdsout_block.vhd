@@ -17,6 +17,7 @@ port (
     FINE_DELAY : in std_logic_vector(31 downto 0);
     FINE_DELAY_wstb : in std_logic;
     FINE_DELAY_COMPENSATED : out std_logic_vector(31 downto 0) := (others => '0');
+    ONE_NS_FINE_DELAY : out std_logic_vector(31 downto 0) := (others => '0');
     -- Inputs
     val : in std_logic;
     -- Output pulse
@@ -37,6 +38,7 @@ begin
             fine_delay_i => FINE_DELAY(8 downto 0),
             fine_delay_wstb_i => FINE_DELAY_wstb,
             fine_delay_compensated_o => FINE_DELAY_COMPENSATED(8 downto 0),
+            initial_fine_delay_o => ONE_NS_FINE_DELAY(8 downto 0),
             signal_i => val,
             signal_o => pad_iob
         );
