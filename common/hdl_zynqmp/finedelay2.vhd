@@ -12,6 +12,7 @@ port (
     fine_delay_i : in std_logic_vector(8 downto 0);
     fine_delay_wstb_i : in std_logic;
     fine_delay_compensated_o : out std_logic_vector(8 downto 0);
+    initial_fine_delay_o : out std_logic_vector(8 downto 0);
     signal_i : in std_logic;
     signal_o : out std_logic
 );
@@ -34,6 +35,7 @@ begin
         fine_delay_i => fine_delay_i,
         fine_delay_wstb_i => fine_delay_wstb_i,
         fine_delay_compensated_o => fine_delay_compensated_o,
+        initial_fine_delay_o => initial_fine_delay_o,
         signal_i => signal_oct,
         signal_o => signal_o
     );
