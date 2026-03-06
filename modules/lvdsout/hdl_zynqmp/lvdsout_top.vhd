@@ -41,6 +41,7 @@ architecture rtl of lvdsout_top is
     signal fine_delay : std32_array(LVDSOUT_NUM-1 downto 0);
     signal fine_delay_wstb : std_logic_vector(LVDSOUT_NUM-1 downto 0);
     signal fine_delay_compensated : std32_array(LVDSOUT_NUM-1 downto 0);
+    signal initial_one_ns : std32_array(LVDSOUT_NUM-1 downto 0);
     signal val : std_logic_vector(LVDSOUT_NUM-1 downto 0);
 begin
     -- Acknowledgement to AXI Lite interface
@@ -67,6 +68,7 @@ begin
             FINE_DELAY => fine_delay(I),
             FINE_DELAY_WSTB => fine_delay_wstb(I),
             FINE_DELAY_COMPENSATED => fine_delay_compensated(I),
+            INITIAL_ONE_NS => initial_one_ns(I),
             -- Memory Bus Interface
             read_strobe_i => read_strobe(I),
             read_address_i => read_address_i(BLK_AW-1 downto 0),
@@ -89,6 +91,7 @@ begin
             FINE_DELAY => fine_delay(I),
             FINE_DELAY_WSTB => fine_delay_wstb(I),
             FINE_DELAY_COMPENSATED => fine_delay_compensated(I),
+            INITIAL_ONE_NS => initial_one_ns(I),
             -- Block inputs
             val => val(I),
             -- Block outputs
