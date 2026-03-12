@@ -55,7 +55,7 @@ architecture rtl of table_read_engine is
 type state_t is (ARBITING, DO_DMA);
 signal rdma_fsm         : state_t;
 
-signal dma_start        : std_logic;
+signal dma_start        : std_logic := '0';
 signal dma_done         : std_logic;
 signal dma_addr         : std_logic_vector(31 downto 0);
 signal dma_len          : std_logic_vector(7 downto 0);

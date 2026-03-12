@@ -19,7 +19,7 @@ port (
     inpc_i              : in  std_logic;
     inpd_i              : in  std_logic;
     inpe_i              : in  std_logic;
-    out_o               : out std_logic;
+    out_o               : out std_logic := '0';
     -- 0 = Value of inp, 1 = Pulse on rising edge of inp
     -- 2 = Pulse on falling edge of inp, 3 = Pulse on either edge
     TYPEA               : in  std_logic_vector(31 downto 0);

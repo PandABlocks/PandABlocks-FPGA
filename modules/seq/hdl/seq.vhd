@@ -91,7 +91,7 @@ signal seq_sm               : state_t;
 
 signal next_inp_val         : std_logic_vector(2 downto 0);
 signal current_inp_val      : std_logic_vector(2 downto 0);
-signal out_val              : std_logic_vector(5 downto 0);
+signal out_val              : std_logic_vector(5 downto 0) := (others => '0');
 signal active               : std_logic := '0';
 signal current_trig_valid   : std_logic;
 signal next_trig_valid      : std_logic;
