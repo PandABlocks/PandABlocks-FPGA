@@ -3,7 +3,7 @@ import numpy as np
 
 from axi import AxiLiteMaster, AxiWriteSlave, AxiReadSlave
 from block_metadata import BlockMetadata
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import RisingEdge, Lock
 
 
 class PandaTestHarness(object):
@@ -15,6 +15,10 @@ class PandaTestHarness(object):
         self.clock = dut.clk_i
         self.metadata = BlockMetadata(configd_path)
         self.reg_axi = AxiLiteMaster(dut, 's_reg_axil', self.clock)
+        # Why do we lock register interface access? sim_server runs the
+        # interrupt handler in a separate task and it may access registers at
+        # the same time as the main task.
+        self.reg_axi_lock = Lock()
         self.init_signals(dut)
         self.pcap_axi = AxiWriteSlave(dut, 'm_pcap_axi', self.clock)
         self.pcap_memory = Memory(pcap_mem_size)
@@ -30,12 +34,11 @@ class PandaTestHarness(object):
             await RisingEdge(self.clock)
             irqs_o = self.dut.irqs_o.value.to_unsigned()
             if irqs_o != 0:
-                # make sure irq status is latched
                 await RisingEdge(self.clock)
                 return irqs_o
 
             t += 1
-            if t >= timeout:
+            if timeout is not None and t >= timeout:
                 return 0
 
     async def read_bit_changes(self):
@@ -68,19 +71,36 @@ class PandaTestHarness(object):
         addr, data_list = transaction
         self.pcap_memory.add_burst(addr, data_list)
 
+    async def reg_write_raw(self, block, num, reg, value):
+        async with self.reg_axi_lock:
+            await self.reg_axi.write(
+                self.metadata.reg_addr(block, num, reg), value)
+
     async def reg_write(self, field, value, reg_arg_index=0):
-        await self.reg_axi.write(
-            self.metadata.reg_addr_from_field(field, reg_arg_index), value)
+        async with self.reg_axi_lock:
+            await self.reg_axi.write(
+                self.metadata.reg_addr_from_field(field, reg_arg_index), value)
 
     async def reg_write_long_table(self, field, addr, length):
-        await self.reg_axi.write(
-            self.metadata.reg_addr_from_field(field, -2), addr)
-        await self.reg_axi.write(
-            self.metadata.reg_addr_from_field(field, -1), length)
+        async with self.reg_axi_lock:
+            await self.reg_axi.write(
+                self.metadata.reg_addr_from_field(field, -2), addr)
+            await self.reg_axi.write(
+                self.metadata.reg_addr_from_field(field, -1), length)
+
+    async def reg_read_raw(self, block, num, reg):
+        async with self.reg_axi_lock:
+            val = await self.reg_axi.read(
+                self.metadata.reg_addr(block, num, reg))
+
+        return val
 
     async def reg_read(self, field, reg_arg_index=0):
-        return await self.reg_axi.read(
-            self.metadata.reg_addr_from_field(field, reg_arg_index))
+        async with self.reg_axi_lock:
+            val = await self.reg_axi.read(
+                self.metadata.reg_addr_from_field(field, reg_arg_index))
+
+        return val
 
     def init_signals(self, dut):
         for sig in ('clk_i', 'reset_i'):
