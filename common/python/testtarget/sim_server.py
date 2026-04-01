@@ -4,10 +4,12 @@ import cocotb
 import enum
 import logging
 import os
+import select
 import socket
+import time
 
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.triggers import ClockCycles, RisingEdge
 from collections import deque, OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -57,14 +59,14 @@ class SimServer(object):
         self.log = logging.getLogger(__class__.__name__)
         self.dut = dut
         self.clock = dut.clk_i
-        self.ticks_per_iteration = 1
         self.pcap_buffer_size = 2 * 1024 * 1024
         self.pcap_n_buffers = 3
         self.pcap_mem_size = self.pcap_n_buffers * self.pcap_buffer_size
+        self._pcap_buffer = 0
         self.pcap_next_buffer = 0
         self.pcap_current_buffer = 0
         self.pcap_next_buffer = 0
-        self.pcap_timeout = 128
+        self.pcap_timeout = 48
         self.table_buffer_size = 4 * 1024 * 1024
         self.table_n_buffers = 8
         self.table_mem_size = self.table_n_buffers * self.table_buffer_size
@@ -113,7 +115,7 @@ class SimServer(object):
             if irqs:
                 await self.process_irqs(irqs)
 
-    def wait_client(self):
+    def wait_for_client(self):
         lsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         lsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         lsocket.bind(('localhost', 9999))
@@ -126,6 +128,12 @@ class SimServer(object):
 
     async def process_client(self) -> bool:
         was_first = len(self.command) == 0
+        # optimization: check if there is data to read before calling recv, to
+        # avoid having to catch the BlockingIOError exception in the common case
+        # where there is no data.
+        if not select.select([self.client], [], [], 0)[0]:
+            return False
+
         new_data = self.client.recv(4096)
         if new_data == b'':
             return True
@@ -301,14 +309,14 @@ class SimServer(object):
         self.log.debug('GET PCAP DATA command returning %d bytes', length)
         self.send(length.to_bytes(4, 'little'))
         self.send(self.pcap_data[:length])
-        self.pcap_data = self.pcap_data[length:]
+        del self.pcap_data[:length]
         del self.command[:8]
         return True
 
     async def pre_pcap_arm_hook(self):
         self.pcap_acquiring = True
-        self.pcap_current_buffer = self.get_next_pcap_buffer()
-        self.pcap_next_buffer = self.get_next_pcap_buffer()
+        self.pcap_current_buffer = self.get_pcap_buffer()
+        self.pcap_next_buffer = self.get_pcap_buffer()
         await self.test.reg_write('*DRV.PCAP_DMA_RESET', 0)
         await self.test.reg_write('*DRV.PCAP_BLOCK_SIZE', self.pcap_buffer_size)
         await self.test.reg_write('*DRV.PCAP_TIMEOUT', self.pcap_timeout)
@@ -350,7 +358,7 @@ class SimServer(object):
             count = (irq_status >> 9) & 0x7fffff
             data_buffer = self.pcap_current_buffer
             self.pcap_current_buffer = self.pcap_next_buffer
-            self.pcap_next_buffer = self.get_next_pcap_buffer()
+            self.pcap_next_buffer = self.get_pcap_buffer()
             self.pcap_data.extend(
                 self.test.pcap_memory.mem[data_buffer:data_buffer + count * 4])
             await self.test.reg_write(
@@ -384,11 +392,11 @@ class SimServer(object):
                                        buffer.addr)
                         await self.push_buffer(table_state, buffer)
 
-    def get_next_pcap_buffer(self):
-        buffer = self.pcap_next_buffer
-        self.pcap_next_buffer += self.pcap_buffer_size
-        if self.pcap_next_buffer >= self.pcap_mem_size:
-            self.pcap_next_buffer = 0
+    def get_pcap_buffer(self):
+        buffer = self._pcap_buffer
+        self._pcap_buffer += self.pcap_buffer_size
+        if self._pcap_buffer >= self.pcap_mem_size:
+            self._pcap_buffer = 0
 
         return buffer
 
@@ -399,18 +407,16 @@ class SimServer(object):
             await self.process_table_irq()
 
     async def run(self):
-        self.wait_client()
+        self.wait_for_client()
         cocotb.start_soon(Clock(self.clock, 1, 'ns').start(start_high=False))
         cocotb.start_soon(self.interrupt_handler())
         want_quit = False
         # Wait a couple clock cycles to let the DUT initialize
         await ClockCycles(self.clock, 2)
+        edge = RisingEdge(self.clock)
         while not want_quit:
-            await ClockCycles(self.clock, self.ticks_per_iteration)
-            try:
-                want_quit = await self.process_client()
-            except BlockingIOError:
-                pass
+            await edge
+            want_quit = await self.process_client()
 
         self.client.close()
 

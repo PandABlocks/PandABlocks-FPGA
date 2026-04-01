@@ -10,6 +10,7 @@ class AxiLiteMaster(object):
     def __init__(self, dut, name, clock):
         self.dut = dut
         self.clock = clock
+        self.edge = RisingEdge(self.clock)
         self.bus = Bus(dut, name, signals=[
             'awaddr', 'awprot', 'awvalid', 'awready',
             'wdata', 'wstrb', 'wvalid', 'wready',
@@ -42,7 +43,7 @@ class AxiLiteMaster(object):
         got_aw = False
         got_w = False
         while True:
-            await RisingEdge(self.clock)
+            await self.edge
             if self.bus.awready.value == 1:
                 self.bus.awvalid.value = 0
                 got_aw = True
@@ -55,7 +56,7 @@ class AxiLiteMaster(object):
                 break
 
         while self.bus.bvalid.value == 0:
-            await RisingEdge(self.clock)
+            await self.edge
         self.bus.bready.value = 0
 
     async def read(self, address):
@@ -63,18 +64,18 @@ class AxiLiteMaster(object):
         self.bus.arprot.value = 0
         self.bus.arvalid.value = 1
         while True:
-            await RisingEdge(self.clock)
+            await self.edge
             if self.bus.arready.value == 1:
                 self.bus.arvalid.value = 0
                 self.bus.rready.value = 1
                 break
 
         while self.bus.rvalid.value != 1:
-            await RisingEdge(self.clock)
+            await self.edge
 
         data = self.bus.rdata.value.to_unsigned()
         self.bus.rready.value = 0
-        await RisingEdge(self.clock)
+        await self.edge
         return data
 
 
@@ -103,6 +104,7 @@ class AxiWriteSlave(BusMonitor):
         self.n_bursts = 0
         self.n_resp = 0
         super().__init__(dut, name, clock, **kwargs)
+        self.edge = RisingEdge(self.clock)
         self.init_signals()
 
     def init_signals(self):
@@ -118,7 +120,7 @@ class AxiWriteSlave(BusMonitor):
         addr = None
         need_resp = 0
         while not self.want_quit:
-            await RisingEdge(self.clock)
+            await self.edge
             if self.bus.awvalid.value == 1 and self.bus.awready.value == 1:
                 addr = self.bus.awaddr.value.to_unsigned()
                 self.bus.awready.value = 0
@@ -168,6 +170,7 @@ class AxiReadSlave(BusMonitor):
         self.n_resp = 0
         self.mem_read = mem_read
         super().__init__(dut, name, clock, **kwargs)
+        self.edge = RisingEdge(self.clock)
         self.init_signals()
 
     def init_signals(self):
@@ -180,7 +183,7 @@ class AxiReadSlave(BusMonitor):
         self.bus.arready.value = 1
         left = 0
         while not self.want_quit:
-            await RisingEdge(self.clock)
+            await self.edge
 
             if self.bus.arvalid.value == 1 and self.bus.arready.value == 1:
                 addr = self.bus.araddr.value.to_unsigned()
