@@ -26,7 +26,6 @@ class PandaTestHarness(object):
         self.pcap_axi.add_callback(self.handle_pcap_write)
         self.table_axi = AxiReadSlave(dut, 'm_table_axi', self.clock,
                                       self.table_read)
-        self.want_quit = False
 
     async def wait_for_irq(self, timeout=1024):
         t = 0
