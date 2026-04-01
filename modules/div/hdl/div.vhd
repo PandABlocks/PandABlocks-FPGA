@@ -31,11 +31,11 @@ end div;
 architecture rtl of div is
 
 signal reset            : std_logic;
-signal input_prev       : std_logic;
+signal input_prev       : std_logic := '0';
 signal input_rise       : std_logic;
 signal counter          : unsigned(31 downto 0);
 signal pulsmask         : std_logic;
-signal is_first_pulse   : std_logic;
+signal is_first_pulse   : std_logic := '0';
 signal divisor_i        : std_logic_vector(31 downto 0);
 
 begin

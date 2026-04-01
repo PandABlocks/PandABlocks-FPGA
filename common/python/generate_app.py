@@ -126,30 +126,7 @@ class AppGenerator(object):
                     target + ".target.ini")))
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
-            target_info = ini_get(target_ini, '.', 'io', '').split('\n')
-            for target in target_info:
-                siteName, siteInfo = target.split(':')
-                siteName = siteName.strip()
-                siteInfo = siteInfo.strip()
-                if siteInfo.isdigit():
-                    site = TargetSiteConfig(siteName, siteInfo)
-                elif "*" in siteInfo:
-                    # The '*' indiciates there is a capabaility but no actual
-                    # io. The io can be added by a module (e.g on an FMC card)
-                    siteInfo = siteInfo.split("*")[0]
-                    if siteInfo.isdigit():
-                        site = TargetSiteConfig(
-                            siteName, "0", capabilitiy=siteInfo
-                        )
-                    else:
-                        siteType, siteNum = siteInfo.split(",")
-                        site = TargetSiteConfig(
-                            siteName, "0", capabilitiy=siteNum, type=siteType
-                        )
-                else:
-                    siteType, siteNum = siteInfo.split(',')
-                    site = TargetSiteConfig(siteName, siteNum, type=siteType)
-                self.target_sites.append(site)
+            self.process_io_options(ini_get(target_ini, '.', 'io', ''))
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
                 ini_get(target_ini, '.', 'options', ''))
@@ -174,6 +151,36 @@ class AppGenerator(object):
             ]
             for field in to_delete:
                 block.fields.remove(field)
+
+    def process_io_options(self, text):
+        target_info = text.split('\n')
+        for target in target_info:
+            target = target.strip()
+            if target == '':
+                continue
+
+            siteName, siteInfo = target.split(':')
+            siteName = siteName.strip()
+            siteInfo = siteInfo.strip()
+            if siteInfo.isdigit():
+                site = TargetSiteConfig(siteName, siteInfo)
+            elif "*" in siteInfo:
+                # The '*' indicates there is a capability but no actual
+                # io. The io can be added by a module (e.g on an FMC card)
+                siteInfo = siteInfo.split("*")[0]
+                if siteInfo.isdigit():
+                    site = TargetSiteConfig(
+                        siteName, "0", capabilitiy=siteInfo
+                    )
+                else:
+                    siteType, siteNum = siteInfo.split(",")
+                    site = TargetSiteConfig(
+                        siteName, "0", capabilitiy=siteNum, type=siteType
+                    )
+            else:
+                siteType, siteNum = siteInfo.split(',')
+                site = TargetSiteConfig(siteName, siteNum, type=siteType)
+            self.target_sites.append(site)
 
     def parse_fpga_options(self, text):
         # returns a dict with option -> expected_value

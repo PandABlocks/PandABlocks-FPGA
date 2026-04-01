@@ -29,9 +29,6 @@ port (
     POSMUX_SEL_i        : in  std_logic_vector(31 downto 0)
 );
 
-  attribute keep_hierarchy            : string;
-  attribute keep_hierarchy of posmux  : entity is "yes";
-
 end posmux;
 
 architecture rtl of posmux is

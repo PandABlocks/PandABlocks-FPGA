@@ -9,7 +9,7 @@ entity filter is
         inp_i    : in  std_logic_vector(31 downto 0);
         enable_i : in  std_logic;
         out_o    : out std_logic_vector(31 downto 0) := (others => '0');
-        ready_o  : out std_logic;
+        ready_o  : out std_logic := '0';
         health   : out std_logic_vector(31 downto 0) := (others => '0')
 );
 end filter;
