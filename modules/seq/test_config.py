@@ -2,6 +2,7 @@
 
 EXTRA_HDL_FILES = [TOP_PATH / 'common' / 'hdl' / 'defines' / 'support.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'defines' / 'top_defines.vhd',
+                   TOP_PATH / 'common' / 'hdl' / 'prescaled_timer.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'table_read_engine_client_transfer_manager.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'table_read_engine_client_length_manager.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'table_read_engine_client.vhd',
