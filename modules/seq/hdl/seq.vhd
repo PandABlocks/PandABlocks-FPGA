@@ -68,7 +68,7 @@ port (
     dma_irq_o           : out std_logic;
     dma_done_irq_o      : out std_logic
 );
-end seq;
+end;
 
 architecture rtl of seq is
 
@@ -96,8 +96,6 @@ signal active               : std_logic := '0';
 signal current_trig_valid   : std_logic;
 signal next_trig_valid      : std_logic;
 
-signal presc_reset          : std_logic;
-signal presc_ce             : std_logic;
 signal enable_val           : std_logic;
 signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
@@ -113,7 +111,11 @@ signal next_pos_en          : std_logic_vector(2 downto 0);
 signal current_pos_inp      : std_logic;
 signal next_pos_inp         : std_logic;
 
-signal next_ts              : unsigned(31 downto 0);
+signal next_ts : unsigned(31 downto 0);
+signal prescaler_rollover : unsigned(31 downto 0);
+signal timer_enable : std_logic;
+signal timer_rollover : unsigned(31 downto 0);
+signal timer_expired : std_logic;
 
 signal start : std_logic := '0';
 signal frame_valid : std_logic;
@@ -290,8 +292,8 @@ STATE(31 downto 3) <= (others => '0');
 -- comments in SEQ_FSM shows where this logically sits
 load_next <= '1' when
     (seq_sm = WAIT_ENABLE and enable_rise = '1')
-    or (seq_sm = PHASE_2 and presc_ce = '1' and tframe_counter = next_ts - 1
-        and last_line_repeat = '1' and last_table_repeat = '0') else '0';
+    or (seq_sm = PHASE_2 and timer_expired = '1' and last_line_repeat = '1'
+        and last_table_repeat = '0') else '0';
 
 SEQ_FSM : process(clk_i)
     procedure reset_repeat_count(val: integer) is
@@ -393,12 +395,12 @@ if rising_edge(clk_i) then
 
             when PHASE_1 =>
                 --time 1 elapsed
-                if presc_ce = '1' and tframe_counter = next_ts - 1 then
+                if timer_expired then
                     goto_phase_2(current_frame);
                 end if;
 
             when PHASE_2 =>
-                if presc_ce = '1' and tframe_counter = next_ts - 1 then
+                if timer_expired then
                     -- TABLE load started
                     -- Table Repeat is finished
                     -- = last_line_repeat, last_table_line, last_table_repeat
@@ -463,46 +465,21 @@ last_table_repeat <= last_table_line when
     (streaming_mode = '0' and REPEATS /= X"0000_0000" and
      TABLE_REPEAT_OUT = unsigned(REPEATS)) or streaming_mode = '1' else '0';
 
---------------------------------------------------------------------------
--- Prescaler:
---  On a trigger event, a reset is applied to synchronise CE pulses with the
---  trigger input.
---  clk_cnt := (0=>'1', others => '0');
---------------------------------------------------------------------------
-
-presc_reset <= '1' when seq_sm = WAIT_TRIGGER
-                     or seq_sm = WAIT_ENABLE
-                     or seq_sm = UNREADY
-                     or load_next = '1' else '0';
-
-seq_presc : entity work.sequencer_prescaler
-port map (
-    clk_i       => clk_i,
-    reset_i     => presc_reset,
-    PERIOD      => PRESCALE,
-    pulse_o     => presc_ce
-);
-
-
+timer_enable <= '1' when seq_sm = PHASE_1 or seq_sm = PHASE_2 else '0';
+prescaler_rollover <= X"00000000" when PRESCALE = X"00000000" else
+                      unsigned(PRESCALE) - 1;
+timer_rollover <= next_ts - 1;
 --------------------------------------------------------------------------
 -- Frame counter :
---  On a trigger event, a reset is applied to synchronise counter with the
---  trigger input. Counter stays synchronous during Phase 1 + Phase 2 states
+--  Timer stays synchronous during Phase 1 + Phase 2 states
 --------------------------------------------------------------------------
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if presc_reset = '1' then
-            tframe_counter <= (others => '0');
-        elsif presc_ce = '1' then
-            if tframe_counter = next_ts - 1 then
-                tframe_counter <= (others => '0');
-            else
-                tframe_counter <= tframe_counter + 1;
-            end if;
-        end if;
-    end if;
-end process;
+ptimer_inst : entity work.prescaled_timer port map (
+    clk_i => clk_i,
+    enable_i => timer_enable,
+    prescaler_rollover_i => std_logic_vector(prescaler_rollover),
+    timer_rollover_i => std_logic_vector(timer_rollover),
+    expired_o => timer_expired
+);
 
 -- Block Status
 TABLE_LINE   <= std_logic_vector(resize(TABLE_LINE_OUT, TABLE_LINE'length));
@@ -518,5 +495,4 @@ oute_o <= out_val(4);
 outf_o <= out_val(5);
 active_o <= active;
 
-end rtl;
-
+end;
