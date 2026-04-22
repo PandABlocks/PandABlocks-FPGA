@@ -29,8 +29,18 @@ generic (
     MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
+    PANEL_F_RESET       : out std_logic;
+    PANEL_F_OE          : out std_logic;
+    PANEL_F_I           : in std_logic_vector(1 downto 0);
+    PANEL_F_O           : out std_logic_vector(1 downto 0);
+    PANEL_F_DI_P        : in std_logic_vector(1 downto 0);
+    PANEL_F_DI_N        : in std_logic_vector(1 downto 0);
     PANEL_F_DO_P        : out std_logic_vector(1 downto 0);
-    PANEL_F_DO_N        : out std_logic_vector(1 downto 0)
+    PANEL_F_DO_N        : out std_logic_vector(1 downto 0);
+    PANEL_F_IO          : inout std_logic_vector(7 downto 0);
+    LVDS_DIR            : out std_logic_vector(1 downto 0);
+    LVDS_D              : out std_logic_vector(1 downto 0);
+    LVDS_R              : in std_logic_vector(1 downto 0)
 );
 end;
 
@@ -139,9 +149,15 @@ signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
-signal PANEL_F_DO           : std_logic_vector(LVDSOUT_NUM-1 downto 0);
 signal pll_locked           : std_logic;
 signal calibration_ready    : std_logic;
+signal panel_f_di           : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal si_val               : std_logic_vector(SI_NUM-1 downto 0);
+signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal lvdsin_val           : std_logic_vector(LVDSIO_NUM-1 downto 0);
+signal panel_f_do           : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal ttlio_inputs         : std_logic_vector(TTLIO_NUM-1 downto 0);
+signal st_ttlio_inputs      : std_logic_vector(ST_TTLIO_NUM-1 downto 0);
 
 begin
 
@@ -395,7 +411,9 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <=
+    lvdsin_val & st_ttlio_inputs & ttlio_inputs & ttlin_val & si_val &
+    pcap_active;
 
 system_zynqmp_top_inst : entity work.system_zynqmp_top
 port map (
@@ -441,32 +459,192 @@ port map(
     rdma_done_irq => rdma_done_irq
 );
 
-obufds_gen : for I in 0 to LVDSOUT_NUM-1 generate
-    obufds_inst : OBUFDS port map (
-       O => PANEL_F_DO_P(I),
-       OB => PANEL_F_DO_N(I),
-       I => PANEL_F_DO(I)
+-- Digital I/O Blocks
+
+-- IO Expansion reset is de-asserted (active low reset)
+PANEL_F_RESET <= '1';
+-- IO Expansion outputs are enabled (active low OE)
+PANEL_F_OE <= '0';
+
+si_inst : entity work.di_wrapper generic map (
+    NUM => SI_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_i => PANEL_F_I,
+
+    -- Block I/O
+    val_o => si_val,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(SI_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(SI_CS),
+    read_ack_o => read_ack(SI_CS),
+    write_strobe_i => write_strobe(SI_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(SI_CS)
+);
+
+oc_inst : entity work.do_wrapper generic map (
+    NUM => OC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_o => PANEL_F_O,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(OC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(OC_CS),
+    read_ack_o => read_ack(OC_CS),
+    write_strobe_i => write_strobe(OC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(OC_CS)
+);
+
+ibufds_gen : for I in 0 to TTLIN_NUM-1 generate
+    ibufds_inst : IBUFDS port map (
+       I => PANEL_F_DI_P(I),
+       IB => PANEL_F_DI_N(I),
+       O => panel_f_di(I)
     );
 end generate;
 
-lvdsout_inst : entity work.lvdsout_top
-port map (
-    clk_i               => clk0,
-    clk_4x_i            => clk0_4x,
-    calibration_ready_i => calibration_ready,
-    reset_i             => reset0,
+ttlin_inst : entity work.di_wrapper generic map (
+    NUM => TTLIN_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
 
-    read_strobe_i       => read_strobe(LVDSOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(LVDSOUT_CS),
-    read_ack_o          => read_ack(LVDSOUT_CS),
+    -- Pad
+    pad_i => PANEL_F_DI,
 
-    write_strobe_i      => write_strobe(LVDSOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(LVDSOUT_CS),
+    -- Block I/O
+    val_o => ttlin_val,
 
     bit_bus_i           => bit_bus,
-    pad_o               => PANEL_F_DO
+    pos_bus_i           => pos_bus,
+    read_strobe_i       => read_strobe(TTLIN_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(TTLIN_CS),
+    read_ack_o          => read_ack(TTLIN_CS),
+    write_strobe_i      => write_strobe(TTLIN_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(TTLIN_CS)
+);
+
+obufds_gen : for I in 0 to TTLOUT_NUM-1 generate
+    obufds_inst : OBUFDS port map (
+       O => PANEL_F_DO_P(I),
+       OB => PANEL_F_DO_N(I),
+       I => panel_f_do(I)
+    );
+end generate;
+
+ttlout_inst : entity work.fdly_do_wrapper generic map (
+    NUM => TTLOUT_NUM
+) port map (
+    clk_i               => clk0,
+    reset_i             => reset0,
+    clk_4x_i            => (others => clk0_4x),
+    calibration_ready_i => (others => calibration_ready),
+
+    -- Pad
+    pad_o               => PANEL_F_DO,
+
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
+    read_strobe_i       => read_strobe(TTLOUT_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(TTLOUT_CS),
+    read_ack_o          => read_ack(TTLOUT_CS),
+    write_strobe_i      => write_strobe(TTLOUT_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(TTLOUT_CS)
+);
+
+ttlio_inst : entity work.dio_wrapper generic map (
+    NUM => TTLIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_F_IO(3 downto 0),
+
+    -- Block I/O
+    in_val_o => ttlio_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLIO_CS),
+    read_ack_o => read_ack(TTLIO_CS),
+    write_strobe_i => write_strobe(TTLIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLIO_CS)
+);
+
+st_ttlio_inst : entity work.st_dio_wrapper generic map (
+    NUM => ST_TTLIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_F_IO(7 downto 4),
+
+    -- Block I/O
+    in_val_o => st_ttlio_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(ST_TTLIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(ST_TTLIO_CS),
+    read_ack_o => read_ack(ST_TTLIO_CS),
+    write_strobe_i => write_strobe(ST_TTLIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(ST_TTLIO_CS)
+);
+
+lvdsio_inst : entity work.ext_dio_wrapper generic map (
+    NUM => LVDSIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_o => LVDS_D,
+    pad_i => LVDS_R,
+    dir_o => LVDS_DIR,
+
+    -- Block I/O
+    in_val_o => lvdsin_val,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(LVDSIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(LVDSIO_CS),
+    read_ack_o => read_ack(LVDSIO_CS),
+    write_strobe_i => write_strobe(LVDSIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(LVDSIO_CS)
 );
 end;
