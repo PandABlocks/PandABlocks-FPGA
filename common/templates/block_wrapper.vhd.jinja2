@@ -26,6 +26,11 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
 
+    -- Extra IOs
+{% for io in extra_ios %}
+    {{ io[0] }} : {{ io[1] }} std_logic_vector(NUM-1 downto 0);
+{% endfor %}
+
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
     {{ pad(field.name + "_o") }} : out std_logic_vector(NUM-1 downto 0);
@@ -57,7 +62,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0) := (others => '0');
     write_ack_o         : out std_logic
 );
-end {{ entity }}_wrapper;
+end;
 
 architecture rtl of {{ entity }}_wrapper is
 
@@ -135,6 +140,9 @@ begin
         -- Connect to the actual logic entity
         {{ entity }} : entity work.{{ entity }}
         port map (
+{% for io in extra_ios %}
+            {{ io[0] }} => {{ io[0] }}(I),
+{% endfor %}
 {% for field in fields %}
     {% if field in filter_fields("bit_mux") %}
             {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
@@ -166,7 +174,5 @@ begin
 {% endif %}
             clk_i               => clk_i
         );
-
-    END GENERATE;
-
-end rtl;
+    end generate;
+end;

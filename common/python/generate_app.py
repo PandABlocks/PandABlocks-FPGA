@@ -327,7 +327,7 @@ class AppGenerator(object):
             context = jinja_context(fgpa_blocks=self.fpga_blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
-            if block.type in "soft|dma":
+            if block.type in "soft|dma" or block.gen_wrapper:
                 self.expand_template("block_wrapper.vhd.jinja2", context,
                                      hdl_dir, "%s_wrapper.vhd" % block.entity)
             self.expand_template("block_ctrl.vhd.jinja2", context, hdl_dir,
@@ -340,7 +340,6 @@ class AppGenerator(object):
         carrier_pos_bus_length = 0
         total_bit_bus_length = 0
         total_pos_bus_length = 0
-        target_sites_num = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
         dma_users_count = 0
@@ -408,12 +407,8 @@ class AppGenerator(object):
                                 interfaceMatch = True
                 assert interfaceMatch, "No %s interface on Carrier" % moduleInterface[1]
 
-                # if target_sites_num > 1:
-                #     assert block.site > 0,"No site defined for %s" % block.name
-
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
-        hdl_dir = os.path.join(self.app_build_dir, "hdl")
         const_dir = os.path.join(self.app_build_dir, "const")
         os.makedirs(const_dir)
         ips = []

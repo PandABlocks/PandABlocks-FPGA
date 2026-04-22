@@ -88,7 +88,7 @@ class BlockConfig(object):
     def __init__(self, name, type, number, ini_path, site=(None, None, None)):
         # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
-        assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
+        assert re.match("([A-Z][0-9A-Z_]*[A-Z]$)|([A-Z]$)", name), \
             "Expected BLOCK_NAME with no trailing numbers, got %r" % name
         ini = read_ini(os.path.join(ROOT, ini_path))
         #: The name of the Block, like LUT
@@ -133,6 +133,16 @@ class BlockConfig(object):
         self.calc_extensions = []
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
+        # format is "{pin name},{direction}" where direction is in, out or inout
+        self.extra_ios = [item.split(',') for item in
+                              ini_get(ini, '.', 'extra_ios', '').split()]
+        for name, direction in self.extra_ios:
+            assert re.match(r"[A-Za-z_][0-9A-Za-z_]*$", name), \
+                "Expected valid VHDL port identifier, got %r" % name
+            assert direction in ("in", "out", "inout"), \
+                "Expected direction to be in, out or inout, got %r" % direction
+
+        self.gen_wrapper = ini_get(ini, '.', 'gen_wrapper', False)
 
     def site_config(self, site_tuple):
 
