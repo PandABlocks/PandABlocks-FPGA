@@ -45,6 +45,11 @@ def process_ini(extensions, blocks_dir, ini):
             add_extension(extensions, base_dir, extension)
 
 
+def touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
+
 def main():
     top = sys.argv[1]
     app_file = sys.argv[2]
@@ -53,7 +58,7 @@ def main():
 
     target_dir = os.path.join(top, 'targets', target)
     modules_dir = os.path.join(top, 'modules')
-
+    touch(os.path.join(extensions, '__init__.py'))
     target_ini = read_ini(os.path.join(target_dir, '%s.target.ini' % target))
     app_ini = read_ini(app_file)
 
