@@ -313,9 +313,9 @@ endif
 # ------------------------------------------------------------------------------
 # Build installation package
 
-IPK_DEPENDS += fpga-bit
 IPK_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 IPK_DEPENDS += $(APP_BUILD_DIR)/extensions
+IPK_DEPENDS += fpga-bit
 
 SANE_APP_NAME = $(shell echo '$(APP_NAME)' | tr '[:upper:]_' '[:lower:]-')
 IPK_FILE_NAME = panda-fpga-$(SANE_APP_NAME)_$(GIT_VERSION)_all.ipk
@@ -328,6 +328,7 @@ BOOT_IPK_FILE = $(BUILD_DIR)/$(BOOT_IPK_FILE_NAME)
 
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
+	mkdir -p $(APP_BUILD_DIR)
 	$(PYTHON) -m common.python.copy_file_in_modules \
         --fallback $(TOP)/common/templates/default_ipmi.ini \
         $(TOP) $< ipmi.ini $@
