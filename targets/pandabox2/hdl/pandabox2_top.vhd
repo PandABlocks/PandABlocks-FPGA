@@ -25,10 +25,11 @@ generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 0;
-    NUM_FMC             : natural := 0;
+    NUM_FMC             : natural := 1;
     MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
+    -- Front Panel
     PANEL_F_RESET       : out std_logic;
     PANEL_F_OE          : out std_logic;
     PANEL_F_I           : in std_logic_vector(1 downto 0);
@@ -40,7 +41,19 @@ port (
     PANEL_F_IO          : inout std_logic_vector(7 downto 0);
     LVDS_DIR            : out std_logic_vector(1 downto 0);
     LVDS_D              : out std_logic_vector(1 downto 0);
-    LVDS_R              : in std_logic_vector(1 downto 0)
+    LVDS_R              : in std_logic_vector(1 downto 0);
+    -- FMC
+    FMC_PRSNT_L         : in std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in std_logic_vector(NUM_FMC-1 downto 0)
 );
 end;
 
@@ -53,7 +66,7 @@ signal clk0                 : std_logic;
 signal clk0_4x              : std_logic;
 signal reset0               : std_logic;
 signal P_RESET              : std_logic_vector(0 downto 0);
-signal CLK125               : std_logic;
+signal FCLK_CLK0            : std_logic;
 signal CLK300               : std_logic;
 signal M00_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot       : std_logic_vector ( 2 downto 0 );
@@ -159,11 +172,21 @@ signal panel_f_do           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal ttlio_inputs         : std_logic_vector(TTLIO_NUM-1 downto 0);
 signal st_ttlio_inputs      : std_logic_vector(ST_TTLIO_NUM-1 downto 0);
 
+-- FMC Block
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
+-- SFP Block
+signal SFP_MGT              : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+                                        := (MGT_ARR => (others => MGT_init));
+signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
+signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
+signal TS_SEC               : std_logic_vector(31 downto 0) := (others => '0');
+signal TS_TICKS             : std_logic_vector(31 downto 0) := (others => '0');
 begin
 
 -- Internal clocks
 clocking_inst : entity work.clocking port map(
-    clk_i => CLK125,
+    clk_i => FCLK_CLK0,
     clk300_i => CLK300,
     clk_o => clk0,
     clk_4x_o => clk0_4x,
@@ -171,6 +194,16 @@ clocking_inst : entity work.clocking port map(
     calibration_ready_o => calibration_ready
 );
 
+-- Assemble FMC records
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= '0' & not FMC_PRSNT_L(I);
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
 ---------------------------------------------------------------------------
@@ -178,7 +211,7 @@ ps : entity work.panda_ps
 port map (
     PL_CLK                      => clk0,
     P_RESET                     => P_RESET,
-    CLK125                      => CLK125,
+    FCLK_CLK0                   => FCLK_CLK0,
     CLK300                      => CLK300,
 
     IRQ                         => IRQ,
@@ -401,8 +434,8 @@ port map (
     pos_bus_i           => pos_bus,
     dma_irq_events_i    => dma_irq_events,
     SLOW_FPGA_VERSION   => (others => '0'),
-    TS_SEC              => (others => '0'),
-    TS_TICKS            => (others => '0'),
+    TS_SEC              => TS_SEC,
+    TS_TICKS            => TS_TICKS,
     MGT_MAC_ADDR        => MGT_MAC_ADDR_ARR,
     MGT_MAC_ADDR_WSTB   => open
 );
@@ -432,8 +465,7 @@ port map (
     write_ack_o         => write_ack(SYSTEM_CS)
 );
 
-softblocks_inst : entity work.soft_blocks
-port map(
+softblocks_inst : entity work.soft_blocks port map(
     FCLK_CLK0 => clk0,
     FCLK_RESET0 => reset0,
     read_strobe => read_strobe,
@@ -456,7 +488,9 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     rdma_irq => rdma_irq,
-    rdma_done_irq => rdma_done_irq
+    rdma_done_irq => rdma_done_irq,
+    FMC => FMC,
+    SFP => SFP_MGT
 );
 
 -- Digital I/O Blocks
@@ -531,16 +565,16 @@ ttlin_inst : entity work.di_wrapper generic map (
     -- Block I/O
     val_o => ttlin_val,
 
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    read_strobe_i       => read_strobe(TTLIN_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLIN_CS),
-    read_ack_o          => read_ack(TTLIN_CS),
-    write_strobe_i      => write_strobe(TTLIN_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLIN_CS)
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLIN_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLIN_CS),
+    read_ack_o => read_ack(TTLIN_CS),
+    write_strobe_i => write_strobe(TTLIN_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLIN_CS)
 );
 
 obufds_gen : for I in 0 to TTLOUT_NUM-1 generate
@@ -554,24 +588,24 @@ end generate;
 ttlout_inst : entity work.fdly_do_wrapper generic map (
     NUM => TTLOUT_NUM
 ) port map (
-    clk_i               => clk0,
-    reset_i             => reset0,
-    clk_4x_i            => (others => clk0_4x),
+    clk_i => clk0,
+    reset_i => reset0,
+    clk_4x_i => (others => clk0_4x),
     calibration_ready_i => (others => calibration_ready),
 
     -- Pad
-    pad_o               => PANEL_F_DO,
+    pad_o => PANEL_F_DO,
 
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    read_strobe_i       => read_strobe(TTLOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLOUT_CS),
-    read_ack_o          => read_ack(TTLOUT_CS),
-    write_strobe_i      => write_strobe(TTLOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLOUT_CS)
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLOUT_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLOUT_CS),
+    read_ack_o => read_ack(TTLOUT_CS),
+    write_strobe_i => write_strobe(TTLOUT_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLOUT_CS)
 );
 
 ttlio_inst : entity work.dio_wrapper generic map (
