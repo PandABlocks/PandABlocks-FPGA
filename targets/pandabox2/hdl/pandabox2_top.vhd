@@ -53,7 +53,16 @@ port (
     FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
                                                             := (others => 'Z');
     FMC_CLK1_M2C_P      : in std_logic_vector(NUM_FMC-1 downto 0);
-    FMC_CLK1_M2C_N      : in std_logic_vector(NUM_FMC-1 downto 0)
+    FMC_CLK1_M2C_N      : in std_logic_vector(NUM_FMC-1 downto 0);
+    -- Encoders
+    AENC                : inout std_logic_vector(8 downto 1);
+    B_CLKENC            : inout std_logic_vector(8 downto 1);
+    Z_DATAENC           : inout std_logic_vector(8 downto 1);
+    PANEL_R_CTRL        : inout std_logic_vector(7 downto 0);
+    -- Extra IOs
+    PROP_IO             : inout std_logic_vector(1 downto 0);
+    PROP_IO_DIR         : out std_logic_vector(1 downto 0);
+    PROP_IO_TERM        : out std_logic_vector(1 downto 0)
 );
 end;
 
@@ -171,6 +180,11 @@ signal lvdsin_val           : std_logic_vector(LVDSIO_NUM-1 downto 0);
 signal panel_f_do           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal ttlio_inputs         : std_logic_vector(TTLIO_NUM-1 downto 0);
 signal st_ttlio_inputs      : std_logic_vector(ST_TTLIO_NUM-1 downto 0);
+signal aenc_inputs          : std_logic_vector(AENC_NUM-1 downto 0);
+signal b_clkenc_inputs      : std_logic_vector(B_CLKENC_NUM-1 downto 0);
+signal z_dataenc_inputs     : std_logic_vector(Z_DATAENC_NUM-1 downto 0);
+signal panel_r_ctrl_inputs  : std_logic_vector(PANEL_R_CTRL_NUM-1 downto 0);
+signal prop_io_inputs       : std_logic_vector(PROP_IO_NUM-1 downto 0);
 
 -- FMC Block
 signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
@@ -445,6 +459,8 @@ port map (
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <=
+    prop_io_inputs &
+    panel_r_ctrl_inputs & z_dataenc_inputs & b_clkenc_inputs & aenc_inputs &
     lvdsin_val & st_ttlio_inputs & ttlio_inputs & ttlin_val & si_val &
     pcap_active;
 
@@ -680,5 +696,127 @@ lvdsio_inst : entity work.ext_dio_wrapper generic map (
     write_address_i => write_address,
     write_data_i => write_data,
     write_ack_o => write_ack(LVDSIO_CS)
+);
+
+aenc_inst : entity work.dio_wrapper generic map (
+    NUM => AENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => AENC,
+
+    -- Block I/O
+    in_val_o => aenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(AENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(AENC_CS),
+    read_ack_o => read_ack(AENC_CS),
+    write_strobe_i => write_strobe(AENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(AENC_CS)
+);
+
+b_clkenc_inst : entity work.dio_wrapper generic map (
+    NUM => B_CLKENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => B_CLKENC,
+
+    -- Block I/O
+    in_val_o => b_clkenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(B_CLKENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(B_CLKENC_CS),
+    read_ack_o => read_ack(B_CLKENC_CS),
+    write_strobe_i => write_strobe(B_CLKENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(B_CLKENC_CS)
+);
+
+z_dataenc_inst : entity work.dio_wrapper generic map (
+    NUM => Z_DATAENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => Z_DATAENC,
+
+    -- Block I/O
+    in_val_o => z_dataenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(Z_DATAENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(Z_DATAENC_CS),
+    read_ack_o => read_ack(Z_DATAENC_CS),
+    write_strobe_i => write_strobe(Z_DATAENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(Z_DATAENC_CS)
+);
+
+panel_r_ctrl_inst : entity work.dio_wrapper generic map (
+    NUM => PANEL_R_CTRL_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_R_CTRL,
+
+    -- Block I/O
+    in_val_o => panel_r_ctrl_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(PANEL_R_CTRL_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(PANEL_R_CTRL_CS),
+    read_ack_o => read_ack(PANEL_R_CTRL_CS),
+    write_strobe_i => write_strobe(PANEL_R_CTRL_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(PANEL_R_CTRL_CS)
+);
+
+prop_io_inst: entity work.ext_st_dio_wrapper generic map (
+    NUM => PROP_IO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PROP_IO,
+    dir_o => PROP_IO_DIR,
+    term_o => PROP_IO_TERM,
+
+    -- Block I/O
+    in_val_o => prop_io_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(PROP_IO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(PROP_IO_CS),
+    read_ack_o => read_ack(PROP_IO_CS),
+    write_strobe_i => write_strobe(PROP_IO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(PROP_IO_CS)
 );
 end;

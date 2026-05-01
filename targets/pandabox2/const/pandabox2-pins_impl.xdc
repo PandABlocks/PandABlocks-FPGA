@@ -129,3 +129,54 @@ set_property -dict {PACKAGE_PIN Y4    IOSTANDARD LVCMOS18} [get_ports {FMC_PRSNT
 # set_property -dict {PACKAGE_PIN AF13  IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK2_BIDIR_N}]
 # set_property -dict {PACKAGE_PIN AB13  IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK3_BIDIR_P}]
 # set_property -dict {PACKAGE_PIN AC13  IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK3_BIDIR_N}]
+
+# Encoders
+set_property -dict {PACKAGE_PIN A12   IOSTANDARD LVCMOS33} [get_ports {AENC[1]}]
+set_property -dict {PACKAGE_PIN B11   IOSTANDARD LVCMOS33} [get_ports {AENC[2]}]
+set_property -dict {PACKAGE_PIN D11   IOSTANDARD LVCMOS33} [get_ports {AENC[3]}]
+set_property -dict {PACKAGE_PIN D10   IOSTANDARD LVCMOS33} [get_ports {AENC[4]}]
+set_property -dict {PACKAGE_PIN E14   IOSTANDARD LVCMOS33} [get_ports {AENC[5]}]
+set_property -dict {PACKAGE_PIN C13   IOSTANDARD LVCMOS33} [get_ports {AENC[6]}]
+set_property -dict {PACKAGE_PIN B14   IOSTANDARD LVCMOS33} [get_ports {AENC[7]}]
+set_property -dict {PACKAGE_PIN A13   IOSTANDARD LVCMOS33} [get_ports {AENC[8]}]
+set_property -dict {PACKAGE_PIN A11   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[1]}]
+set_property -dict {PACKAGE_PIN B10   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[2]}]
+set_property -dict {PACKAGE_PIN C11   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[3]}]
+set_property -dict {PACKAGE_PIN E12   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[4]}]
+set_property -dict {PACKAGE_PIN E13   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[5]}]
+set_property -dict {PACKAGE_PIN B15   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[6]}]
+set_property -dict {PACKAGE_PIN A14   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[7]}]
+set_property -dict {PACKAGE_PIN H14   IOSTANDARD LVCMOS33} [get_ports {B_CLKENC[8]}]
+set_property -dict {PACKAGE_PIN C12   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[1]}]
+set_property -dict {PACKAGE_PIN A10   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[2]}]
+set_property -dict {PACKAGE_PIN E10   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[3]}]
+set_property -dict {PACKAGE_PIN D12   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[4]}]
+set_property -dict {PACKAGE_PIN C14   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[5]}]
+set_property -dict {PACKAGE_PIN A15   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[6]}]
+set_property -dict {PACKAGE_PIN B13   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[7]}]
+set_property -dict {PACKAGE_PIN H13   IOSTANDARD LVCMOS33} [get_ports {Z_DATAENC[8]}]
+set_property -dict {PACKAGE_PIN AK9   IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[0]}]
+set_property -dict {PACKAGE_PIN AK8   IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[1]}]
+set_property -dict {PACKAGE_PIN AJ10  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[2]}]
+set_property -dict {PACKAGE_PIN AK10  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[3]}]
+set_property -dict {PACKAGE_PIN AH12  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[4]}]
+set_property -dict {PACKAGE_PIN AJ12  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[5]}]
+set_property -dict {PACKAGE_PIN AJ11  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[6]}]
+set_property -dict {PACKAGE_PIN AK11  IOSTANDARD LVCMOS18} [get_ports {PANEL_R_CTRL[7]}]
+
+# Extra IOs, still not assigned in design
+# Before: PT46 and PT47
+set_property -dict {PACKAGE_PIN AG4   IOSTANDARD LVCMOS18} [get_ports {I2C_1_SCK}]
+set_property -dict {PACKAGE_PIN AJ1   IOSTANDARD LVCMOS18} [get_ports {I2C_1_SDA}]
+
+# Before: PT51 and PT52
+set_property -dict {PACKAGE_PIN AF8  IOSTANDARD LVCMOS18} [get_ports {PROP_IO[0]}]
+set_property -dict {PACKAGE_PIN AF7  IOSTANDARD LVCMOS18} [get_ports {PROP_IO[1]}]
+
+# Before: PT48 and PT49
+set_property -dict {PACKAGE_PIN AH11  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_DIR[0]}]
+set_property -dict {PACKAGE_PIN AG9  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_DIR[1]}]
+
+# Before: PT50 and PT53
+set_property -dict {PACKAGE_PIN AG10  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_TERM[0]}]
+set_property -dict {PACKAGE_PIN AG1  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_TERM[1]}]
