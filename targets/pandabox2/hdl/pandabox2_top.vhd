@@ -60,6 +60,8 @@ port (
     Z_DATAENC           : inout std_logic_vector(8 downto 1);
     PANEL_R_CTRL        : inout std_logic_vector(7 downto 0);
     -- Extra IOs
+    I2C_1_SCK           : inout std_logic;
+    I2C_1_SDA           : inout std_logic;
     PROP_IO             : inout std_logic_vector(1 downto 0);
     PROP_IO_DIR         : out std_logic_vector(1 downto 0);
     PROP_IO_TERM        : out std_logic_vector(1 downto 0)
@@ -152,6 +154,12 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others 
 
 -- I2C FPGA
 signal SYS_I2C_MUX          : std_logic;
+signal i2c_1_scl_i          : std_logic;
+signal i2c_1_scl_o          : std_logic;
+signal i2c_1_scl_t          : std_logic;
+signal i2c_1_sda_i          : std_logic;
+signal i2c_1_sda_o          : std_logic;
+signal i2c_1_sda_t          : std_logic;
 
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
@@ -218,6 +226,21 @@ FMC_gen: for I in 0 to NUM_FMC-1 generate
     FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
     FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
 end generate;
+
+scl_iobuf: IOBUF port map (
+    I => i2c_1_scl_o,
+    IO => I2C_1_SCK,
+    O => i2c_1_scl_i,
+    T => i2c_1_scl_t
+);
+
+sda_iobuf: IOBUF port map (
+    I => i2c_1_sda_o,
+    IO => I2C_1_SDA,
+    O => i2c_1_sda_i,
+    T => i2c_1_sda_t
+);
+
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
 ---------------------------------------------------------------------------
@@ -229,6 +252,12 @@ port map (
     CLK300                      => CLK300,
 
     IRQ                         => IRQ,
+    IIC_1_scl_i                 => i2c_1_scl_i,
+    IIC_1_scl_o                 => i2c_1_scl_o,
+    IIC_1_scl_t                 => i2c_1_scl_t,
+    IIC_1_sda_i                 => i2c_1_sda_i,
+    IIC_1_sda_o                 => i2c_1_sda_o,
+    IIC_1_sda_t                 => i2c_1_sda_t,
 
     M00_AXI_araddr              => M00_AXI_araddr,
     M00_AXI_arprot              => M00_AXI_arprot,
