@@ -180,3 +180,22 @@ set_property -dict {PACKAGE_PIN AG9  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_DI
 # Before: PT50 and PT53
 set_property -dict {PACKAGE_PIN AG10  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_TERM[0]}]
 set_property -dict {PACKAGE_PIN AG1  IOSTANDARD LVCMOS18} [get_ports {PROP_IO_TERM[1]}]
+
+# SFPs
+set_property PACKAGE_PIN E8 [get_ports {MGT_REFCLK1_IN0_P}]
+set_property PACKAGE_PIN E7 [get_ports {MGT_REFCLK1_IN0_N}]
+set_property -dict {PACKAGE_PIN AF2   IOSTANDARD LVCMOS18} [get_ports {SFP_TX_DISABLE[0]}]
+set_property -dict {PACKAGE_PIN AF1   IOSTANDARD LVCMOS18} [get_ports {SFP_RX_LOS[0]}]
+set_property -dict {PACKAGE_PIN AJ5   IOSTANDARD LVCMOS18} [get_ports {SFP_TX_DISABLE[1]}]
+set_property -dict {PACKAGE_PIN AK5   IOSTANDARD LVCMOS18} [get_ports {SFP_RX_LOS[1]}]
+set_property -dict {PACKAGE_PIN AK7   IOSTANDARD LVCMOS18} [get_ports {SFP_TX_DISABLE[2]}]
+set_property -dict {PACKAGE_PIN AK6   IOSTANDARD LVCMOS18} [get_ports {SFP_RX_LOS[2]}]
+set_property -dict {PACKAGE_PIN AF6   IOSTANDARD LVCMOS18} [get_ports {SFP_TX_DISABLE[3]}]
+set_property -dict {PACKAGE_PIN AF5   IOSTANDARD LVCMOS18} [get_ports {SFP_RX_LOS[3]}]
+set SFP1_LOC GTHE4_CHANNEL_X1Y12
+set SFP2_LOC GTHE4_CHANNEL_X1Y13
+set SFP3_LOC GTHE4_CHANNEL_X1Y14
+set SFP4_LOC GTHE4_CHANNEL_X1Y15
+
+# Unfortunately, this is required to meet setup timing of fine delay signals
+set_property LOC MMCM_X0Y2 [get_cells {clocking_inst/mmcm_inst1}]

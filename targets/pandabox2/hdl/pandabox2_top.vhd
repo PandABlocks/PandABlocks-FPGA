@@ -24,7 +24,7 @@ entity pandabox2_top is
 generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
-    NUM_SFP             : natural := 0;
+    NUM_SFP             : natural := 4;
     NUM_FMC             : natural := 1;
     MAX_NUM_FMC_MGT     : natural := 0
 );
@@ -64,7 +64,18 @@ port (
     I2C_1_SDA           : inout std_logic;
     PROP_IO             : inout std_logic_vector(1 downto 0);
     PROP_IO_DIR         : out std_logic_vector(1 downto 0);
-    PROP_IO_TERM        : out std_logic_vector(1 downto 0)
+    PROP_IO_TERM        : out std_logic_vector(1 downto 0);
+    -- SFP
+    SFP_TX_P            : out std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_TX_N            : out std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_RX_P            : in std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_RX_N            : in std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_TX_DISABLE      : out std_logic_vector(NUM_SFP-1 downto 0) := (others => '0');
+    SFP_RX_LOS          : in std_logic_vector(NUM_SFP-1 downto 0);
+    MGT_REFCLK1_IN0_P   : in std_logic;
+    MGT_REFCLK1_IN0_N   : in std_logic
 );
 end;
 
@@ -198,12 +209,16 @@ signal prop_io_inputs       : std_logic_vector(PROP_IO_NUM-1 downto 0);
 signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
                                         := (FMC_ARR => (others => FMC_init));
 -- SFP Block
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
+attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
 signal SFP_MGT              : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
                                         := (MGT_ARR => (others => MGT_init));
 signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
 signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
 signal TS_SEC               : std_logic_vector(31 downto 0) := (others => '0');
 signal TS_TICKS             : std_logic_vector(31 downto 0) := (others => '0');
+signal mgt_refclk1_in0      : std_logic;
 begin
 
 -- Internal clocks
@@ -227,18 +242,25 @@ FMC_gen: for I in 0 to NUM_FMC-1 generate
     FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
 end generate;
 
-scl_iobuf: IOBUF port map (
-    I => i2c_1_scl_o,
-    IO => I2C_1_SCK,
-    O => i2c_1_scl_i,
-    T => i2c_1_scl_t
-);
+-- Assemble SFP records
+SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
+    SFP_MGT.MGT_ARR(I).SFP_LOS <= SFP_RX_LOS(I);
+    SFP_MGT.MGT_ARR(I).GTREFCLK <= mgt_refclk1_in0;
+    SFP_MGT.MGT_ARR(I).RXN_IN <= SFP_RX_N(I);
+    SFP_MGT.MGT_ARR(I).RXP_IN <= SFP_RX_P(I);
+    SFP_TX_N(I) <= SFP_MGT.MGT_ARR(I).TXN_OUT;
+    SFP_TX_P(I) <= SFP_MGT.MGT_ARR(I).TXP_OUT;
+    SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
+    SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
+    SFP_MGT.MGT_ARR(I).MAC_ADDR <= MGT_MAC_ADDR_ARR(2*I+1)(23 downto 0) & MGT_MAC_ADDR_ARR(2*I)(23 downto 0);
+    SFP_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
 
-sda_iobuf: IOBUF port map (
-    I => i2c_1_sda_o,
-    IO => I2C_1_SDA,
-    O => i2c_1_sda_i,
-    T => i2c_1_sda_t
+mgt_clk_inst: IBUFDS_GTE4 port map (
+    O => mgt_refclk1_in0,
+    CEB => '0',
+    I => MGT_REFCLK1_IN0_P,
+    IB => MGT_REFCLK1_IN0_N
 );
 
 ---------------------------------------------------------------------------
@@ -320,6 +342,20 @@ port map (
     S_AXI_HP1_rvalid            => S_AXI_HP1_rvalid
 );
 reset0 <= P_RESET(0);
+
+scl_iobuf: IOBUF port map (
+    I => i2c_1_scl_o,
+    IO => I2C_1_SCK,
+    O => i2c_1_scl_i,
+    T => i2c_1_scl_t
+);
+
+sda_iobuf: IOBUF port map (
+    I => i2c_1_sda_o,
+    IO => I2C_1_SDA,
+    O => i2c_1_sda_i,
+    T => i2c_1_sda_t
+);
 
 ---------------------------------------------------------------------------
 -- Control and Status Memory Interface
