@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 4.1-22-g8eaccbc
+  <title>common.python.configs &mdash; PandABlocks-FPGA 4.1-23-g89c2957
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
@@ -41,7 +41,7 @@
               <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                4.1-22-g8eaccbc
+                4.1-23-g89c2957
 
               </div>
 <div role="search">
@@ -235,7 +235,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">ini_path</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
         <span class="c1"># type: (str, str, int, str, Optional[int]) -&gt; None</span>
         <span class="c1"># Block names should be UPPER_CASE_NO_TRAILING_NUMBERS</span>
-        <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;[A-Z][0-9A-Z_]*[A-Z]$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> \
+        <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;([A-Z][0-9A-Z_]*[A-Z]$)|([A-Z]$)&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> \
             <span class="s2">&quot;Expected BLOCK_NAME with no trailing numbers, got </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
         <span class="n">ini</span> <span class="o">=</span> <span class="n">read_ini</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ROOT</span><span class="p">,</span> <span class="n">ini_path</span><span class="p">))</span>
         <span class="c1">#: The name of the Block, like LUT</span>
@@ -280,6 +280,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_extensions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#: Are there any suffixes?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_suffixes</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;block_suffixes&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="c1"># format is &quot;{pin name},{direction}&quot; where direction is in, out or inout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_ios</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span>
+                              <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;extra_ios&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">direction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_ios</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[A-Za-z_][0-9A-Za-z_]*$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> \
+                <span class="s2">&quot;Expected valid VHDL port identifier, got </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="k">assert</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="s2">&quot;inout&quot;</span><span class="p">),</span> \
+                <span class="s2">&quot;Expected direction to be in, out or inout, got </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">direction</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_wrapper</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;gen_wrapper&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">site_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_tuple</span><span class="p">):</span>
 
