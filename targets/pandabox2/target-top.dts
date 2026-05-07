@@ -6,6 +6,10 @@
 	no-1-8-v;
 };
 
+&i2c0 {
+	clock-frequency = <100000>;
+};
+
 &qspi {
 	is-dual = <0>;
 	num-cs = <1>;

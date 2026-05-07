@@ -24,13 +24,58 @@ entity pandabox2_top is
 generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
-    NUM_SFP             : natural := 0;
-    NUM_FMC             : natural := 0;
+    NUM_SFP             : natural := 4;
+    NUM_FMC             : natural := 1;
     MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
+    -- Front Panel
+    PANEL_F_RESET       : out std_logic;
+    PANEL_F_OE          : out std_logic;
+    PANEL_F_I           : in std_logic_vector(1 downto 0);
+    PANEL_F_O           : out std_logic_vector(1 downto 0);
+    PANEL_F_DI_P        : in std_logic_vector(1 downto 0);
+    PANEL_F_DI_N        : in std_logic_vector(1 downto 0);
     PANEL_F_DO_P        : out std_logic_vector(1 downto 0);
-    PANEL_F_DO_N        : out std_logic_vector(1 downto 0)
+    PANEL_F_DO_N        : out std_logic_vector(1 downto 0);
+    PANEL_F_IO          : inout std_logic_vector(7 downto 0);
+    LVDS_DIR            : out std_logic_vector(1 downto 0);
+    LVDS_D              : out std_logic_vector(1 downto 0);
+    LVDS_R              : in std_logic_vector(1 downto 0);
+    -- FMC
+    FMC_PRSNT_L         : in std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in std_logic_vector(NUM_FMC-1 downto 0);
+    -- Encoders
+    AENC                : inout std_logic_vector(8 downto 1);
+    B_CLKENC            : inout std_logic_vector(8 downto 1);
+    Z_DATAENC           : inout std_logic_vector(8 downto 1);
+    PANEL_R_CTRL        : inout std_logic_vector(7 downto 0);
+    -- Extra IOs
+    I2C_1_SCK           : inout std_logic;
+    I2C_1_SDA           : inout std_logic;
+    PROP_IO             : inout std_logic_vector(1 downto 0);
+    PROP_IO_DIR         : out std_logic_vector(1 downto 0);
+    PROP_IO_TERM        : out std_logic_vector(1 downto 0);
+    -- SFP
+    SFP_TX_P            : out std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_TX_N            : out std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_RX_P            : in std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_RX_N            : in std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_TX_DISABLE      : out std_logic_vector(NUM_SFP-1 downto 0) := (others => '0');
+    SFP_RX_LOS          : in std_logic_vector(NUM_SFP-1 downto 0);
+    MGT_REFCLK1_IN0_P   : in std_logic;
+    MGT_REFCLK1_IN0_N   : in std_logic
 );
 end;
 
@@ -43,7 +88,7 @@ signal clk0                 : std_logic;
 signal clk0_4x              : std_logic;
 signal reset0               : std_logic;
 signal P_RESET              : std_logic_vector(0 downto 0);
-signal CLK125               : std_logic;
+signal FCLK_CLK0            : std_logic;
 signal CLK300               : std_logic;
 signal M00_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot       : std_logic_vector ( 2 downto 0 );
@@ -120,6 +165,12 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others 
 
 -- I2C FPGA
 signal SYS_I2C_MUX          : std_logic;
+signal i2c_1_scl_i          : std_logic;
+signal i2c_1_scl_o          : std_logic;
+signal i2c_1_scl_t          : std_logic;
+signal i2c_1_sda_i          : std_logic;
+signal i2c_1_sda_o          : std_logic;
+signal i2c_1_sda_t          : std_logic;
 
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
@@ -139,20 +190,77 @@ signal rdma_irq             : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal rdma_done_irq        : std_logic_vector(DMA_USERS_COUNT-1 downto 0);
 signal dma_irq_events       : std_logic_vector(31 downto 0) := (others => '0');
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
-signal PANEL_F_DO           : std_logic_vector(LVDSOUT_NUM-1 downto 0);
 signal pll_locked           : std_logic;
 signal calibration_ready    : std_logic;
+signal panel_f_di           : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal si_val               : std_logic_vector(SI_NUM-1 downto 0);
+signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal lvdsin_val           : std_logic_vector(LVDSIO_NUM-1 downto 0);
+signal panel_f_do           : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal ttlio_inputs         : std_logic_vector(TTLIO_NUM-1 downto 0);
+signal st_ttlio_inputs      : std_logic_vector(ST_TTLIO_NUM-1 downto 0);
+signal aenc_inputs          : std_logic_vector(AENC_NUM-1 downto 0);
+signal b_clkenc_inputs      : std_logic_vector(B_CLKENC_NUM-1 downto 0);
+signal z_dataenc_inputs     : std_logic_vector(Z_DATAENC_NUM-1 downto 0);
+signal panel_r_ctrl_inputs  : std_logic_vector(PANEL_R_CTRL_NUM-1 downto 0);
+signal prop_io_inputs       : std_logic_vector(PROP_IO_NUM-1 downto 0);
 
+-- FMC Block
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
+-- SFP Block
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
+attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
+signal SFP_MGT              : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+                                        := (MGT_ARR => (others => MGT_init));
+signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
+signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
+signal TS_SEC               : std_logic_vector(31 downto 0) := (others => '0');
+signal TS_TICKS             : std_logic_vector(31 downto 0) := (others => '0');
+signal mgt_refclk1_in0      : std_logic;
 begin
 
 -- Internal clocks
 clocking_inst : entity work.clocking port map(
-    clk_i => CLK125,
+    clk_i => FCLK_CLK0,
     clk300_i => CLK300,
     clk_o => clk0,
     clk_4x_o => clk0_4x,
     locked_o => pll_locked,
     calibration_ready_o => calibration_ready
+);
+
+-- Assemble FMC records
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= '0' & not FMC_PRSNT_L(I);
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
+
+-- Assemble SFP records
+SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
+    SFP_MGT.MGT_ARR(I).SFP_LOS <= SFP_RX_LOS(I);
+    SFP_MGT.MGT_ARR(I).GTREFCLK <= mgt_refclk1_in0;
+    SFP_MGT.MGT_ARR(I).RXN_IN <= SFP_RX_N(I);
+    SFP_MGT.MGT_ARR(I).RXP_IN <= SFP_RX_P(I);
+    SFP_TX_N(I) <= SFP_MGT.MGT_ARR(I).TXN_OUT;
+    SFP_TX_P(I) <= SFP_MGT.MGT_ARR(I).TXP_OUT;
+    SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
+    SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
+    SFP_MGT.MGT_ARR(I).MAC_ADDR <= MGT_MAC_ADDR_ARR(2*I+1)(23 downto 0) & MGT_MAC_ADDR_ARR(2*I)(23 downto 0);
+    SFP_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
+
+mgt_clk_inst: IBUFDS_GTE4 port map (
+    O => mgt_refclk1_in0,
+    CEB => '0',
+    I => MGT_REFCLK1_IN0_P,
+    IB => MGT_REFCLK1_IN0_N
 );
 
 ---------------------------------------------------------------------------
@@ -162,10 +270,16 @@ ps : entity work.panda_ps
 port map (
     PL_CLK                      => clk0,
     P_RESET                     => P_RESET,
-    CLK125                      => CLK125,
+    FCLK_CLK0                   => FCLK_CLK0,
     CLK300                      => CLK300,
 
     IRQ                         => IRQ,
+    IIC_1_scl_i                 => i2c_1_scl_i,
+    IIC_1_scl_o                 => i2c_1_scl_o,
+    IIC_1_scl_t                 => i2c_1_scl_t,
+    IIC_1_sda_i                 => i2c_1_sda_i,
+    IIC_1_sda_o                 => i2c_1_sda_o,
+    IIC_1_sda_t                 => i2c_1_sda_t,
 
     M00_AXI_araddr              => M00_AXI_araddr,
     M00_AXI_arprot              => M00_AXI_arprot,
@@ -228,6 +342,20 @@ port map (
     S_AXI_HP1_rvalid            => S_AXI_HP1_rvalid
 );
 reset0 <= P_RESET(0);
+
+scl_iobuf: IOBUF port map (
+    I => i2c_1_scl_o,
+    IO => I2C_1_SCK,
+    O => i2c_1_scl_i,
+    T => i2c_1_scl_t
+);
+
+sda_iobuf: IOBUF port map (
+    I => i2c_1_sda_o,
+    IO => I2C_1_SDA,
+    O => i2c_1_sda_i,
+    T => i2c_1_sda_t
+);
 
 ---------------------------------------------------------------------------
 -- Control and Status Memory Interface
@@ -385,8 +513,8 @@ port map (
     pos_bus_i           => pos_bus,
     dma_irq_events_i    => dma_irq_events,
     SLOW_FPGA_VERSION   => (others => '0'),
-    TS_SEC              => (others => '0'),
-    TS_TICKS            => (others => '0'),
+    TS_SEC              => TS_SEC,
+    TS_TICKS            => TS_TICKS,
     MGT_MAC_ADDR        => MGT_MAC_ADDR_ARR,
     MGT_MAC_ADDR_WSTB   => open
 );
@@ -395,7 +523,11 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <=
+    prop_io_inputs &
+    panel_r_ctrl_inputs & z_dataenc_inputs & b_clkenc_inputs & aenc_inputs &
+    lvdsin_val & st_ttlio_inputs & ttlio_inputs & ttlin_val & si_val &
+    pcap_active;
 
 system_zynqmp_top_inst : entity work.system_zynqmp_top
 port map (
@@ -414,8 +546,7 @@ port map (
     write_ack_o         => write_ack(SYSTEM_CS)
 );
 
-softblocks_inst : entity work.soft_blocks
-port map(
+softblocks_inst : entity work.soft_blocks port map(
     FCLK_CLK0 => clk0,
     FCLK_RESET0 => reset0,
     read_strobe => read_strobe,
@@ -438,35 +569,319 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     rdma_irq => rdma_irq,
-    rdma_done_irq => rdma_done_irq
+    rdma_done_irq => rdma_done_irq,
+    FMC => FMC,
+    SFP => SFP_MGT
 );
 
-obufds_gen : for I in 0 to LVDSOUT_NUM-1 generate
-    obufds_inst : OBUFDS port map (
-       O => PANEL_F_DO_P(I),
-       OB => PANEL_F_DO_N(I),
-       I => PANEL_F_DO(I)
+-- Digital I/O Blocks
+
+-- IO Expansion reset is de-asserted (active low reset)
+PANEL_F_RESET <= '1';
+-- IO Expansion outputs are enabled (active low OE)
+PANEL_F_OE <= '0';
+
+si_inst : entity work.di_wrapper generic map (
+    NUM => SI_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_i => PANEL_F_I,
+
+    -- Block I/O
+    val_o => si_val,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(SI_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(SI_CS),
+    read_ack_o => read_ack(SI_CS),
+    write_strobe_i => write_strobe(SI_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(SI_CS)
+);
+
+oc_inst : entity work.do_wrapper generic map (
+    NUM => OC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_o => PANEL_F_O,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(OC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(OC_CS),
+    read_ack_o => read_ack(OC_CS),
+    write_strobe_i => write_strobe(OC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(OC_CS)
+);
+
+ibufds_gen : for I in 0 to TTLIN_NUM-1 generate
+    ibufds_inst : IBUFDS port map (
+       I => PANEL_F_DI_P(I),
+       IB => PANEL_F_DI_N(I),
+       O => panel_f_di(I)
     );
 end generate;
 
-lvdsout_inst : entity work.lvdsout_top
-port map (
-    clk_i               => clk0,
-    clk_4x_i            => clk0_4x,
-    calibration_ready_i => calibration_ready,
-    reset_i             => reset0,
+ttlin_inst : entity work.di_wrapper generic map (
+    NUM => TTLIN_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
 
-    read_strobe_i       => read_strobe(LVDSOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(LVDSOUT_CS),
-    read_ack_o          => read_ack(LVDSOUT_CS),
+    -- Pad
+    pad_i => PANEL_F_DI,
 
-    write_strobe_i      => write_strobe(LVDSOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(LVDSOUT_CS),
+    -- Block I/O
+    val_o => ttlin_val,
 
-    bit_bus_i           => bit_bus,
-    pad_o               => PANEL_F_DO
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLIN_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLIN_CS),
+    read_ack_o => read_ack(TTLIN_CS),
+    write_strobe_i => write_strobe(TTLIN_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLIN_CS)
+);
+
+obufds_gen : for I in 0 to TTLOUT_NUM-1 generate
+    obufds_inst : OBUFDS port map (
+       O => PANEL_F_DO_P(I),
+       OB => PANEL_F_DO_N(I),
+       I => panel_f_do(I)
+    );
+end generate;
+
+ttlout_inst : entity work.fdly_do_wrapper generic map (
+    NUM => TTLOUT_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+    clk_4x_i => (others => clk0_4x),
+    calibration_ready_i => (others => calibration_ready),
+
+    -- Pad
+    pad_o => PANEL_F_DO,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLOUT_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLOUT_CS),
+    read_ack_o => read_ack(TTLOUT_CS),
+    write_strobe_i => write_strobe(TTLOUT_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLOUT_CS)
+);
+
+ttlio_inst : entity work.dio_wrapper generic map (
+    NUM => TTLIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_F_IO(3 downto 0),
+
+    -- Block I/O
+    in_val_o => ttlio_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(TTLIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(TTLIO_CS),
+    read_ack_o => read_ack(TTLIO_CS),
+    write_strobe_i => write_strobe(TTLIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(TTLIO_CS)
+);
+
+st_ttlio_inst : entity work.st_dio_wrapper generic map (
+    NUM => ST_TTLIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_F_IO(7 downto 4),
+
+    -- Block I/O
+    in_val_o => st_ttlio_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(ST_TTLIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(ST_TTLIO_CS),
+    read_ack_o => read_ack(ST_TTLIO_CS),
+    write_strobe_i => write_strobe(ST_TTLIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(ST_TTLIO_CS)
+);
+
+lvdsio_inst : entity work.ext_dio_wrapper generic map (
+    NUM => LVDSIO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    pad_o => LVDS_D,
+    pad_i => LVDS_R,
+    dir_o => LVDS_DIR,
+
+    -- Block I/O
+    in_val_o => lvdsin_val,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(LVDSIO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(LVDSIO_CS),
+    read_ack_o => read_ack(LVDSIO_CS),
+    write_strobe_i => write_strobe(LVDSIO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(LVDSIO_CS)
+);
+
+aenc_inst : entity work.dio_wrapper generic map (
+    NUM => AENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => AENC,
+
+    -- Block I/O
+    in_val_o => aenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(AENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(AENC_CS),
+    read_ack_o => read_ack(AENC_CS),
+    write_strobe_i => write_strobe(AENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(AENC_CS)
+);
+
+b_clkenc_inst : entity work.dio_wrapper generic map (
+    NUM => B_CLKENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => B_CLKENC,
+
+    -- Block I/O
+    in_val_o => b_clkenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(B_CLKENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(B_CLKENC_CS),
+    read_ack_o => read_ack(B_CLKENC_CS),
+    write_strobe_i => write_strobe(B_CLKENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(B_CLKENC_CS)
+);
+
+z_dataenc_inst : entity work.dio_wrapper generic map (
+    NUM => Z_DATAENC_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => Z_DATAENC,
+
+    -- Block I/O
+    in_val_o => z_dataenc_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(Z_DATAENC_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(Z_DATAENC_CS),
+    read_ack_o => read_ack(Z_DATAENC_CS),
+    write_strobe_i => write_strobe(Z_DATAENC_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(Z_DATAENC_CS)
+);
+
+panel_r_ctrl_inst : entity work.dio_wrapper generic map (
+    NUM => PANEL_R_CTRL_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PANEL_R_CTRL,
+
+    -- Block I/O
+    in_val_o => panel_r_ctrl_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(PANEL_R_CTRL_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(PANEL_R_CTRL_CS),
+    read_ack_o => read_ack(PANEL_R_CTRL_CS),
+    write_strobe_i => write_strobe(PANEL_R_CTRL_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(PANEL_R_CTRL_CS)
+);
+
+prop_io_inst: entity work.ext_st_dio_wrapper generic map (
+    NUM => PROP_IO_NUM
+) port map (
+    clk_i => clk0,
+    reset_i => reset0,
+
+    -- Pad
+    io => PROP_IO,
+    dir_o => PROP_IO_DIR,
+    term_o => PROP_IO_TERM,
+
+    -- Block I/O
+    in_val_o => prop_io_inputs,
+
+    bit_bus_i => bit_bus,
+    pos_bus_i => pos_bus,
+    read_strobe_i => read_strobe(PROP_IO_CS),
+    read_address_i => read_address,
+    read_data_o => read_data(PROP_IO_CS),
+    read_ack_o => read_ack(PROP_IO_CS),
+    write_strobe_i => write_strobe(PROP_IO_CS),
+    write_address_i => write_address,
+    write_data_i => write_data,
+    write_ack_o => write_ack(PROP_IO_CS)
 );
 end;
