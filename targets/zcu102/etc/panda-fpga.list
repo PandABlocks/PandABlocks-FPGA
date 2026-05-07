@@ -15,7 +15,7 @@ b share/panda-fpga ipmi.ini
 
 # Server startup and helper code
 B share/panda-fpga extensions
-t share/panda-fpga targets/xu5_st1/etc/load-panda-firmware
+t share/panda-fpga targets/zcu102/etc/load-panda-firmware
 
 # IPMI python support
 T lib/python/site-packages/i2c etc/i2c/*.py
