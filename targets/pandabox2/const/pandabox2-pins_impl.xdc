@@ -197,5 +197,3 @@ set SFP2_LOC GTHE4_CHANNEL_X1Y13
 set SFP3_LOC GTHE4_CHANNEL_X1Y14
 set SFP4_LOC GTHE4_CHANNEL_X1Y15
 
-# Unfortunately, this is required to meet setup timing of fine delay signals
-set_property LOC MMCM_X0Y2 [get_cells {clocking_inst/mmcm_inst1}]
