@@ -1,0 +1,568 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only
+
+printUsage()
+{
+cat << EOF
+
+opkg-feed action [--conf-dir=PATH] [-h|--help] [action-options]
+
+ACTIONS
+
+    list
+        List software feeds as they appear in the configuration file(s).
+
+    add <feedName>
+        Add a new software feed.
+        Feeds are enabled and not trusted by default.
+
+    modify <feedName>
+        Modify an existing software feed.
+        Values not modified will not be changed.
+
+    remove <feedName>
+        Remove an existing software feed.
+
+ACTION OPTIONS
+
+    list option(s):
+        [--key-value]
+
+    add option(s):
+        --uri=LOCATION [--clobber] [--enabled=ENABLED] [--source-type=TYPE]
+        [--trusted=TRUSTED]
+
+    modify option(s):
+        [--clobber] [--enabled=ENABLED] [--name=NAME] [--source-type=TYPE]
+        [--trusted=TRUSTED] [--uri=LOCATION]
+
+OPTIONS
+
+    --clobber
+        Allow an existing feed to be overwritten.
+
+    --conf-dir=PATH
+        PATH to the opkg configuration directory.
+        PATH may be relative. Symlinks will be followed.
+        Default: "/etc/opkg"
+
+    --enabled=ENABLED
+        Enabled state of the feed.
+        Disabled feeds remain on the system but are ignored by opkg.
+        ENABLED may be "1" or "0".
+        Default: "1"
+
+    -h|--help
+        Display help information and exit.
+
+    --key-value
+        Print feed information in the "key=value" style.
+        Feeds are separated by empty lines.
+
+    --name=NAME
+        Name of the feed.
+        Will not overwrite an existing feed unless --clobber is specified.
+
+    --source-type=TYPE
+        Refers to how the repository list is stored.
+        TYPE may be "src", "src/gz", "dist", or "dist/gz".
+        Default: "src/gz"
+
+    --trusted=TRUSTED
+        Trusted state of the feed.
+        Trusted feeds will not be cryptographically verified by opkg to be a
+        safe and secure source of packages. A system administrator may have
+        reason to trust the feed regardless.
+        TRUSTED may be "1" or "0".
+        Default: "0"
+
+    --uri=LOCATION
+        LOCATION of the feed, such as "https://..." or "file://...".
+
+EXIT STATUS
+
+    0   No error; command ran to completion
+    3   Invalid argument
+    4   The named feed was not found
+    5   The named feed already exists
+
+EOF
+}
+
+# ------------------------------------------------------------------------------
+# Globals
+# ------------------------------------------------------------------------------
+
+declare -r S_OK=0
+declare -r E_GENERIC_ERROR=1
+declare -r E_INVALID_ARG=3
+declare -r E_FEED_NOT_FOUND=4
+declare -r E_FEED_ALREADY_EXISTS=5
+
+declare -r IE_GREP_MATCH=0
+declare -r IE_GREP_NO_MATCH=1
+
+declare -r SPACE_PATTERN='\s'
+declare -r DOUBLE_QUOTE_PATTERN='"'
+
+declare -A ARGS
+declare -A DECOMP_FEED
+
+# ------------------------------------------------------------------------------
+# Utility functions
+# ------------------------------------------------------------------------------
+
+allEmpty()
+{
+	for arg in "$@" ; do
+		if [ -n "$arg" ] ; then
+			return $E_GENERIC_ERROR
+		fi
+	done
+	return $S_OK
+}
+
+escapeChars()
+{
+	local string=$1
+	local chars=$2
+
+	for (( index=0 ; index<${#1} ; index++ )) ; do
+		char="${string:$index:1}"
+		case $char in
+			[$chars])
+				echo -n "\\$char"
+				;;
+			*)
+				echo -n "$char"
+				;;
+		esac
+	done
+}
+
+escapeRegex()
+{
+	# Escape the \ here for the consumer
+	echo "$( escapeChars "$1" '[\\^$.|?*+(){}' )"
+}
+
+parseBool()
+{
+	if [[ "$1" =~ ^[10]$ ]] ; then
+		echo "$1"
+	fi
+}
+
+# ------------------------------------------------------------------------------
+# Action helpers
+# ------------------------------------------------------------------------------
+
+createFeedLineRegex()
+{
+	local feedName="$( escapeRegex "$1" )"
+
+	# The regex constructed here was derived from the regex in opkglib's opkg_conf.c at
+	# https://urldefense.com/v3/__https://git.yoctoproject.org/cgit/cgit.cgi/opkg/tree/libopkg/opkg_conf.c__;!fqWJcnlTkjM!9i4Onh9iVJK9m0kcWmZI6WKisWsX5nNe__ZqOSr7If-Hh6WGsOE9HNr9-6dNcgwHL6GfEg$
+
+	# Disabled marker
+	enabledPattern='^#?\s*';
+
+	# Source type capture groups (1, 2, 3)
+	#	1 = full source type with any quotes
+	#	2 = source type without quotes if quoted
+	#	3 = source type if unquoted
+	sourceTypePattern='("([^"](src|dist)(/gz)?)"|(src|dist)(/gz)?)\s+';
+
+	# Feed name capture groups (4, 5, 6)
+	#	4 = full feed name with any quotes
+	#	5 = feed name without quotes if quoted
+	#	6 = feed name if unquoted
+	namePattern='("([^"]*)"|(\S*))\s+';
+
+	if [ -n "$feedName" ] ; then
+		namePattern="(\"$feedName\"|$feedName)\\s+";
+	fi
+
+	# Feed URI capture groups (7, 8, 9)
+	#	7 = full URI with any quotes
+	#	8 = URI without quotes if quoted
+	#	9 = URI if unquoted
+	uriPattern='("([^"]*)"|(\S*))\s*';
+
+	# Feed option capture groups (10, 11)
+	#	10 = options with brackets
+	#	11 = options without brackets
+	optionsPattern='(\[([^]]+)\])?\s*';
+
+	# Feed "extra" capture group (12)
+	#	12 = unused extra field
+	extraPattern='(\S+)?\s*';
+
+	# Trailing garbage capture group (13)
+	#	13 = if non-empty, opkg will complain about and ignore the feed entry
+	garbagePattern='(.*)?\s*';
+
+	echo "$enabledPattern$sourceTypePattern$namePattern$uriPattern$optionsPattern$extraPattern$garbagePattern"
+}
+
+decomposeFeedLine()
+{
+	local feedLine="$1"
+	local feedRegex=$( createFeedLineRegex )
+
+	for key in "${!DECOMP_FEED[@]}" ; do
+		unset DECOMP_FEED["$key"]
+	done
+
+	if ! [[ "$feedLine" =~ $feedRegex ]] ; then
+		return $E_GENERIC_ERROR
+	fi
+
+	# Ignore feed lines with trailing garbage
+	if [ -n "${BASH_REMATCH[13]}" ] ; then
+		return $E_GENERIC_ERROR
+	fi
+
+	DECOMP_FEED[enabled]='1'
+	if [[ "${feedLine::1}" == '#' ]] ; then
+		DECOMP_FEED[enabled]='0'
+	fi
+
+	local sourceTypeQuoted="${BASH_REMATCH[2]}"
+	local sourceTypeUnquoted="${BASH_REMATCH[3]}"
+	DECOMP_FEED[source-type]="${sourceTypeQuoted:-$sourceTypeUnquoted}"
+
+	local nameQuoted="${BASH_REMATCH[5]}"
+	local nameUnquoted="${BASH_REMATCH[6]}"
+	DECOMP_FEED[name]="${nameQuoted:-$nameUnquoted}"
+
+	local uriQuoted="${BASH_REMATCH[8]}"
+	local uriUnquoted="${BASH_REMATCH[9]}"
+	DECOMP_FEED[uri]="${uriQuoted:-$uriUnquoted}"
+
+	local options="${BASH_REMATCH[11]}"
+	for option in $options ; do
+		if [[ "$option" == 'trusted=yes' ]] ; then
+			DECOMP_FEED[trusted]='1'
+		fi
+	done
+
+	DECOMP_FEED[extra]="${BASH_REMATCH[12]}"
+
+	local sourceTypeRegex='^(src|dist)(/gz)?$'
+	if [[ "${DECOMP_FEED[source-type]}" =~ $sourceTypeRegex ]] ; then
+		return $S_OK
+	fi
+	return $E_GENERIC_ERROR
+}
+
+formatFeedLine()
+{
+	local enabled="$1"
+	local sourceType="$2"
+	local name="$3"
+	local uri="$4"
+	local trusted="$5"
+	local extra="$6"
+
+	if [[ "$name" =~ $SPACE_PATTERN ]] ; then
+		name="\"$name\""
+	fi
+
+	if [[ "$uri" =~ $SPACE_PATTERN ]] ; then
+		uri="\"$uri\""
+	fi
+
+	local options=
+	if [[ "$trusted" == '1' ]] ; then
+		options='[trusted=yes]'
+	fi
+
+	if [[ "$enabled" == '0' ]] ; then
+		echo -n '# '
+	fi
+
+	echo -n "$sourceType $name $uri"
+
+	if [ -n "$options" ] ; then
+		echo -n " $options"
+	fi
+
+	if [ -n "$extra" ] ; then
+		echo -n " $extra"
+	fi
+}
+
+feedExists()
+{
+	if [ -z "$1" ] ; then
+		return $E_GENERIC_ERROR
+	fi
+
+	local feedRegex="$( createFeedLineRegex "$1" )"
+	grep -Eoh "$feedRegex" "${ARGS[confDir]}"/*.conf &>/dev/null
+	if [[ "$?" == "$IE_GREP_MATCH" ]] ; then
+		return $S_OK
+	fi
+	return $E_GENERIC_ERROR
+}
+
+# ------------------------------------------------------------------------------
+# Actions
+# ------------------------------------------------------------------------------
+
+listFeeds()
+{
+	for filePath in "${ARGS[confDir]}"/*.conf ; do
+		if [ -f "$filePath" ] ; then
+			while IFS='' read -r line || [ -n "$line" ] ; do
+				if decomposeFeedLine "$line" ; then
+					if [[ "${ARGS[kv]}" == '1' ]] ; then
+						for key in "${!DECOMP_FEED[@]}" ; do
+							local value=${DECOMP_FEED["$key"]}
+							if [ -n "$value" ] ; then
+								echo "$key=$value"
+							fi
+						done
+						echo ''
+					else
+						echo "$line"
+					fi
+				fi
+			done < "$filePath"
+		fi
+	done
+}
+
+addFeed()
+{
+	if [ -z "${ARGS[name]}" ] || [ -z "${ARGS[uri]}" ] ; then
+		return $E_INVALID_ARG
+	fi
+
+	if feedExists "${ARGS[name]}" ; then
+		if [[ "${ARGS[clobber]}" != '1' ]] ; then
+			return $E_FEED_ALREADY_EXISTS
+		else
+			modifyFeed
+			return $?
+		fi
+	fi
+
+	local fileName=$( echo "${ARGS[name]}" | sed 's/[^a-zA-Z0-9_=+-]//g' )
+	local feedLine=$( formatFeedLine \
+		"${ARGS[enabled]:-1}" \
+		"${ARGS[source-type]:-src/gz}" \
+		"${ARGS[name]}" \
+		"${ARGS[uri]}" \
+		"${ARGS[trusted]:-0}" \
+		'' )
+	printf '%s\n' "$feedLine" >> "${ARGS[confDir]}/${fileName:-misc-feeds}.conf"
+	return $S_OK
+}
+
+modifyFeed()
+{
+	if [ -z "${ARGS[name]}" ] ; then
+		return $E_INVALID_ARG
+	fi
+
+	if ! feedExists "${ARGS[name]}" ; then
+		return $E_FEED_NOT_FOUND
+	fi
+
+	if allEmpty "${ARGS[newName]}" "${ARGS[source-type]}" "${ARGS[uri]}" "${ARGS[enabled]}" "${ARGS[trusted]}" ; then
+		return $E_INVALID_ARG
+	fi
+
+	if [[ "${ARGS[newName]}" != "${ARGS[name]}" ]] && feedExists "${ARGS[newName]}" ; then
+		if [[ "${ARGS[clobber]}" != '1' ]] ; then
+			return $E_FEED_ALREADY_EXISTS
+		else
+			removeFeed "${ARGS[newName]}"
+		fi
+	fi
+
+	local feedRegex
+	feedRegex=$( createFeedLineRegex "${ARGS[name]}" )
+	local matchingFeed=$( grep -Eoh "$feedRegex" "${ARGS[confDir]}"/*.conf )
+	if ! decomposeFeedLine "$matchingFeed" ; then
+		return $E_GENERIC_ERROR
+	fi
+
+	local feedLine=$( formatFeedLine \
+		"${ARGS[enabled]:-${DECOMP_FEED[enabled]}}" \
+		"${ARGS[source-type]:-${DECOMP_FEED[source-type]}}" \
+		"${ARGS[newName]:-${DECOMP_FEED[name]}}" \
+		"${ARGS[uri]:-${DECOMP_FEED[uri]}}" \
+		"${ARGS[trusted]:-${DECOMP_FEED[trusted]}}" \
+		"${DECOMP_FEED[extra]}" )
+	feedLine=$( escapeRegex "$feedLine" )
+
+	local delim=$( printf '\007' )
+	if ! sed -Ei "s${delim}$feedRegex${delim}$feedLine${delim}" "${ARGS[confDir]}"/*.conf ; then
+		return $E_GENERIC_ERROR
+	fi
+	return $S_OK
+}
+
+removeFeed()
+{
+	if [ -z "$1" ] ; then
+		return $E_INVALID_ARG
+	fi
+
+	local feedRegex=$( createFeedLineRegex "$1" )
+	grep -Eoh "$feedRegex" "${ARGS[confDir]}"/*.conf &>/dev/null
+	local ret=$?
+	if [[ "$ret" == "$IE_GREP_NO_MATCH" ]] ; then
+		return $E_FEED_NOT_FOUND
+	elif [[ "$ret" != "$IE_GREP_MATCH" ]] ; then
+		return $E_GENERIC_ERROR
+	fi
+
+	local delim=$( printf '\007' )
+	if ! sed -Ei "\\${delim}$feedRegex${delim}d" "${ARGS[confDir]}"/*.conf ; then
+		return $E_GENERIC_ERROR
+	fi
+	find "${ARGS[confDir]}" -size 0c -exec rm -f {} +
+	return $S_OK
+}
+
+# ------------------------------------------------------------------------------
+# Argument processing
+# ------------------------------------------------------------------------------
+
+parseArguments()
+{
+	local longOptions="$1"',conf-dir:,help'
+	local shortOptions='h'
+	shift
+
+	local opts
+	opts=$( getopt -ql "$longOptions" -- "$shortOptions" "$@" ) || exit 3
+	eval set -- "$opts"
+
+	ARGS[confDir]="/etc/opkg"
+
+	while true; do
+		case "$1" in
+			--clobber)
+				ARGS[clobber]='1'
+				shift
+				;;
+			--conf-dir)
+				ARGS[confDir]="$2"
+				shift 2
+				;;
+			--enabled)
+				ARGS[enabled]="$( parseBool "$2" )"
+				if [ -z "${ARGS[enabled]}" ] ; then
+					exit $E_INVALID_ARG
+				fi
+				shift 2
+				;;
+			-h|--help)
+				printUsage
+				exit $S_OK
+				;;
+			--key-value)
+				ARGS[kv]='1'
+				shift
+				;;
+			--name)
+				ARGS[newName]="$2"
+				if [[ "${ARGS[newName]}" =~ $DOUBLE_QUOTE_PATTERN ]] ; then
+					exit $E_INVALID_ARG
+				fi
+				shift 2
+				;;
+			--source-type)
+				ARGS[source-type]="$2"
+				case "${ARGS[source-type]}" in
+					src|src/gz|dist|dist/gz)
+						;;
+					*)
+						exit $E_INVALID_ARG
+						;;
+				esac
+				shift 2
+				;;
+			--trusted)
+				ARGS[trusted]="$( parseBool "$2" )"
+				if [ -z "${ARGS[trusted]}" ] ; then
+					exit $E_INVALID_ARG
+				fi
+				shift 2
+				;;
+			--uri)
+				ARGS[uri]="$2"
+				if [[ "${ARGS[uri]}" =~ $DOUBLE_QUOTE_PATTERN ]] ; then
+					exit $E_INVALID_ARG
+				fi
+				shift 2
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				exit $E_INVALID_ARG
+		esac
+	done
+}
+
+# ------------------------------------------------------------------------------
+# main()
+# ------------------------------------------------------------------------------
+
+if [ -z "$1" ] ; then
+	printUsage
+	exit $E_INVALID_ARG
+fi
+
+# Disable history expansion
+set +H
+
+case "$1" in
+	list)
+		shift
+		parseArguments 'key-value' "$@"
+		listFeeds
+		;;
+	add)
+		ARGS[name]="$2"
+		if [[ "${ARGS[name]}" =~ $DOUBLE_QUOTE_PATTERN ]] ; then
+			exit $E_INVALID_ARG
+		fi
+		shift 2
+		parseArguments 'clobber,enabled:,source-type:,trusted:,uri:' "$@"
+		addFeed
+		;;
+	modify)
+		ARGS[name]="$2"
+		if [[ "${ARGS[name]}" =~ $DOUBLE_QUOTE_PATTERN ]] ; then
+			exit $E_INVALID_ARG
+		fi
+		shift 2
+		parseArguments 'clobber,enabled:,name:,source-type:,trusted:,uri:' "$@"
+		modifyFeed
+		;;
+	remove)
+		parseArguments '' "$@"
+		if [[ "$2" =~ $DOUBLE_QUOTE_PATTERN ]] ; then
+			exit $E_INVALID_ARG
+		fi
+		removeFeed "$2"
+		;;
+	help)
+		printUsage
+		exit $S_OK
+		;;
+	*)
+		parseArguments '' "$@"
+		exit $E_INVALID_ARG
+		;;
+esac
+
+exit $?
