@@ -12,7 +12,7 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 # Build defaults that can be overwritten by the CONFIG file if required
 PYTHON = python3
 SPHINX_BUILD = sphinx-build
-MAKE_IPK = $(TOP)/packaging/make-fpga-ipk.sh
+MAKE_FPGA_IPK = $(TOP)/packaging/make-fpga-ipk.sh
 MAKE_DOC_IPK = $(TOP)/packaging/make-fpga-doc-ipk.sh
 MAKE_BOOT_IPK = $(TOP)/packaging/make-fpga-boot-ipk.sh
 
@@ -317,13 +317,11 @@ IPK_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 IPK_DEPENDS += $(APP_BUILD_DIR)/extensions
 IPK_DEPENDS += fpga-bit
 
-SANE_APP_NAME = $(shell echo '$(APP_NAME)' | tr '[:upper:]_' '[:lower:]-')
-IPK_FILE_NAME = panda-fpga-$(SANE_APP_NAME)_$(GIT_VERSION)_all.ipk
+IPK_FILE_NAME = panda-fpga-$(APP_NAME)_$(GIT_VERSION)_all.ipk
 IPK_FILE = $(BUILD_DIR)/$(IPK_FILE_NAME)
 DOC_IPK_FILE_NAME = panda-fpga-doc_$(GIT_VERSION)_all.ipk
 DOC_IPK_FILE = $(BUILD_DIR)/$(DOC_IPK_FILE_NAME)
-SANE_TARGET = $(shell echo '$(TARGET)' | tr '[:upper:]_' '[:lower:]-')
-BOOT_IPK_FILE_NAME = panda-fpga-boot_$(SANE_TARGET)-$(GIT_VERSION)_all.ipk
+BOOT_IPK_FILE_NAME = panda-fpga-boot_$(TARGET)-$(GIT_VERSION)_all.ipk
 BOOT_IPK_FILE = $(BUILD_DIR)/$(BOOT_IPK_FILE_NAME)
 
 
@@ -347,7 +345,7 @@ all-ipks:
 .PHONY: all-ipks
 
 $(IPK_FILE): $(IPK_DEPENDS)
-	$(MAKE_IPK) $(TOP) $(APP_BUILD_DIR) $(APP_NAME) $(GIT_VERSION) && \
+	$(MAKE_FPGA_IPK) $(TOP) $(APP_BUILD_DIR) $(APP_NAME) $(GIT_VERSION) && \
 		mv -f $(APP_BUILD_DIR)/$(IPK_FILE_NAME) $@
 
 $(DOC_IPK_FILE): $(DOCS_HTML_DIR)

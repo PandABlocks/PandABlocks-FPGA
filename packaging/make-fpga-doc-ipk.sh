@@ -31,8 +31,8 @@ sed -e "s|@PACKAGE@|$PACKAGE|" \
     -e "s|@DESCRIPTION@|$DESCRIPTION|" \
     -e "s|@DEPENDS@|$DEPENDS|" \
     $TOP_DIR/packaging/ipk-control-template > $IPK_DIR/CONTROL/control
-mkdir -p opt/share/www
+mkdir -p opt/share/www "$BUILD_DIR"
 cp -a "$BUILD_DIR/../../html" "opt/share/www/panda-fpga"
 mkdir -p opt/etc/www
 cp "$TOP_DIR/etc/panda-fpga.docs.html" opt/etc/www
-$TOP_DIR/packaging/opkg-utils/opkg-build -o 0 -g 0 -Z xz "$IPK_DIR" "$BUILD_DIR"
+$TOP_DIR/packaging/make-ipk.sh "$IPK_DIR" "$BUILD_DIR/${PACKAGE}_${VERSION}_all.ipk"
