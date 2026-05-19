@@ -39,4 +39,4 @@ cp -a "$BUILD_DIR/extensions" "$BUILD_DIR/ipmi.ini" \
     "$BUILD_DIR/FPGA/panda_top.bin" "$FPGA_DIR/"
 mkdir "$FPGA_DIR/template_designs"
 cp "$TOP_DIR/docs/tutorials/"*.json "$FPGA_DIR/template_designs"
-$TOP_DIR/packaging/opkg-utils/opkg-build -o 0 -g 0 -Z xz "$IPK_DIR" "$BUILD_DIR"
+$TOP_DIR/packaging/make-ipk.sh "$IPK_DIR" "$BUILD_DIR/${PACKAGE}_${VERSION}_all.ipk"

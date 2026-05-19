@@ -35,4 +35,4 @@ sed -e "s|@PACKAGE@|$PACKAGE|" \
 mkdir boot
 cp -a "$BUILD_DIR/../../targets/$TARGET/boot/"* boot/
 mv boot/devicetree.dtb boot/system.dtb
-$TOP_DIR/packaging/opkg-utils/opkg-build -o 0 -g 0 -Z xz "$IPK_DIR" "$BUILD_DIR"
+$TOP_DIR/packaging/make-ipk.sh "$IPK_DIR" "$BUILD_DIR/${PACKAGE}_${VERSION}_all.ipk"
