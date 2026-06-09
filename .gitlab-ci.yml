@@ -1,0 +1,105 @@
+variables:
+  # Adds timestamp to job logs. Using to debug where it is spending all its time.
+  FF_TIMESTAMPS: true
+  KUBERNETES_MEMORY_LIMIT: 4Gi
+  KUBERNETES_CPU_LIMIT: 2
+  GIT_SUBMODULE_STRATEGY: recursive
+
+default:
+  image: ghcr.io/pandablocks/pandablocks-ci-container:latest
+  tags:
+    - controls
+  before_script:
+    - cp CONFIG.example CONFIG
+    - sed -i 's|/scratch/|/dls_sw/FPGA/|g' CONFIG
+    - sed -i 's|APP_NAME = .\+|APP_NAME = '"$APP"'|g' CONFIG
+    - sed -i 's|BUILD_DIR = .\+|BUILD_DIR = '"$PWD"'/build|g' CONFIG
+    - if [ -n "$PLATFORM" ]; then echo PLATFORM = $PLATFORM >> CONFIG; fi
+    - export LM_LICENSE_FILE=2100@diamcslicserv01.dc.diamond.ac.uk:2100@diamcslicserv02.diamond.ac.uk
+    # Workaround for failed docs building when this directory is missing
+    - mkdir -p build/apps/$APP
+
+build-fpga:
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "gh-pages"'
+  variables:
+    CHECKPOINT_DIR: '/dls_sw/work/targetOS/panda-checkpoints/$APP-$CI_COMMIT_REF_NAME'
+  parallel:
+    matrix:
+      - APP:
+        - pandabox-no-fmc
+        - pandabox-fmc-24vio
+        - pandabox-fmc-acq427
+        - pandabox-fmc-acq430
+        - pandabox-fmc-lback-sfp-lback
+        - pandabrick
+        KUBERNETES_MEMORY_LIMIT: 16Gi
+        KUBERNETES_CPU_LIMIT: 4
+      - APP:
+        - pandabox2-no-fmc
+        - pandabox2-fmc-lback-sfp-sync
+        - pandabox2-fmc-acq430
+        KUBERNETES_MEMORY_LIMIT: 20Gi
+        KUBERNETES_CPU_LIMIT: 4
+  script:
+    - LD_PRELOAD="/lib64/libudev.so.1" make ipk || { mkdir -p $CHECKPOINT_DIR; cp -rf build/apps/$APP/FPGA/*.dcp $CHECKPOINT_DIR/; exit 1; }
+    - mv build/*.ipk .
+  artifacts:
+    name: "panda-fpga-$CI_COMMIT_REF_NAME"
+    paths:
+      - '*.ipk'
+
+build-boot:
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "gh-pages"'
+  parallel:
+    matrix:
+      - PLATFORM: zynq
+        APP: pandabox-no-fmc
+      - PLATFORM: zynqmp
+        APP: pandabrick
+      - PLATFORM: zynqmp
+        APP: pandabox2-no-fmc
+  script:
+    - make boot-ipk
+    - mv build/*.ipk .
+  artifacts:
+    name: "panda-fpga-boot-$CI_COMMIT_REF_NAME"
+    paths:
+      - '*.ipk'
+
+build-doc:
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "gh-pages"'
+  parallel:
+    matrix:
+      - APP:
+        - pandabox-no-fmc
+  script:
+    - make doc-ipk
+    - mv build/*.ipk .
+  artifacts:
+    name: "panda-fpga-doc-$CI_COMMIT_REF_NAME"
+    paths:
+      - '*.ipk'
+
+release-all:
+  image: gitlab/glab:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  variables:
+    KUBERNETES_MEMORY_LIMIT: 4Gi
+    KUBERNETES_CPU_LIMIT: 2
+    RELEASE_DIR: '/dls_sw/work/targetOS/panda-releases/$CI_COMMIT_REF_NAME'
+  needs:
+    - job: build-fpga
+      artifacts: true
+    - job: build-boot
+      artifacts: true
+    - job: build-doc
+      artifacts: true
+  script:
+    - mkdir -p $RELEASE_DIR
+    - cp -f *.ipk $RELEASE_DIR/
+    - glab auth login --hostname gitlab.diamond.ac.uk --job-token $CI_JOB_TOKEN
+    - glab release create $CI_COMMIT_TAG ./*.ipk
