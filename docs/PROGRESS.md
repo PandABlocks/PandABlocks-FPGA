@@ -43,7 +43,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 ## Reference
 - ⛔ reference/blocks — source: blocks.rst (generated listing) — blocked: tooling (MyST generator)
 - ◐ modules/*/*_doc.md ×42 — source: modules/*/*_doc.rst — writable-now (mechanical RST→MyST, Stage D)
-- ◐ reference/glossary — source: reference/glossary.rst → links to meta-panda canonical — writable-now
+- ✅ reference/glossary — source: reference/glossary.rst — FPGA terms inlined; seealso → meta-panda
 - ⛔ reference/vhdl-standard — source: NEW (Interview1 §4) — blocked: author
 
 ## Blocked (issues raised)
