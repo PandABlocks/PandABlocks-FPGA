@@ -1,12 +1,28 @@
-# CALC
+# CALC - Position Calc
+The position calc block has an output which is the sum of the position inputs
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/calc/` and has not yet been converted.
+:::{block_fields} modules/calc/calc.block.ini
+:::
+## Adding inputs
+The output is the sum of the inputs
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
+:::{timing_plot}
+:path: modules/calc/calc.timing.ini
+:section: Adding inputs
+:::
+## Scaling
+The scale factor is a bit shift and is applied after the sum.
 
-**Source:** `modules/calc/calc_doc.rst`
+:::{timing_plot}
+:path: modules/calc/calc.timing.ini
+:section: Scaling
+:::
+## Inverting
+Each input can be individually inverted before they are added together
+
+:::{timing_plot}
+:path: modules/calc/calc.timing.ini
+:section: Inverting
 :::

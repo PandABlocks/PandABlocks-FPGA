@@ -1,12 +1,8 @@
-# FMC_24V
+# FMC_24V - FMC 24V IO Module
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/fmc_24vio/` and has not yet been converted.
+The module has bee splits into two blocks: The inputs and the outputs.
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/fmc_24vio/fmc_24v_doc.rst`
+:::{block_fields} modules/fmc_24vio/fmc_24vio.block.ini
 :::

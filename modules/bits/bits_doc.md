@@ -1,12 +1,18 @@
-# BITS
+# BITS - Soft inputs and constant bits
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The BITS block contains 4 soft values A..D. Each of these soft values can be set
+to 0 or 1 by using the SET_A..SET_D parameters.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/bits/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
+:::{block_fields} modules/bits/bits.block.ini
+:::
+## Outputs follow parameters
 
-**Source:** `modules/bits/bits_doc.rst`
+This example shows how the values on the bit bus follow the parameter values
+after a 1 clock tick propagation delay
+
+:::{timing_plot}
+:path: modules/bits/bits.timing.ini
+:section: Outputs follow inputs
 :::

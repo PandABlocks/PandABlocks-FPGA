@@ -1,12 +1,8 @@
-# DO
+# DO - Digital Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The DO block handles a digital output signal coming from the connector.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/do/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/do/do_doc.rst`
+:::{block_fields} modules/do/do.block.ini
 :::

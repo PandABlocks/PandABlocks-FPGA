@@ -1,12 +1,11 @@
-# FMC_ACQ430
+# FMC_ACQ430 - FMC ACQ430 Module
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
-
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/fmc_acq430/` and has not yet been converted.
-
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/fmc_acq430/fmc_acq430_doc.rst`
+## Fields
+:::{block_fields} modules/fmc_acq430/fmc_acq430.block.ini
 :::
+## Clock note
+
+The ADC runs in High Res mode using a divisor of 5 from the main clock
+frequency.
+
+125 Mhz/5/512 gives and ADC sample rate of 48.828125 kHz

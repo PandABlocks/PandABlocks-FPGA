@@ -1,12 +1,10 @@
-# EXT_ST_DIO
+# EXT_ST_DIO - External Separately Terminated Digital Input/Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The DIO block handles an IO digital signal coming from the connector that
+could be considered as input or output in the system block. Additionally, a
+50-ohm termination can be enabled or disabled externally.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/ext_st_dio/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/ext_st_dio/ext_st_dio_doc.rst`
+:::{block_fields} modules/ext_st_dio/ext_st_dio.block.ini
 :::

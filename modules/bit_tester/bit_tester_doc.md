@@ -1,12 +1,9 @@
-# BIT_TESTER
+# BIT_TESTER - Pseudo-random Bit Tester
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The pseudo-random bit tester allows testing digital IO by outputting a
+pseudo-random bit stream and comparing with an input bit stream.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/bit_tester/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/bit_tester/bit_tester_doc.rst`
+:::{block_fields} modules/bit_tester/bit_tester.block.ini
 :::

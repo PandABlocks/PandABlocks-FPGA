@@ -1,12 +1,6 @@
-# SFP_UDPONTRIG
+# SFP_UDPONTRIG - SFP UDP on trig Module
+This module, when started, can generate UDP broadcast frames on the rising edge on input trigger. The IPv4 ICMP ping protocol is also implemented in this module which can accept 0 to 256 Bytes ICMP payload size.
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
-
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/sfp_udpontrig/` and has not yet been converted.
-
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/sfp_udpontrig/sfp_udpontrig_doc.rst`
+## Fields
+:::{block_fields} modules/sfp_udpontrig/sfp_udpontrig.block.ini
 :::

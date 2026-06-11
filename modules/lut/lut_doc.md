@@ -1,12 +1,71 @@
-# LUT
+# LUT - 5 Input lookup table
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+An LUT block produces an output that is determined by a user-programmable
+5-input logic function, set with the FUNC register.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/lut/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
+:::{block_fields} modules/lut/lut.block.ini
+:::
+## Testing Function Output
+This set of tests sets the function value and checks whether the output is as
+expected
 
-**Source:** `modules/lut/lut_doc.rst`
+The value of FUNC is a 32-bit unsigned int representing the truth table output
+of the 5 inputs. The mapping of the string to an integer is done by the
+
+A&B&C&D&E (FUNC= 0x80000000). Setting all inputs to 1
+results in an output of 1, and changing any inputs produces an output of 0
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: A&B&C&D&E Output
+:::
+~A&~B&~C&~D&~E (FUNC= 0x00000001). Setting all inputs to 0 results
+in an output of 1, and changing any inputs produces an output of 0
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: ~A&~B&~C&~D&~E Output
+:::
+A (FUNC= 0xffff0000). The output should only be 1 if A is
+1 irrespective of any other input.
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: A output
+:::
+A&B|C&~D (FUNC= 0xff303030)
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: A&B|C&~D output
+:::
+## Changing the function in a test
+
+If a function is changed, the output will take effect on the next clock tick
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: Changing function from A&B&C&D&E to ~A&~B&~C&~D&~E
+:::
+## Edge triggered inputs
+
+We can also use the LUT to convert edges into levels by changing A..E to be
+one clock tick wide pulses based on edges rather than the current level of
+INPA..INPE.
+
+If we wanted to produce a pulse only if INPA had a rising edge on the same clock
+tick as INPB had a falling edge we could set FUNC=0xff000000 (A&B) and A=1
+(rising edge of INPA) and B=2 (falling edge of INPB):
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: Rising A & Falling B
+:::
+We could also use this for generating pulses on every transition of A:
+
+:::{timing_plot}
+:path: modules/lut/lut.timing.ini
+:section: Either edge A
 :::

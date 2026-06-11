@@ -1,12 +1,8 @@
-# LVDSOUT
+# LVDSOUT - LVDS Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The LVDSOUT block handles the signals to the LVDS Output connectors
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/lvdsout/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/lvdsout/lvdsout_doc.rst`
+:::{block_fields} modules/lvdsout/lvdsout.block.ini
 :::

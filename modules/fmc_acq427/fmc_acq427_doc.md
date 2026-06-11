@@ -1,12 +1,12 @@
-# FMC_ACQ427
+# FMC_ACQ427 - FMC ACQ427 Module
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/fmc_acq427/` and has not yet been converted.
+The module has been split into two blocks: the inputs, which controls the ADC;
+and the outputs, which control the DAC.
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/fmc_acq427/fmc_acq427_doc.rst`
+:::{block_fields} modules/fmc_acq427/fmc_acq427.block.ini
 :::
+## Clock note
+
+The ADC runs at 1MHz

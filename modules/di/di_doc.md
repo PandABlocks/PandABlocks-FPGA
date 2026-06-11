@@ -1,12 +1,9 @@
-# DI
+# DI - Digital Input
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The DI block handles a digital input signal coming from the connector.
+Additionally, a 50-ohm termination can be enabled or disabled.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/di/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/di/di_doc.rst`
+:::{block_fields} modules/di/di.block.ini
 :::

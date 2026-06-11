@@ -1,12 +1,10 @@
-# ST_DIO
+# ST_DIO - Separately Terminated Digital Input/Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The DIO block handles an IO digital signal coming from the connector that
+could be considered as input or output in the system block. Additionally, a
+50-ohm termination can be enabled or disabled.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/st_dio/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/st_dio/st_dio_doc.rst`
+:::{block_fields} modules/st_dio/st_dio.block.ini
 :::

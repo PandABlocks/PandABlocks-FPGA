@@ -1,12 +1,10 @@
-# EXT_DIO
+# EXT_DIO - External direction Digital Input/Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The EXT_DIO block handles an IO digital signal coming from the connector that
+could be considered as input or output via an external signal.
+The logic level high will enable the output.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/ext_dio/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/ext_dio/ext_dio_doc.rst`
+:::{block_fields} modules/ext_dio/ext_dio.block.ini
 :::

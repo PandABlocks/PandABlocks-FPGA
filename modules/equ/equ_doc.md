@@ -1,12 +1,8 @@
-# EQU
+# EQU - EQU Input
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The EQU block handles the GPIO signals from the brick to the PandA for the PandABrick target
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/equ/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/equ/equ_doc.rst`
+:::{block_fields} modules/equ/equ.block.ini
 :::

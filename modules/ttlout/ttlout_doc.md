@@ -1,12 +1,7 @@
-# TTLOUT
+# TTLOUT - TTL Output
+The TTLOUT block handles the signals to the TTL Output connectors
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/ttlout/` and has not yet been converted.
-
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/ttlout/ttlout_doc.rst`
+:::{block_fields} modules/ttlout/ttlout.block.ini
 :::

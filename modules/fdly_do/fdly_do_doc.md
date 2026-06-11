@@ -1,12 +1,10 @@
-# FDLY_DO
+# FDLY_DO - Fine Delay Digital Output
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+The DO block handles a digital output signal coming from the connector.
+This block also adds the capability to delay the output with lower resolution
+than a normal DO. If the fine delay is disabled, it will behave as a normal DO.
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/fdly_do/` and has not yet been converted.
+## Fields
 
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/fdly_do/fdly_do_doc.rst`
+:::{block_fields} modules/fdly_do/fdly_do.block.ini
 :::

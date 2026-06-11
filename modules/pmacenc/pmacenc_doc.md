@@ -1,12 +1,7 @@
-# PMACENC
+# PMACENC - Pmac encoder
+The PMACENC block handles the pmac encoder signals
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/pmacenc/` and has not yet been converted.
-
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/pmacenc/pmacenc_doc.rst`
+:::{block_fields} modules/pmacenc/pmacenc.block.ini
 :::

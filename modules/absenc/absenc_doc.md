@@ -1,12 +1,7 @@
-# ABSENC
+# ABSENC - Absolute encoder
+The ABSENC block handles the Absolute encoder signals
 
-:::{admonition} 🚧 TODO — documentation stub
-:class: note
+## Fields
 
-This per-block documentation is a Stage A scaffold stub. The page lives **next to
-its module** under `modules/absenc/` and has not yet been converted.
-
-**Status:** writable-now (mechanical RST→MyST, Stage D)
-
-**Source:** `modules/absenc/absenc_doc.rst`
+:::{block_fields} modules/absenc/absenc.block.ini
 :::
