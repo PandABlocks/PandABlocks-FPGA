@@ -38,7 +38,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 - ✅ how-to/contribute — `{include} .github/CONTRIBUTING.md` — scaffold include resolves
 
 ## Explanations
-- ◐ explanations/framework — source: reference/framework.rst — partial (needs refresh)
+- ✅ explanations/framework — source: reference/framework.rst — converted; refresh note added
 
 ## Reference
 - ⛔ reference/blocks — source: blocks.rst (generated listing) — blocked: tooling (MyST generator)
