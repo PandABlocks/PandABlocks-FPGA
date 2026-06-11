@@ -28,7 +28,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
   are dropped, preserved under `docs/_legacy_rst/` for now)
 
 ## How-to
-- ◐ how-to/app — source: reference/app.rst — writable-now (verify runtime steps)
+- ✅ how-to/app — source: reference/app.rst — converted; runtime query note added
 - ◐ how-to/block — source: reference/block.rst — partial ("Writing docs" = tooling) [Prompt E]
 - ⛔ how-to/testing — source: reference/testing.rst — blocked: verify
 - ◐ how-to/cocotb — source: reference/cocotb.rst — writable-now (IP assumption = verify)
