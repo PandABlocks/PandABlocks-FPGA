@@ -33,7 +33,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 - ⛔ how-to/testing — source: reference/testing.rst — blocked: verify
 - ✅ how-to/cocotb — source: reference/cocotb.rst — converted; IP assumption verify-note kept
 - ◐ how-to/build-fpga-image — source: NEW (Interview5 §10) — writable-now
-- ◐ how-to/finedelay-test — source: github.io finedelay-test.rst — writable-now
+- ✅ how-to/finedelay-test — source: github.io finedelay-test.rst — converted; image moved in
 - ◐ how-to/local-development — source: NEW (devcontainer pointer) — writable-now. Holds the Stage A xref probe.
 - ✅ how-to/contribute — `{include} .github/CONTRIBUTING.md` — scaffold include resolves
 
