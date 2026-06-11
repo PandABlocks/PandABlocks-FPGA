@@ -29,7 +29,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 
 ## How-to
 - ✅ how-to/app — source: reference/app.rst — converted; runtime query note added
-- ◐ how-to/block — source: reference/block.rst — partial ("Writing docs" = tooling) [Prompt E]
+- ✅ how-to/block — source: reference/block.rst — converted (Prompt E); not split; "Block VHDL entity" filled with LUT entity example; "Writing docs" left as blocked: tooling stub w/ issue link
 - ⛔ how-to/testing — source: reference/testing.rst — blocked: verify
 - ✅ how-to/cocotb — source: reference/cocotb.rst — converted; IP assumption verify-note kept
 - ✅ how-to/build-fpga-image — source: NEW (Interview5 §10) — authored; kas/opkg workflow
@@ -50,6 +50,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 Issues not yet created — Stage B (Prompt B) will create and link them.
 - ⛔ how-to/testing — issue #TBD — verify
 - ⛔ reference/blocks — issue #TBD — tooling (MyST block-listing generator)
+- ⛔ how-to/block "Writing docs" section — issue #TBD — tooling (block-doc directives, deferred until MyST per-block doc tooling lands)
 - ⛔ reference/vhdl-standard — issue #TBD — author
 
 ## Notes
