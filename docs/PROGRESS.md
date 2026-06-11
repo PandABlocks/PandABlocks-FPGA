@@ -57,7 +57,7 @@ Issues not yet created — Stage B (Prompt B) will create and link them.
   ignored by `myst build`) so Stage D/E conversion can read sources in-tree; also on `origin/master`.
   Reference screenshots (build_arch/coverage_report/errors_csv/values_table/waveform.png, fpga_arch.png)
   are preserved there for reuse.
-- **Default branch is `master`** — publish gated on `master`/tags; redirect to `./master/index.html`.
+- **Default branch is `main`** — publish gated on `main`/tags; redirect to `./main/index.html`.
 - **xref/intersphinx prototype.** Only `PandABlocks-client` (deployed) is active; probe in
   `how-to/local-development` resolves in built output. meta-panda + server + devcontainer + fastcs kept
   commented until published; uncomment in Stage F and upstream into python-copier-template.
