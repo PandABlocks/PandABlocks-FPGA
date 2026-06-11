@@ -1,0 +1,58 @@
+version: 1
+project:
+  title: PandABlocks-FPGA
+  github: https://github.com/PandABlocks/PandABlocks-FPGA
+  # Cross-repository references (mystmd xref + Sphinx intersphinx).
+  # PROTOTYPE for upstreaming into the DLS python-copier-template (Stage A spec §6).
+  references:
+    # PandABlocks-client (Sphinx) is deployed today — used by the Stage A xref probe
+    # in how-to/local-development. Resolves via its objects.inv.
+    PandABlocks-client: https://pandablocks.github.io/PandABlocks-client/main
+    # Not deployed yet — kept (commented) as the complete prototype wiring to
+    # uncomment in Stage F and upstream into python-copier-template.
+    # meta-panda: https://pandablocks.github.io/meta-panda/main
+    # PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/main
+    # PandABlocks-devcontainer: https://pandablocks.github.io/PandABlocks-devcontainer
+    # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/main
+  toc:
+    - file: index.md
+    - file: tutorials.md
+    - file: how-to.md
+      children:
+        - file: how-to/app.md
+        - file: how-to/block.md
+        - file: how-to/testing.md
+        - file: how-to/cocotb.md
+        - file: how-to/build-fpga-image.md
+        - file: how-to/finedelay-test.md
+        - file: how-to/local-development.md
+        - file: how-to/contribute.md
+    - file: explanations.md
+      children:
+        - file: explanations/framework.md
+    - file: reference.md
+      children:
+        - file: reference/blocks.md
+        # Per-block docs live physically next to their module.ini under
+        # modules/<block>/<block>_doc.md and are surfaced out-of-tree (Stage A §5
+        # decision: out-of-tree pattern chosen over a docs/modules symlink — both
+        # build clean, this avoids committing a symlink).
+        - pattern: ../modules/*/*_doc.md
+        - file: reference/glossary.md
+        - file: reference/vhdl-standard.md
+        - url: https://github.com/PandABlocks/PandABlocks-FPGA/releases
+          title: Release Notes
+site:
+  template: book-theme
+  nav:
+    - title: Tutorials
+      url: /tutorials
+    - title: How-to Guides
+      url: /how-to
+    - title: Explanations
+      url: /explanations
+    - title: Reference
+      url: /reference
+  options:
+    logo: images/PandA-logo-for-black-background.svg
+    github_url: https://github.com/PandABlocks/PandABlocks-FPGA

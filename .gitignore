@@ -17,3 +17,6 @@
 
 # cocotb build dir
 sim_build*
+
+# MyST build output
+docs/_build/
