@@ -1,0 +1,39 @@
+// For format details, see https://containers.dev/implementors/json_reference/
+{
+    "name": "PandABlocks-FPGA Developer Container",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "target": "developer"
+    },
+    "remoteEnv": {
+        // Allow X11 apps (e.g. the Vivado GUI) to run inside the container
+        "DISPLAY": "${localEnv:DISPLAY}"
+    },
+    "customizations": {
+        "vscode": {
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "ms-python.python",
+                "redhat.vscode-yaml"
+            ]
+        }
+    },
+    "runArgs": [
+        // Allow the container to access the host X11 display
+        "--net=host",
+        // Make sure SELinux does not disable access to host filesystems like tmp
+        "--security-opt=label=disable"
+    ],
+    "mounts": [
+        // Mount in your Vivado installation from the host, matching the
+        // VIVADO path set in the CONFIG file, e.g.:
+        // {
+        //     "source": "/scratch/Xilinx",
+        //     "target": "/scratch/Xilinx",
+        //     "type": "bind"
+        // }
+    ],
+    // Mount the parent as /workspaces so peer repos (e.g. PandABlocks-rootfs)
+    // are visible alongside this one
+    "workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind"
+}
