@@ -8,6 +8,9 @@ else:
 
 import sys
 import os
+import csv
+import json
+import argparse
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
@@ -220,9 +223,9 @@ def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ti
     offset = plot_pos(pos_traces, in_names, offset, crossdist, ts)
     offset = plot_bit(bit_traces, in_names, offset, crossdist)
 
-    # draw a line
+    # draw a line (follow the theme text colour so it shows on dark backgrounds)
     offset -= PLOT_OFFSET
-    plt.plot([0, ts], [offset, offset], 'k--')
+    plt.plot([0, ts], [offset, offset], '--', color=plt.rcParams["text.color"])
 
     # and now do outputs
     offset = plot_bit(bit_traces, out_names, offset, crossdist)
@@ -246,9 +249,222 @@ def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ti
     bottom_frac = BOTTOM_HEIGHT / total_height
     plt.subplots_adjust(left=0.18, right=0.98, top=top_frac, bottom=bottom_frac)
 
-    plt.show()
+
+# rcParams that recolour the plot for a dark page background. The traces keep
+# their (theme-independent) colour-cycle colours; only text/axes/grid/separator
+# need lightening, which these drive (the separator reads text.color above).
+DARK_RC = {
+    "text.color": "#d4d4d4",
+    "axes.labelcolor": "#d4d4d4",
+    "axes.edgecolor": "#d4d4d4",
+    "xtick.color": "#d4d4d4",
+    "ytick.color": "#d4d4d4",
+    "grid.color": "#666666",
+}
+
+
+def render(path, out, section=None,
+           xlabel="Timestamp (125MHz FPGA clock ticks)", dark=False):
+    """Render one timing diagram to ``out`` (light by default, dark if asked).
+
+    Backgrounds are transparent so the page colour shows through.
+    """
+    import matplotlib as mpl
+    with mpl.rc_context(DARK_RC if dark else {}):
+        plt.figure()
+        make_timing_plot(path, section, xlabel)
+        plt.savefig(out, transparent=True)
+        plt.close()
+
+
+# --- accompanying data tables (pcap/seq/pgen), ported from the old Sphinx -----
+# directive. Each table is {"head": [rows], "body": [rows]} where a row is a
+# list of [text, colspan] cells; the MyST directive turns these into tables.
+
+def hex_or_int(val):
+    """Convert a string (optionally 0x-prefixed) to an int."""
+    val = val.strip()
+    return int(val, 16) if val.startswith("0x") else int(val, 0)
+
+
+def _cells(values):
+    return [[v, 1] for v in values]
+
+
+def _seq_table(title, data):
+    hdr = "Repeats Condition Position Time A B C D E F Time A B C D E F".split()
+    ncols = len(hdr)
+    head = [
+        [[title, ncols]],
+        [["#", 1], ["Trigger", 2], ["Phase1", 1], ["Phase1 Outputs", 6],
+         ["Phase2", 1], ["Phase2 Outputs", 6]],
+        _cells(hdr),
+    ]
+    triggers = [
+        "Immediate", "BITA=0", "BITA=1", "BITB=0", "BITB=1", "BITC=0", "BITC=1",
+        "POSA>=POSITION", "POSA<=POSITION", "POSB>=POSITION", "POSB<=POSITION",
+        "POSC>=POSITION", "POSC<=POSITION", "", "", ""]
+    body = []
+    for frame in range(len(data) // 4):
+        w0 = data[0 + frame * 4]
+        row = [w0 & 0xFFFF, triggers[w0 >> 16 & 0xF],
+               data[1 + frame * 4], data[2 + frame * 4]]
+        p1 = (w0 >> 20) & 0x3F
+        row += [(p1 >> i) & 1 for i in range(6)]
+        row.append(data[3 + frame * 4])
+        p2 = (w0 >> 26) & 0x3F
+        row += [(p2 >> i) & 1 for i in range(6)]
+        body.append(_cells(row))
+    return {"head": head, "body": body}
+
+
+def _seq_tables(ini, section, module_dir):
+    alltables = []
+    table_address = ""
+    seen = False
+    for ts, inputs, outputs in timing_entries(ini, section):
+        if "TABLE_LENGTH" in inputs and seen:
+            seen = False
+            fp = os.path.join(module_dir, "tests_assets", "%s.txt" % table_address)
+            lines = list(open(fp))[1:]
+            alltables.append([hex_or_int(line) for line in lines])
+        if "TABLE_ADDRESS" in inputs:
+            seen = True
+            table_address = inputs["TABLE_ADDRESS"]
+    return [_seq_table("T%d" % (i + 1), st) for i, st in enumerate(alltables)]
+
+
+def _pgen_tables(ini, section, module_dir):
+    out = []
+    for ts, inputs, outputs in timing_entries(ini, section):
+        if "TABLE_ADDRESS" in inputs:
+            fp = os.path.join(module_dir, "tests_assets",
+                              "%s.txt" % inputs["TABLE_ADDRESS"])
+            with open(fp) as f:
+                rows = list(csv.DictReader(f, delimiter="\t"))
+            keys = list(rows[0].keys())
+            head = [[["T%d" % (len(out) + 1), len(keys)]], _cells(keys)]
+            body = [_cells(r.values()) for r in rows]
+            out.append({"head": head, "body": body})
+    return out
+
+
+def _pcap_tables(ini, section):
+    data_header = []
+    for ts, inputs, outputs in timing_entries(ini, section):
+        for name in inputs:
+            if name == "START_WRITE":
+                data_header = []
+            elif name == "WRITE":
+                v = inputs[name]
+                data_header.append("0x%X" % (int(v, 16) if "x" in v else int(v, 0)))
+    if not data_header:
+        return []
+    # (The Sphinx version had a "BITS" branch using an undefined `cparser`; it
+    # was dead code — header names are always hex strings — so it is dropped.)
+    table_hdr = ["Row"]
+    bit_extracts = []
+    for name in data_header:
+        if name.endswith("_H"):
+            bit_extracts.append(name[:-2])
+        else:
+            bit_extracts.append(None)
+            table_hdr.append(name)
+    body = []
+    r, row, high, i = 0, [0], {}, 0
+    for ts, inputs, outputs in timing_entries(ini, section):
+        if "DATA" not in outputs:
+            continue
+        v = outputs["DATA"]
+        data = int(v, 16) if "x" in v else int(v, 0)
+        extract = bit_extracts[i]
+        if isinstance(extract, str):
+            high[extract] = data
+        else:
+            row.append(data)
+        i += 1
+        if i >= len(bit_extracts):
+            for name, val in high.items():
+                row[table_hdr.index(name)] += val << 32
+            body.append(_cells(row))
+            r, row, high, i = r + 1, [r + 1], {}, 0
+    return [{"head": [_cells(table_hdr)], "body": body}]
+
+
+def make_tables(path, section=None):
+    """Return the data tables accompanying the diagram, by module convention.
+
+    Mirrors the pcap/seq/pgen tables the old Sphinx directive auto-generated.
+    Returns ``[]`` for modules that have none.
+    """
+    full = os.path.join(ROOT, path)
+    ini = read_ini(full)
+    if section is None:
+        section = ini.sections()[0]
+    module_dir = os.path.dirname(full)
+    module = os.path.basename(module_dir)
+    if module == "pcap":
+        return _pcap_tables(ini, section)
+    if module == "seq":
+        return _seq_tables(ini, section, module_dir)
+    if module == "pgen":
+        return _pgen_tables(ini, section, module_dir)
+    return []
+
+
+def main(argv=None):
+    """Command-line entry point: render a timing diagram to image file(s).
+
+    Keeps relative imports, so run it as a module from the repo root::
+
+        python -m common.python.timing_plot \\
+            modules/counter/counter_documentation.timing.ini \\
+            --section "Count Up only when enabled" --out counter.svg
+
+    Pass ``--dark-out`` as well to also render a dark-theme variant in the same
+    process (one matplotlib import). This same entry point is shelled out to by
+    the MyST ``timing_plot`` directive (docs/_plugins/timing-plot.mjs).
+    """
+    parser = argparse.ArgumentParser(
+        description="Render a PandABlocks timing diagram from an ini section.")
+    parser.add_argument(
+        "path", help="path to the .timing.ini (relative to the repo root, "
+        "or absolute)")
+    parser.add_argument(
+        "--section", default=None,
+        help="ini section to plot (default: the first section)")
+    parser.add_argument(
+        "--xlabel", default="Timestamp (125MHz FPGA clock ticks)",
+        help="x-axis label")
+    parser.add_argument(
+        "--out", default=None,
+        help="light-theme output image file; the extension picks the format "
+        "(e.g. .svg, .png). If omitted, show the plot interactively.")
+    parser.add_argument(
+        "--dark-out", default=None,
+        help="also render a dark-theme variant to this file")
+    parser.add_argument(
+        "--tables-out", default=None,
+        help="write any accompanying data tables (pcap/seq/pgen) to this file "
+        "as JSON")
+    args = parser.parse_args(argv)
+
+    if args.tables_out:
+        with open(args.tables_out, "w") as f:
+            json.dump(make_tables(args.path, args.section), f)
+
+    if args.out:
+        render(args.path, args.out, args.section, args.xlabel, dark=False)
+        print(args.out)
+        if args.dark_out:
+            render(args.path, args.dark_out, args.section, args.xlabel,
+                   dark=True)
+            print(args.dark_out)
+    elif not args.tables_out:
+        make_timing_plot(args.path, args.section, args.xlabel)
+        plt.show()
+    return 0
 
 
 if __name__ == "__main__":
-    # test
-    make_timing_plot(*sys.argv[1:])
+    sys.exit(main())

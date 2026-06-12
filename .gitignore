@@ -18,5 +18,5 @@
 # cocotb build dir
 sim_build*
 
-# MyST build output
+# MyST build output (includes timing_plot's rendered SVGs under _build/timing/)
 docs/_build/

@@ -27,16 +27,20 @@ jobs:
           # Need this to get version number from last tag
           fetch-depth: 0
 
-      # PandABlocks-FPGA is an HDL project, not a Python/uv project, so we install
-      # mystmd directly with npm rather than via `uv run tox -e docs`. The build
-      # command itself (`cd docs && myst build --html`) matches the template.
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      # The docs build now needs Python: the block_fields/timing_plot directives
+      # (docs/_plugins/*.mjs) shell out to common/python/*. mystmd itself ships
+      # on PyPI (a Node app wrapped in Python — it runs on the runner's built-in
+      # Node), so we install it together with matplotlib/numpy in a single uv
+      # venv. Colocating them means the directives' `python` shell-out finds
+      # matplotlib with no PYTHONPATH/PYTHON wiring.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
-      - name: Install MyST
-        run: npm install -g mystmd@1.10.1
+      - name: Install docs dependencies
+        run: |
+          uv venv
+          uv pip install mystmd==1.10.1 matplotlib numpy
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Sanitize ref name for docs version
         run: echo "DOCS_VERSION=${GITHUB_REF_NAME//[^A-Za-z0-9._-]/_}" >> $GITHUB_ENV

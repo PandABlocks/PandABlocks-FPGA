@@ -2,6 +2,10 @@ version: 1
 project:
   title: PandABlocks-FPGA
   github: https://github.com/PandABlocks/PandABlocks-FPGA
+  # In-repo MyST plugins replacing the old Sphinx directives (common/python/*).
+  plugins:
+    - _plugins/block-fields.mjs
+    - _plugins/timing-plot.mjs
   # Cross-repository references (mystmd xref + Sphinx intersphinx).
   # PROTOTYPE for upstreaming into the DLS python-copier-template (Stage A spec §6).
   references:
@@ -32,11 +36,12 @@ project:
     - file: reference.md
       children:
         - file: reference/blocks.md
-        # Per-block docs live physically next to their module.ini under
-        # modules/<block>/<block>_doc.md and are surfaced out-of-tree (Stage A §5
-        # decision: out-of-tree pattern chosen over a docs/modules symlink — both
-        # build clean, this avoids committing a symlink).
-        - pattern: ../modules/*/*_doc.md
+          children:
+          # Per-block docs live physically next to their module.ini under
+          # modules/<block>/<block>_doc.md and are surfaced out-of-tree (Stage A §5
+          # decision: out-of-tree pattern chosen over a docs/modules symlink — both
+          # build clean, this avoids committing a symlink).
+          - pattern: ../modules/*/*_doc.md
         - file: reference/glossary.md
         - file: reference/vhdl-standard.md
         - url: https://github.com/PandABlocks/PandABlocks-FPGA/releases
