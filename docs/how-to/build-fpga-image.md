@@ -1,57 +1,78 @@
 # Build an FPGA image
 
-This page covers building a PandABlocks FPGA bitstream inside the `kas`
-development container, producing an `.ipk` package ready for deployment.
+This page covers building a PandABlocks FPGA image with `make` and Vivado,
+producing a `panda-fpga-<app>_<version>_all.ipk` package ready for deployment.
+This is the only build route for FPGA images — Yocto/kas is not involved; the
+[meta-panda](https://pandablocks.github.io/meta-panda) layer only *includes*
+the resulting `.ipk` in the PandA system image.
 
 For how to select and deploy the resulting bitstream on a PandA, see
-[](meta-panda:how-to/choose-fpga-bitstream) in the meta-panda docs.
+[Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+in the meta-panda docs.
+<!-- Stage F: swap meta-panda links on this page to xrefs once the
+     meta-panda reference key is uncommented in myst.yml -->
 
 ## Prerequisites
 
-- Docker (or Podman) available on your host
-- A clone of this repository
-- The `kas` container image pulled (see [](how-to/local-development))
+- A clone of this repository.
+- Xilinx Vivado (the supported version is the `VIVADO_VER` default in the
+  top-level `Makefile`, currently 2023.2), plus a licence able to build the
+  Zynq part for your target.
+- A build environment with the FPGA build dependencies. The recommended way to
+  get one is the development container with Vivado mounted in — see
+  [](how-to/local-development) and "Running in a container manually" in the
+  [meta-panda build guide](https://pandablocks.github.io/meta-panda/how-to/build).
 
 ## Build steps
 
-1. Start the `kas` build container:
+1. Create your build configuration by copying the example and editing it:
 
    ```shell
-   kas shell kas/pandablocks-fpga.yml
+   cp CONFIG.example CONFIG
    ```
 
-2. Inside the container, build the FPGA image for your target:
+2. In `CONFIG`, set at least:
+
+   - `APP_NAME` — which {term}`app` to build. Valid names are the `apps/*.app.ini`
+     files without the extension, e.g.:
+
+     ```
+     APP_NAME = pandabox-no-fmc
+     ```
+
+     The first dash-separated component of the app name (e.g. `pandabox`)
+     selects the {term}`target platform` it is built for.
+
+   - `VIVADO` (and `VIVADO_VER` if not using the default) — the path to your
+     Vivado `settings64.sh`.
+
+   - `BUILD_DIR` if you want build products somewhere other than the default.
+
+3. Run the build:
 
    ```shell
-   bitbake pandablocks-fpga
+   make
    ```
 
-   Replace `pandablocks-fpga` with the appropriate Yocto image target if
-   building for a non-default hardware target.
+   The default target builds the FPGA bitstream for `APP_NAME` and packages it,
+   producing `panda-fpga-<APP_NAME>_<version>_all.ipk` in the build directory.
+   (`make ipk` is equivalent; `make all-ipks` builds every app in `apps/`.)
 
-3. The build produces a `.ipk` package under `tmp/deploy/ipk/`. Copy it to
-   your PandA:
+4. Copy the package to your PandA and install it:
 
    ```shell
-   scp tmp/deploy/ipk/<arch>/pandablocks-fpga_*.ipk root@<panda-ip>:/tmp/
+   scp <build-dir>/panda-fpga-<app>_*.ipk root@<panda-ip>:/tmp/
+   ssh root@<panda-ip> opkg install /tmp/panda-fpga-<app>_*.ipk
    ```
 
-4. On the PandA, install the package and restart the server:
-
-   ```shell
-   opkg install /tmp/pandablocks-fpga_*.ipk
-   systemctl restart pandablocks-server
-   ```
-
-:::{note}
-The exact `kas` YAML filename and Yocto target name depend on the hardware
-target you are building for. Check the `kas/` directory in this repository
-for the available configuration files.
-:::
+   You can also install it through the Web Admin interface — see
+   [managing packages](https://pandablocks.github.io/meta-panda/how-to/packages)
+   in the meta-panda docs.
 
 ## Next steps
 
-After building and installing the `.ipk`, see
-[](meta-panda:how-to/choose-fpga-bitstream) to configure the PandA to load
-your new bitstream, or [](meta-panda:how-to/test-firmware-changes) for the
-full `devtool`-based development and test workflow.
+After installing the `.ipk`, see
+[Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+to configure the PandA to load your new bitstream, or
+[Test firmware changes](https://pandablocks.github.io/meta-panda/how-to/test-firmware-changes)
+for the development and test workflow.

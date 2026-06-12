@@ -12,7 +12,6 @@ project:
     # uncomment in Stage F and upstream into python-copier-template.
     # meta-panda: https://pandablocks.github.io/meta-panda/main
     # PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/main
-    # PandABlocks-devcontainer: https://pandablocks.github.io/PandABlocks-devcontainer
     # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/main
   toc:
     - file: index.md

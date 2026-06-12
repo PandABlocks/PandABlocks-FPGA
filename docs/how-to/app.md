@@ -61,13 +61,16 @@ Run:
 make
 ```
 
-This produces a {term}`zpkg` for each app that can be deployed to a PandABlocks
-device. To build only a subset of apps, set `APPS` in the top-level `CONFIG`
-file:
+This builds the app named by `APP_NAME` in the top-level `CONFIG` file and
+produces an `.ipk` package (`panda-fpga-<app>_<version>_all.ipk`) that can be
+deployed to a PandABlocks device:
 
 ```
-APPS = PandABox-no-fmc
+APP_NAME = pandabox-no-fmc
 ```
+
+To build every app in `apps/`, run `make all-ipks` instead. See
+[](how-to/build-fpga-image) for the full build setup.
 
 ## Querying the app at runtime
 
@@ -75,10 +78,8 @@ Query the loaded app name via the TCP server:
 
 ```
 < *METADATA.APPNAME?
-> OK =PandABox-fmc_24vio
+> OK =pandabox-fmc-24vio
 ```
 
-:::{note}
-The exact runtime query syntax may vary between firmware versions — verify
-against a running system.
-:::
+The app name is kebab-case, following the `.ipk` name — for example
+`panda-fpga-pandabox-fmc-acq430_4.2b1.ipk` reports `pandabox-fmc-acq430`.

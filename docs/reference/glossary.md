@@ -6,8 +6,8 @@ meta-panda docs. Common terms used across this repo:
 ```{glossary}
 App
 : A collection of {term}`block` instances specified in an `.app.ini` file that
-  can be built into an FPGA image ({term}`zpkg`) and loaded onto a PandABlocks
-  device.
+  can be built into an FPGA image (an `.ipk` package) and loaded onto a
+  PandABlocks device.
 
 Block
 : A piece of FPGA logic with a number of {term}`field` instances that performs
@@ -35,7 +35,8 @@ Target platform
 
 Zpkg
 : A specially formatted tar archive of built files that can be deployed to a
-  PandABlocks device.
+  PandABlocks device (legacy pre-5.0 format; replaced by opkg `.ipk` packages
+  from 5.0 onwards).
 ```
 
 :::{seealso}

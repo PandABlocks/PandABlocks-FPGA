@@ -16,7 +16,7 @@ logic.
 An overview of the build process is shown in this diagram; the stages and
 terminology are defined below.
 
-```{image} ../_legacy_rst/reference/build_arch.png
+```{image} ../images/build_arch.png
 :alt: Block build process overview
 ```
 
@@ -361,3 +361,14 @@ and used to index the five inputs into the truth table, driving `OUT_o`. Each
 field name in the entity matches its `[FIELD]` section in the block ini, so the
 framework can connect the entity to the system bus and the register map without
 any manual wiring.
+
+## Next steps
+
+With the block written, simulated and tested, the rest of the journey to
+running it on hardware is:
+
+1. Add the block to an app — [](how-to/app).
+2. Build the app into an FPGA image — [](how-to/build-fpga-image).
+3. Install the resulting `.ipk` and select the bitstream on your PandA —
+   [Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+   in the meta-panda docs.

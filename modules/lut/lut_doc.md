@@ -13,6 +13,7 @@ expected
 
 The value of FUNC is a 32-bit unsigned int representing the truth table output
 of the 5 inputs. The mapping of the string to an integer is done by the
+[PandABlocks TCP server](https://pandablocks.github.io/PandABlocks-server/main/reference/fields.html).
 
 A&B&C&D&E (FUNC= 0x80000000). Setting all inputs to 1
 results in an output of 1, and changing any inputs produces an output of 0
