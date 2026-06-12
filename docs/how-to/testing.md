@@ -9,5 +9,5 @@ This page is a Stage A scaffold stub and has not yet been written.
 
 **Source:** reference/testing.rst (274w: Python tests, HDL tests) — Travis → GitHub Actions (sim) + DLS GitLab (build)
 
-**Blocked:** a GitHub issue will be created in Stage B (Prompt B) and linked here.
+**Blocked:** [PandABlocks/PandABlocks-FPGA#279](https://github.com/PandABlocks/PandABlocks-FPGA/issues/279)
 :::

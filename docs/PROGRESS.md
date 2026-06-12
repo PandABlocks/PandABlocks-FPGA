@@ -48,10 +48,12 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 
 ## Blocked (issues raised)
 Issues not yet created — Stage B (Prompt B) will create and link them.
-- ⛔ how-to/testing — issue #TBD — verify
-- ⛔ reference/blocks — issue #TBD — tooling (MyST block-listing generator)
-- ⛔ how-to/block "Writing docs" section — issue #TBD — tooling (block-doc directives, deferred until MyST per-block doc tooling lands)
-- ⛔ reference/vhdl-standard — issue #TBD — author
+- ⛔ how-to/testing — issue #279 — verify
+- ⛔ reference/blocks — issue #282 — tooling (MyST block-listing generator)
+- ⛔ how-to/block "Writing docs" section — issue #282 — tooling (block-doc directives, deferred until MyST per-block doc tooling lands)
+- ⛔ reference/vhdl-standard — issue #281 — author
+
+- ⛔ how-to/cocotb (IP assumption) — issue #280 — verify
 
 ## Notes
 - **Legacy sources preserved.** Original Sphinx/RST tree moved to `docs/_legacy_rst/` (not in TOC,

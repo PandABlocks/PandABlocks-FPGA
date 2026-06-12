@@ -301,8 +301,7 @@ blocks — is set to `carrier` rather than `soft`.
 
 How to document a block (the two RST directives and how to structure the docs)
 is deferred until the MyST documentation tooling for per-block docs has landed.
-A GitHub issue tracking the MyST block-listing generator and the block-doc
-directives will be created in Stage B (Prompt B) and linked here.
+Tracked in [PandABlocks/PandABlocks-FPGA#282](https://github.com/PandABlocks/PandABlocks-FPGA/issues/282).
 :::
 
 ## Block VHDL entity

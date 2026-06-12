@@ -11,7 +11,7 @@ designs. It lets you write testbenches in Python, driving a simulator such as
 :::{note}
 Modules that use IP are currently unsupported by the cocotb runner. All
 soft blocks (those covered by simulation) are believed not to use IP and
-should remain testable — verify this assumption against the full block set
+should remain testable — verify this assumption — tracked in [PandABlocks/PandABlocks-FPGA#280](https://github.com/PandABlocks/PandABlocks-FPGA/issues/280)
 before publishing.
 :::
 
