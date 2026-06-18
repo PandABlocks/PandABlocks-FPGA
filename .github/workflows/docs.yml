@@ -54,7 +54,7 @@ jobs:
           BASE_URL: /PandABlocks-FPGA/${{ env.DOCS_VERSION }}
         run: |
           cd docs
-          myst build --html
+          myst build --html --strict
 
       # Drop the ~135 MB templates/ dir (downloaded book-theme node sources, a
       # build-time cache) before uploading. We keep docs/_build as the artifact
