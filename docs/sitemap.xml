@@ -11,40 +11,40 @@
     <loc>http://localhost:3000/how-to</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/app</loc>
+    <loc>http://localhost:3000/how-to/app</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/block</loc>
+    <loc>http://localhost:3000/how-to/block</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/testing</loc>
+    <loc>http://localhost:3000/how-to/testing</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/cocotb</loc>
+    <loc>http://localhost:3000/how-to/cocotb</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/build-fpga-image</loc>
+    <loc>http://localhost:3000/how-to/build-fpga-image</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/finedelay-test</loc>
+    <loc>http://localhost:3000/how-to/finedelay-test</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/local-development</loc>
+    <loc>http://localhost:3000/how-to/local-development</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/contribute</loc>
+    <loc>http://localhost:3000/how-to/contribute</loc>
   </url>
   <url>
     <loc>http://localhost:3000/explanations</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/framework</loc>
+    <loc>http://localhost:3000/explanations/framework</loc>
   </url>
   <url>
     <loc>http://localhost:3000/reference</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/blocks</loc>
+    <loc>http://localhost:3000/reference/blocks</loc>
   </url>
   <url>
     <loc>http://localhost:3000/absenc-doc</loc>
@@ -173,9 +173,9 @@
     <loc>http://localhost:3000/ttlout-doc</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/glossary</loc>
+    <loc>http://localhost:3000/reference/glossary</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/vhdl-standard</loc>
+    <loc>http://localhost:3000/reference/vhdl-standard</loc>
   </url>
 </urlset>
