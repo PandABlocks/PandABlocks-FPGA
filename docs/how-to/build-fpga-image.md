@@ -3,14 +3,12 @@
 This page covers building a PandABlocks FPGA image with `make` and Vivado,
 producing a `panda-fpga-<app>_<version>_all.ipk` package ready for deployment.
 This is the only build route for FPGA images — Yocto/kas is not involved; the
-[meta-panda](https://pandablocks.github.io/meta-panda) layer only *includes*
+[meta-panda](xref:meta-panda) layer only *includes*
 the resulting `.ipk` in the PandA system image.
 
 For how to select and deploy the resulting bitstream on a PandA, see
-[Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+[Choose the FPGA bitstream](xref:meta-panda/how-to/choose-fpga-bitstream)
 in the meta-panda docs.
-<!-- Stage F: swap meta-panda links on this page to xrefs once the
-     meta-panda reference key is uncommented in myst.yml -->
 
 ## Prerequisites
 
@@ -21,7 +19,7 @@ in the meta-panda docs.
 - A build environment with the FPGA build dependencies. The recommended way to
   get one is the development container with Vivado mounted in — see
   [](how-to/local-development) and "Running in a container manually" in the
-  [meta-panda build guide](https://pandablocks.github.io/meta-panda/how-to/build).
+  [meta-panda build guide](xref:meta-panda/how-to/build).
 
 ## Build steps
 
@@ -66,13 +64,13 @@ in the meta-panda docs.
    ```
 
    You can also install it through the Web Admin interface — see
-   [managing packages](https://pandablocks.github.io/meta-panda/how-to/packages)
+   [managing packages](xref:meta-panda/how-to/packages)
    in the meta-panda docs.
 
 ## Next steps
 
 After installing the `.ipk`, see
-[Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+[Choose the FPGA bitstream](xref:meta-panda/how-to/choose-fpga-bitstream)
 to configure the PandA to load your new bitstream, or
-[Test firmware changes](https://pandablocks.github.io/meta-panda/how-to/test-firmware-changes)
+[Test firmware changes](xref:meta-panda/how-to/test-firmware-changes)
 for the development and test workflow.

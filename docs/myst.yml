@@ -12,11 +12,15 @@ project:
     # PandABlocks-client (Sphinx) is deployed today — used by the Stage A xref probe
     # in how-to/local-development. Resolves via its objects.inv.
     PandABlocks-client: https://pandablocks.github.io/PandABlocks-client/main
-    # Not deployed yet — kept (commented) as the complete prototype wiring to
-    # uncomment in Stage F and upstream into python-copier-template.
-    # meta-panda: https://pandablocks.github.io/meta-panda/main
-    # PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/main
-    # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/main
+    # The sibling MyST repos are mid-docs-migration: each base points at the repo's
+    # `docs`-branch build and the inventory is fetched from `<repo>/docs/myst.xref.json`
+    # (and `<repo>/docs/objects.inv`). These only resolve once each repo's `docs`
+    # branch has been pushed with folder-hierarchy URLs (`site.options.folders: true`).
+    # Switch the bases to `<repo>/stable` once releases + the switcher action land.
+    meta-panda: https://pandablocks.github.io/meta-panda/docs
+    PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/docs
+    # Not deployed yet — kept commented (interim /docs target; -> /stable later).
+    # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/docs
   toc:
     - file: index.md
     - file: tutorials.md
@@ -58,5 +62,8 @@ site:
     - title: Reference
       url: /reference
   options:
+    # Output page URLs by folder, e.g. /how-to/block rather than the default
+    # flattened /block. Keeps cross-repo xref target paths folder-qualified.
+    folders: true
     logo: images/PandA-logo-for-black-background.svg
     github_url: https://github.com/PandABlocks/PandABlocks-FPGA

@@ -97,7 +97,7 @@ block. It should be made of upper-case letters, numbers and underscores.
 
 `type`
 : Gives information about the
-  [field type](https://pandablocks.github.io/PandABlocks-server/main/reference/fields.html),
+  [field type](xref:PandABlocks-server/reference/fields),
   which specifies the purpose and connections of the field to the system. It is
   passed straight
   through to the field-specific line in the config file for the TCP server, so
@@ -322,7 +322,7 @@ system automatically:
 As a worked example, the `LUT` block computes a 5-input lookup table. Its block
 ini declares five bit inputs `INPA`–`INPE`, a bit output `OUT`, and a `FUNC`
 parameter holding the 32-bit truth table (see the `lut` sub-type in the server
-[field reference](https://pandablocks.github.io/PandABlocks-server/main/reference/fields.html)).
+[field reference](xref:PandABlocks-server/reference/fields)).
 A representative entity for it is:
 
 ```vhdl
@@ -369,5 +369,5 @@ running it on hardware is:
 1. Add the block to an app — [](how-to/app).
 2. Build the app into an FPGA image — [](how-to/build-fpga-image).
 3. Install the resulting `.ipk` and select the bitstream on your PandA —
-   [Choose the FPGA bitstream](https://pandablocks.github.io/meta-panda/how-to/choose-fpga-bitstream)
+   [Choose the FPGA bitstream](xref:meta-panda/how-to/choose-fpga-bitstream)
    in the meta-panda docs.
