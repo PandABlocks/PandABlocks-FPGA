@@ -366,8 +366,8 @@ any manual wiring.
 With the block written, simulated and tested, the rest of the journey to
 running it on hardware is:
 
-1. Add the block to an app — [](how-to/app).
-2. Build the app into an FPGA image — [](how-to/build-fpga-image).
+1. Add the block to an app — [](/how-to/app.md).
+2. Build the app into an FPGA image — [](/how-to/build-fpga-image.md).
 3. Install the resulting `.ipk` and select the bitstream on your PandA —
    [Choose the FPGA bitstream](xref:meta-panda/how-to/choose-fpga-bitstream)
    in the meta-panda docs.

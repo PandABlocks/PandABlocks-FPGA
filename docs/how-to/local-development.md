@@ -8,7 +8,7 @@ build, test, and documentation environment.
 
 For FPGA builds, mount your Vivado installation into the container — see the
 commented bind-mount example in `.devcontainer/devcontainer.json` and
-[](build-fpga-image.md).
+[](/how-to/build-fpga-image.md).
 
 ## Using the Python client from a local session
 

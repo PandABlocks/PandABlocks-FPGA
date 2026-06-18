@@ -6,7 +6,7 @@ and testbenches needed to build and verify each block.
 
 :::{note}
 This page describes the legacy VHDL testbench autogeneration pipeline. The
-current simulation workflow uses **cocotb** — see [](how-to/cocotb). The
+current simulation workflow uses **cocotb** — see [](/how-to/cocotb.md). The
 sections below are preserved from the source docs and need a refresh against
 the current codebase.
 :::

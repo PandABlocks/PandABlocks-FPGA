@@ -21,6 +21,18 @@ project:
     PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/docs
     # Not deployed yet — kept commented (interim /docs target; -> /stable later).
     # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/docs
+  # Escalate link/cross-reference quality rules from warning to error so that,
+  # combined with `myst build --strict`, a broken link, an unresolved cross
+  # reference, or an empty auto-filled label fails CI instead of publishing a
+  # dead link. See reference/documentation-standards in meta-panda for the
+  # linking conventions these rules enforce.
+  error_rules:
+    - rule: link-resolves
+      severity: error
+    - rule: reference-target-resolves
+      severity: error
+    - rule: link-text-exists
+      severity: error
   toc:
     - file: index.md
     - file: tutorials.md

@@ -70,7 +70,7 @@ APP_NAME = pandabox-no-fmc
 ```
 
 To build every app in `apps/`, run `make all-ipks` instead. See
-[](how-to/build-fpga-image) for the full build setup.
+[](/how-to/build-fpga-image.md) for the full build setup.
 
 ## Querying the app at runtime
 
