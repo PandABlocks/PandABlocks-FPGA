@@ -1,0 +1,86 @@
+name: Publish
+
+# Reconstruct the WHOLE versioned docs site from durable sources (the live branch's
+# build, release docs.zip assets, open-PR build artifacts) and deploy it directly to
+# GitHub Pages via the published myst-version-switcher `assemble` action — no
+# gh-pages branch. This is the PRIVILEGED half, kept in its own file so it can only
+# run two trusted ways:
+#
+#   workflow_call    — nested by ci.yml AFTER a successful build, for INTERNAL events
+#                      only (internal PRs, pushes to main/docs/tags). ci.yml passes
+#                      this build's `version-name`; assemble downloads this run's
+#                      `docs` artifact and stages it directly (the run isn't a
+#                      completed success yet, so the gather can't discover it).
+#   workflow_dispatch — a maintainer's opt-in to preview an EXTERNAL fork PR.
+#
+# guard-default-branch is false during the docs migration: the new MyST docs live on
+# the `docs` branch, so the default branch (main) has no build to guard against yet.
+on:
+  workflow_call:
+    inputs:
+      version-name:
+        description: Version name (pr-<n> | main | docs | <tag>) of the in-run build to inject.
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: External fork PR number to approve (pins its head SHA) and preview.
+        required: false
+
+permissions:
+  contents: read     # checkout + read release assets
+  actions: read      # gh run download (this run's + cross-run docs artifacts)
+  pages: write       # deploy to Pages
+  id-token: write    # deploy-pages OIDC
+  statuses: write    # set the preview-approved status on a fork PR head SHA
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # The canonical-repo guard lives in the caller (ci.yml's publish job), not here.
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0     # tags, for version ordering + prerelease detection
+
+      # workflow_dispatch (fork opt-in): pin THIS commit as approved.
+      - name: Approve fork PR head SHA
+        if: github.event_name == 'workflow_dispatch' && inputs.pr != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr }}
+        run: |
+          set -euo pipefail
+          sha=$(gh pr view "$PR" --repo "$REPO" --json headRefOid -q .headRefOid)
+          gh api --method POST "repos/$REPO/statuses/$sha" \
+            -f state=success -f context=preview-approved \
+            -f description="Fork docs preview approved"
+
+      # On the nested call, `artifact-version-name` tells assemble to download this
+      # run's `docs` artifact and stage it as that version (it isn't a completed
+      # success yet). Empty on workflow_dispatch -> a pure durable gather.
+      - name: Assemble versioned site
+        id: site
+        uses: DiamondLightSource/myst-version-switcher-plugin/assemble@v0.5.0
+        with:
+          repo: ${{ github.repository }}
+          guard-default-branch: false
+          artifact-version-name: ${{ inputs.version-name }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.site.outputs.dir }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

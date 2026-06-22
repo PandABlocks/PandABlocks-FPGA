@@ -1,0 +1,55 @@
+name: Docs CI
+
+# Build + verify the docs on every event, then publish on INTERNAL events. The
+# build (`_docs.yml`) runs for PRs (including forks), pushes to main/docs, and tags,
+# and uploads each build's `docs` artifact. Publishing is nested here (the `publish`
+# job -> `_publish.yml`) so its status is visible on the PR/commit, but ONLY for
+# internal events on this repo: a fork PR's build runs with a read-only token and
+# must never deploy.
+#
+# `docs` is a publish trigger during the docs migration: the new MyST docs live on
+# the `docs` branch (main has none yet), so `docs` is the live version.
+on:
+  pull_request:
+  push:
+    branches: [main, docs]
+    tags: ['*']            # '*' never matches '/'
+
+jobs:
+  docs:
+    uses: ./.github/workflows/_docs.yml
+
+  # Tag-only: attach this build's docs.zip (bare html/ root) to the GitHub Release
+  # so `assemble` can reconstruct that released version on future deploys.
+  docs-release:
+    needs: [docs]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.ref_name }}" docs.zip --clobber --repo "${{ github.repository }}"
+
+  # Internal events only: an internal PR, or a push to main/docs/tag, has a
+  # same-repo build we can trust + deploy. Fork PRs (head repo != this repo) are
+  # excluded — _docs.yml's build job warns them instead.
+  publish:
+    needs: [docs]
+    if: >-
+      github.repository == 'PandABlocks/PandABlocks-FPGA' &&
+      ( github.event_name != 'pull_request' ||
+        github.event.pull_request.head.repo.full_name == github.repository )
+    uses: ./.github/workflows/_publish.yml
+    with:
+      version-name: ${{ needs.docs.outputs.version-name }}
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+      statuses: write
