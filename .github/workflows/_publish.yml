@@ -104,3 +104,41 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # deploy-pages reports success once the deployment RECORD flips active — even
+      # if the Pages backend silently fails to update the SERVED origin (a wedged
+      # site can serve a stale artifact indefinitely; see the 2026-06 incident where
+      # a gh-pages→Actions cutover froze the origin while every deploy reported OK).
+      # Confirm the live switcher.json byte-matches the one we just assembled, polling
+      # for up to 60s to let the origin/CDN propagate. A mismatch fails the run, so a
+      # stale origin surfaces as a red check instead of silently serving old docs.
+      - name: Verify the deployed origin matches what we assembled
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          SITE_DIR: ${{ steps.site.outputs.dir }}
+        run: |
+          set -euo pipefail
+          [ -n "$PAGE_URL" ] || { echo "::error::deploy-pages did not report a page_url"; exit 1; }
+          local_json="$SITE_DIR/switcher.json"
+          [ -f "$local_json" ] || { echo "::error::no switcher.json at $local_json"; exit 1; }
+          # Command substitution strips trailing newlines from both sides, so the
+          # comparison is robust to a curl/file trailing-newline difference.
+          want=$(cat "$local_json")
+          url="${PAGE_URL%/}/switcher.json"
+          deadline=$(( $(date +%s) + 60 ))
+          attempt=0
+          while :; do
+            attempt=$((attempt + 1))
+            got=$(curl -fsS "$url?cb=$(date +%s%N)" || true)   # cache-bust → hit the origin
+            if [ -n "$got" ] && [ "$got" = "$want" ]; then
+              echo "origin matches the assembled switcher.json (attempt $attempt)"
+              exit 0
+            fi
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::live switcher.json still does not match the assembled one after 60s — Pages origin likely stale/wedged"
+              echo "--- assembled ($local_json) ---"; printf '%s\n' "$want"
+              echo "--- live ($url) ---"; printf '%s\n' "$got"
+              exit 1
+            fi
+            sleep 1
+          done
