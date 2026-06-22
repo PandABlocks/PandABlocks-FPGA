@@ -1,0 +1,95 @@
+on:
+  workflow_call:
+    outputs:
+      version-name:
+        description: The version name this build was served at (pr-<n> | main | docs | <tag>).
+        value: ${{ jobs.build.outputs.version-name }}
+
+# Build the docs at the versioned BASE_URL and upload this build's `docs` artifact
+# (docs.zip, bare html/ root). This is the UNPRIVILEGED half: it runs for every
+# event — PRs (including forks), pushes to main/docs, and tags — but never
+# publishes. _publish.yml (nested by ci.yml on internal events) reconstructs the
+# whole site from these artifacts + release assets and deploys it to Pages.
+#
+# Like the other PandABlocks repos, the build is driven through `make docs`, which
+# runs mystmd on demand via npx (pinned by MYSTMD_VERSION in CONFIG) — so we only
+# need Node on the PATH. The block_fields/timing_plot directives (docs/_plugins/*.mjs)
+# shell out to `python3 -m common.python.*`, so matplotlib + numpy are apt-installed
+# to the system python (mirroring the devcontainer Dockerfile).
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version-name: ${{ steps.ver.outputs.version-name }}
+    steps:
+      # The per-block docs are pulled in out-of-tree from ../modules/*/*_doc.md, so
+      # the whole repo is checked out (default) — no extra steps needed.
+      - uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # The timing_plot/block_fields directives shell out to the system python3.
+      - name: Install docs python dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-matplotlib python3-numpy
+
+      # `make docs` reads MYSTMD_VERSION from CONFIG.
+      - name: Create CONFIG
+        run: cp CONFIG.example CONFIG
+
+      # Version name = the site sub-dir this build is served at, and the BASE_URL it
+      # must be built with. pr-<n> for PRs; otherwise the ref name (main, docs, or a
+      # tag without `/`). No sanitisation: every name is filesystem/URL-safe already.
+      - name: Compute version name
+        id: ver
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            name="pr-${{ github.event.pull_request.number }}"
+          else
+            name="${{ github.ref_name }}"
+          fi
+          echo "version-name=$name" >> "$GITHUB_OUTPUT"
+
+      # BASE_URL must match the versioned sub-path the build is served at, or its
+      # root-absolute assets 404. assemble files this build's artifact at the same
+      # version name, so the two cannot drift.
+      - name: Build docs
+        env:
+          BASE_URL: /PandABlocks-FPGA/${{ steps.ver.outputs.version-name }}
+        run: make docs
+
+      # Drop the ~135 MB templates/ dir (downloaded book-theme node sources, a
+      # build-time cache) before packing.
+      - name: Remove build cache
+        run: rm -rf docs/_build/templates
+
+      # Pack the build as docs.zip with a bare html/ root — the durable contract
+      # both _publish.yml's gather and the docs-release asset rely on.
+      - name: Pack docs.zip (bare html/ root)
+        run: |
+          set -euo pipefail
+          ( cd docs/_build && zip -rq "$RUNNER_TEMP/docs.zip" html )
+
+      # compression-level 0: docs.zip is already compressed.
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: ${{ runner.temp }}/docs.zip
+          compression-level: 0
+
+      # Fork PRs build + verify here but do not auto-publish (ci.yml's publish job
+      # excludes them — the security boundary). Surface that on the PR.
+      - name: Explain the fork-preview opt-in
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::warning title=Docs preview not published::This is a fork PR, so the \
+          versioned docs site is NOT auto-published (fork builds run with a read-only \
+          token). A maintainer can publish a preview by running the Publish workflow \
+          for PR #${{ github.event.pull_request.number }}: \
+          https://github.com/${{ github.repository }}/actions/workflows/_publish.yml"
