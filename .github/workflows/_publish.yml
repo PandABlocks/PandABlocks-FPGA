@@ -51,6 +51,26 @@ jobs:
         with:
           fetch-depth: 0     # tags, for version ordering + prerelease detection
 
+      # MIGRATION SHIM: the new docs live on the `docs` branch; `main` has no MyST
+      # build yet, so the assemble model would drop /main/. Until `docs` merges to
+      # `main`, overlay the existing gh-pages main/ build into the assemble site dir
+      # ($RUNNER_TEMP/site, which assemble.sh mkdir -p's but never wipes) so generate
+      # lists `main` in switcher.json and /main/ keeps serving. Remove this step (and
+      # delete gh-pages) once main itself is migrated.
+      - name: Stage legacy main/ from gh-pages (migration shim)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if git fetch --quiet origin gh-pages 2>/dev/null \
+             && git cat-file -e origin/gh-pages:main/index.html 2>/dev/null; then
+            mkdir -p "$RUNNER_TEMP/site/main"
+            git archive origin/gh-pages main | tar -x --strip-components=1 -C "$RUNNER_TEMP/site/main"
+            echo "Staged legacy main/ from gh-pages"
+          else
+            echo "::warning::no gh-pages main/ to stage — skipping"
+          fi
+
       # workflow_dispatch (fork opt-in): pin THIS commit as approved.
       - name: Approve fork PR head SHA
         if: github.event_name == 'workflow_dispatch' && inputs.pr != ''
