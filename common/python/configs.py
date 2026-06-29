@@ -1,12 +1,12 @@
 import os
 import re
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
-from .compat import TYPE_CHECKING, configparser
 from .ini_util import ini_get, read_ini
 
 if TYPE_CHECKING:
-    from typing import List, Iterable, Any, Dict, Optional
+    pass
 
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
@@ -204,7 +204,7 @@ class BlockConfig(object):
         # Iterate through the fields and add any with writeExtension type to the list
         for field in self.filter_fields("extension_.*"):
             extension = (field.name, field.registers[0].number)
-            if not self.extension: 
+            if not self.extension:
                 self.extension = self.name.lower()
             self.calc_extensions.append(extension)
         # After extensions have been added to self.read_extensions/self.write_extensions
@@ -546,7 +546,7 @@ class ParamFieldConfig(FieldConfig):
             return super(ParamFieldConfig, self).config_line()
 
 class CalcExtensionFieldConfig(ParamFieldConfig):
-    """These fields act in the same way as write record from the VHDL generation 
+    """These fields act in the same way as write record from the VHDL generation
     point of view, but do not have a config entry"""
     type_regex = "(extension_write|extension_read)"
 

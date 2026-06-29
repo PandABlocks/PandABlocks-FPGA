@@ -1,17 +1,17 @@
+import configparser
 import os
 from collections import OrderedDict
-
-from .compat import configparser, TYPE_CHECKING, str_
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Iterable, Tuple, Dict, List, Union
+    pass
 
 
 def read_ini(paths):
     # type: (Union[List[str], str]) -> configparser.SafeConfigParser
     app_ini = configparser.ConfigParser()
     read_ok = app_ini.read(paths)
-    if isinstance(paths, str_):
+    if isinstance(paths, str):
         paths = [paths]
     errored = set(paths) - set(read_ok)
     assert not errored, "Can't read ini files %s" % [

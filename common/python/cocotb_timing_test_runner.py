@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import logging
 import os
-import pytest
 import subprocess
 import sys
-
-from pathlib import Path
-from cocotb_tools import runner  # type: ignore
 from dataclasses import dataclass
+from pathlib import Path
+
+import pytest
+from cocotb_tools import runner  # type: ignore
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ MODULES_PATH = TOP_PATH / "modules"
 WORKING_DIR = Path.cwd()
 
 sys.path.insert(1, str(SCRIPT_DIR_PATH))
-from cocotb_simulate_test import get_timing_inis
+from cocotb_simulate_test import get_timing_inis  # noqa: E402  (needs sys.path above)
 
 
 def get_module_build_args(module: str, panda_build_dir: str | Path) -> list[str]:

@@ -28,5 +28,5 @@ jobs:
           run: |
                bash $WORK_DIR/repos/PandABlocks-fpga/.github/scripts/Find_Tests.sh "$WORK_DIR/repos/PandABlocks-fpga/modules" "$WORK_DIR/repos/PandABlocks-fpga/.github/scripts"
                json_content=$(cat github_tests.json)
-               echo "::set-output name=matrix::$json_content"
+               echo "matrix=$json_content" >> "$GITHUB_OUTPUT"
                echo "$json_content"

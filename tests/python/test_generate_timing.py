@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+
 from common.python.generate_hdl_timing import HdlTimingGenerator
 
 

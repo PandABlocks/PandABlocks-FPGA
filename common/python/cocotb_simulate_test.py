@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 import csv
-import cocotb
-import cocotb.handle
 import logging
 import os
-import pandas as pd
-
-from cocotb.clock import Clock
-from cocotb.triggers import ReadOnly, RisingEdge
 from configparser import ConfigParser
-from dma_driver import DMADriver
 from pathlib import Path
 
+import cocotb
+import cocotb.handle
+import pandas as pd
+from cocotb.clock import Clock
+from cocotb.triggers import ReadOnly, RisingEdge
+
+from dma_driver import DMADriver
 
 module = os.getenv("module", "unknown")
 log = logging.getLogger(f'test.module.{module}')
@@ -478,7 +478,8 @@ async def section_timing_test(
         collect: Collect signals expected and actual values when True.
     """
     if block_has_dma(block_ini):
-        dma_driver = DMADriver(dut, module)
+        # Keep a live reference: DMADriver registers cocotb coroutines on dut.
+        _dma_driver = DMADriver(dut, module)
 
     signals_info = get_signals_info(block_ini)
     signals_info.update(get_extra_signals_info(module, panda_build_dir))

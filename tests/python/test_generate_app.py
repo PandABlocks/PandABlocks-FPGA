@@ -1,8 +1,8 @@
 import os
 import shutil
 import unittest
-from common.python.generate_app import AppGenerator
 
+from common.python.generate_app import AppGenerator
 
 TEST_DATA = os.path.join(os.path.dirname(__file__), "test_data")
 

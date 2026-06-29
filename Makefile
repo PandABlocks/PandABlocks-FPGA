@@ -194,6 +194,14 @@ $(DOCS_HTML_DIR): docs
 # ------------------------------------------------------------------------------
 # Tests
 
+# Lint the Python test/codegen harness with ruff, run through uv. Only the dev
+# group is installed (--only-group dev), so this needs neither cocotb nor a
+# matching Python for the runtime deps. This is the only Python quality gate in
+# CI; the tests below stay driven through make.
+lint:
+	uv run --only-group dev ruff check common/python tests
+.PHONY: lint
+
 # Test just the python framework
 python_tests:
 	$(PYTHON) -m unittest discover -v tests.python

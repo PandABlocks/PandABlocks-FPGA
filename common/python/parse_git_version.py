@@ -2,7 +2,7 @@
 """
 Generate FPGA version like 0.1.0c9 from git describe like 0.1-9-g5539563-dirty
 """
-from __future__ import print_function
+
 import logging
 import re
 from argparse import ArgumentParser
@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 def parse_git_version(git_version):
     # type: (str) -> str
     # Get the git tag numbers, they should be of the format x.y[.z][-something]
-    match = re.match("(\d+)\.(\d+)(?:\.(\d+))?(?:-(\d+))?", git_version)
+    match = re.match(r"(\d+)\.(\d+)(?:\.(\d+))?(?:-(\d+))?", git_version)
     assert match, "Git version %r can't be parsed" % git_version
     hex_numbers = []
     for g in match.groups():

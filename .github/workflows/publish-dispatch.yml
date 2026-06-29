@@ -1,0 +1,39 @@
+name: Publish (dispatch)
+
+# Thin shim — the one dispatchable file in this repo. It forwards to the shared
+# version-switcher engine (publish.yml), exposing it two ways:
+#   workflow_call    — ci.yml's `publish` job, for every event (publish.yml branches
+#                      into deploy / tag re-dispatch / fork warn).
+#   workflow_dispatch — the tag re-dispatch, the fork-PR preview (`pr`), and manual
+#                      re-deploys.
+# A reusable workflow can't be workflow_dispatch'd cross-repo, so this shim must live
+# here; publish.yml's re-dispatch job re-fires it by name (`dispatch-workflow`). This
+# is the single place this repo pins publish.yml@<tag>.
+on:
+  workflow_call:
+    inputs:
+      version-name:
+        description: Version name of the in-run build to inject (passed by ci.yml's inline publish).
+        required: false
+        default: ""
+        type: string
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: External fork PR number to approve (pins its head SHA) and preview. Leave empty to just re-deploy.
+        required: false
+        default: ""
+
+jobs:
+  publish:
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish.yml@v0.18.0
+    with:
+      version-name: ${{ inputs.version-name }}   # "" on dispatch → pure durable gather
+      pr: ${{ inputs.pr }}                        # set (dispatch only) → pin that fork head SHA
+      dispatch-workflow: publish-dispatch.yml     # the file the tag re-dispatch re-fires
+    permissions:
+      contents: read
+      actions: write     # publish.yml's re-dispatch job re-fires this shim via gh
+      pages: write
+      id-token: write
+      statuses: write

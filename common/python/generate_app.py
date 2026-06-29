@@ -9,20 +9,19 @@ except ImportError:
 else:
     require("jinja2")
 
+import copy
 import logging
 import os
-
 from argparse import ArgumentParser
+from typing import TYPE_CHECKING
 
 from jinja2 import Environment, FileSystemLoader
 
-from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad, RegisterCounter, TargetSiteConfig
-from .ini_util import read_ini, ini_get
-import copy
+from .configs import BlockConfig, RegisterCounter, TargetSiteConfig, pad
+from .ini_util import ini_get, read_ini
 
 if TYPE_CHECKING:
-    from typing import List
+    pass
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
-import cocotb
-
-from cocotb.triggers import RisingEdge, Edge, ReadOnly
 from pathlib import Path
+
+import cocotb
+from cocotb.triggers import Edge, ReadOnly, RisingEdge
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent

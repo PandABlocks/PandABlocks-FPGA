@@ -6,11 +6,11 @@ except ImportError:
 else:
     require("matplotlib")
 
-import sys
-import os
+import argparse
 import csv
 import json
-import argparse
+import os
+import sys
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt

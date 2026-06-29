@@ -1,11 +1,11 @@
 # This script installs files into the extensions directory
 
-import sys
+import fnmatch
 import os.path
 import shutil
-import fnmatch
+import sys
 
-from .ini_util import read_ini, ini_get
+from .ini_util import ini_get, read_ini
 
 
 def get_modules(ini):

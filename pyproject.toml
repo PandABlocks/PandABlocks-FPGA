@@ -1,0 +1,52 @@
+# Minimal project metadata so uv can resolve and lock the Python dependencies of
+# the test/codegen harness (common/python, tests, module extensions). This is NOT
+# an installable package: the harness runs in place and the CI tests run through
+# make inside the pandablocks CI containers, so tool.uv.package = false keeps uv
+# from trying to build it. Tests, docs, synthesis and packaging stay driven
+# through make; uv only manages the dev environment + lint.
+
+[project]
+name = "pandablocks-fpga"
+version = "0.0.0"
+description = "Python test and code-generation harness for the PandABlocks FPGA firmware"
+# Upper bound: cocotb 2.x supports a maximum of Python 3.13.
+requires-python = ">=3.11,<3.14"
+# Runtime third-party imports of the harness (numpy + jinja2 were the previous
+# tests/requirements.txt; the rest are imported by the cocotb tests and tooling).
+# pandai2c is intentionally absent: it is provided on the PandA target, not PyPI.
+dependencies = [
+    "cocotb",
+    "jinja2",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pytest",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "ruff",
+]
+
+[tool.uv]
+# Virtual project: manage the environment + lockfile, don't build/install this repo.
+package = false
+
+[tool.ruff]
+src = ["common/python", "tests"]
+line-length = 88
+# Legacy trees that are not part of the maintained harness.
+extend-exclude = ["old", "docs/_legacy_rst"]
+# High-signal baseline for a large legacy harness: real bugs (F), import order
+# (I) and whitespace/escape issues (E/W). The more stylistic pyupgrade (UP),
+# bugbear (B) and comprehension (C4) families can be ratcheted on later once the
+# ~200 pre-existing UP/B findings are worked through.
+lint.select = [
+    "E", # pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
+    "F", # pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "W", # pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
+    "I", # isort - https://docs.astral.sh/ruff/rules/#isort-i
+]
+# Legacy harness has many long lines; defer enforcing line length for now.
+lint.ignore = ["E501"]
