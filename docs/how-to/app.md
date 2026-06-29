@@ -1,3 +1,4 @@
+(assemble-app)=
 # Assemble blocks into an app
 
 A collection of {term}`block` instances that can be loaded to a PandABlocks
