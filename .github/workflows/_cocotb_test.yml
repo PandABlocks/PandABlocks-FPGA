@@ -1,33 +1,34 @@
 on:
   workflow_call:
 
+# cocotb simulations on a plain GitHub runner, driven through uv (which provisions cocotb
+# + the harness deps from pyproject.toml + uv.lock). Replaces the `docker run
+# pandablocks-dev-container` wrapper. The tests drive the NVC VHDL simulator
+# (SIMULATOR = nvc in the Makefile), so install nvc (mirrored in the repo Dockerfile) and
+# create a writable /build for the build outputs.
 jobs:
   cocotb_test:
     runs-on: ubuntu-latest
     steps:
-      # Git repositories
       - name: Checkout Source
         uses: actions/checkout@v5
         with:
-          # require history to get back to last tag for version number of branches
+          # full history to derive the version number from the last tag
           fetch-depth: 0
 
-      # Login into ghcr
-      - name: login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install nvc (VHDL simulator the cocotb tests drive)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends nvc
+
       - name: Run cocotb tests
         run: |
-          docker run \
-            --net=host \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest \
-            /bin/bash -c \
-            "ln -s CONFIG.example CONFIG && make cocotb_tests"
+          set -euo pipefail
+          sudo mkdir -p /build && sudo chmod -R 777 /build
+          ln -s CONFIG.example CONFIG
+          uv run --locked make cocotb_tests
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

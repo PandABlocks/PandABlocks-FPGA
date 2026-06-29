@@ -1,112 +1,51 @@
 name: CI
 
-# Single entry point for this repo's GitHub Actions CI. Every substantial job is
-# a reusable `_*.yml` workflow so this file stays orchestration-only:
+# Single entry point for this repo's GitHub Actions CI. Each substantial job is a
+# reusable workflow so this file stays orchestration-only:
 #
 #   lint                -> _lint.yml                Python lint (ruff via uv)
-#   cocotb_test         -> _cocotb_test.yml         cocotb simulations
-#   test_matrix         -> _test_matrix.yml         generate HDL test matrix
-#   test_python_autogen -> _test_python_autogen.yml python + autogen tests
-#   test_hdl            -> _test_hdl.yml            HDL tests (matrix)
-#   make_boot           -> _make_boot.yml           boot images
-#   make_packages       -> _make_packages.yml       FPGA app packages
-#   release             -> release.yml@<tag>        GitHub release (tags)
+#   cocotb_test         -> _cocotb_test.yml         cocotb simulations (uv + nvc)
+#   test_python_autogen -> _test_python_autogen.yml python + autogen tests (uv)
+#   release             -> release.yml@<tag>        GitHub Release on a tag
 #   docs                -> docs.yml@<tag>            versioned MyST docs build
 #   publish             -> publish-dispatch.yml      deploy assembled docs site (the
 #                                                    shim that pins publish.yml@<tag>)
 #
-# The code/test half is local reusable `_*.yml` workflows; the docs half consumes the
-# shared version-switcher reusable workflows (DiamondLightSource/myst-version-switcher-plugin)
-# pinned at a tag. make is the runner throughout; CI only orchestrates. The heavy FPGA
-# *synthesis* pipeline is NOT here — it runs on Diamond's GitLab runners (Vivado
-# licenses, /dls_sw); see .gitlab-ci.yml, which is intentionally left untouched.
+# The code/test half is local reusable `_*.yml` workflows (GitHub-hosted, driven through
+# uv); the docs half consumes the shared version-switcher reusable workflows
+# (DiamondLightSource/myst-version-switcher-plugin) pinned at a tag. make is the runner
+# throughout; CI only orchestrates.
 #
-# The code/test half and the docs half keep their original, different event sets via
-# per-job `if:` guards over a union trigger, so consolidating did not change when
-# anything runs:
-#   code/tests — PRs, pushes to master, tags   (heavy iris_runners jobs)
-#   docs       — PRs, pushes to main, tags
-# So a master push never republishes docs, and a docs-only main push never kicks off
-# the HDL test matrix. (GitHub Actions does not support YAML anchors, so the shared
-# conditions are repeated verbatim.)
+# The heavy FPGA pipeline runs on Diamond's GitLab runners, NOT here: HDL synthesis
+# (Vivado), the HDL tests, and the boot-image / app-package builds. See .gitlab-ci.yml
+# (intentionally left untouched). HDL tests are being moved to GitLab separately.
 #
-# Publishing is nested here (publish job → publish-dispatch.yml shim → publish.yml) so
-# its status shows on the PR/commit. ONE publish job covers every event in the canonical
-# repo; publish.yml branches internally: deploy (internal PR / main push), tag
-# re-dispatch, or fork-PR warn. So there is no fork guard here.
+# Every job runs on the same events — a pull request, a push to main, or a tag — so no
+# per-job `if:` event guards are needed. publish/release follow the server pattern:
+# release is tag-only; publish runs once for every event in the canonical repo and
+# publish.yml branches internally (deploy / tag re-dispatch / fork-PR warn), so there is
+# no fork guard here.
 on:
   pull_request:
   push:
-    branches: [main, master]
+    branches: [main]
     tags: ['*']            # '*' never matches '/'
 
 jobs:
-  # --- Python lint (cheap; runs on every event) -------------------------------
+  # --- Python lint -----------------------------------------------------------
   lint:
     uses: ./.github/workflows/_lint.yml
 
-  # --- Code / tests (PRs, master pushes, tags) --------------------------------
+  # --- cocotb simulations (uv + nvc on a GitHub runner) ----------------------
   cocotb_test:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
     uses: ./.github/workflows/_cocotb_test.yml
 
-  test_matrix:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/_test_matrix.yml
-
+  # --- python + autogen tests (uv on a GitHub runner) ------------------------
   test_python_autogen:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
     uses: ./.github/workflows/_test_python_autogen.yml
 
-  test_hdl:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
-    needs: [test_matrix, test_python_autogen]
-    uses: ./.github/workflows/_test_hdl.yml
-    with:
-      matrix: ${{ needs.test_matrix.outputs.matrix }}
-
-  make_boot:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/_make_boot.yml
-
-  make_packages:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/_make_packages.yml
-
-  # Tag-only: create the GitHub Release and attach the boot/package artifacts plus
-  # this build's docs.zip (the `docs` artifact) so `assemble` can reconstruct that
-  # released version later.
-  release:
-    needs: [make_boot, make_packages, test_hdl, test_matrix, test_python_autogen, docs]
-    if: github.ref_type == 'tag'
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.18.0
-    permissions:
-      contents: write    # create the GitHub Release + attach assets
-
-  # --- Docs build (PRs, main pushes, tags; never publishes) -------------------
+  # --- Docs build (never publishes) ------------------------------------------
   docs:
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.ref_type == 'tag' ||
-      github.ref == 'refs/heads/main'
     uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.18.0
     with:
       # The timing_plot/block_fields directives shell out to the system python3, so
@@ -116,6 +55,16 @@ jobs:
         sudo apt-get update &&
         sudo apt-get install -y --no-install-recommends python3-matplotlib python3-numpy &&
         cp CONFIG.example CONFIG && make docs
+
+  # Tag-only: create the GitHub Release and attach this run's docs.zip (the `docs`
+  # artifact) so `assemble` can reconstruct that released version later. Boot images and
+  # app packages are released from GitLab now.
+  release:
+    needs: [lint, cocotb_test, test_python_autogen, docs]
+    if: github.ref_type == 'tag'
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.18.0
+    permissions:
+      contents: write    # create the GitHub Release + attach assets
 
   # One publish job for every event in the canonical repo — publish.yml (via the
   # publish-dispatch.yml shim) owns the branching (deploy / tag re-dispatch / fork-PR

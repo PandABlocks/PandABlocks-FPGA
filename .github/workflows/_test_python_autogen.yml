@@ -1,30 +1,32 @@
 on:
-    workflow_call:
+  workflow_call:
 
+# python + autogen tests on a plain GitHub runner, driven through uv (which provisions
+# the harness deps — numpy / jinja2 / matplotlib / cocotb — from pyproject.toml +
+# uv.lock). Moved off the self-hosted iris_runners + CI container. setupenv still checks
+# out PandABlocks-rootfs and creates a writable /build (it works on a GitHub runner too).
 jobs:
-    test_python_autogen:
-      runs-on:
-        group: iris_runners
-      container:
-          image: ghcr.io/pandablocks/pandablocks-ci-container:latest
-          options: --privileged
-  
-      steps:
-        # Necessary to find action.yml
-        - name: Checkout Source
-          uses: actions/checkout@v4
-          with:
-            path: repos/PandABlocks-fpga
-            fetch-depth: 0
-  
-        - name: Checkout rootfs and Give Directory Perms
-          uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
-      
-        # Run tests
-        - name: Make Python Tests
-          run: |
-            cd repos/PandABlocks-fpga
-            ln -s CONFIG.example CONFIG
-            make python_tests
-            make python_timing
-            make autogen
+  test_python_autogen:
+    runs-on: ubuntu-latest
+    steps:
+      # Checked out under repos/ so setupenv can put rootfs alongside it.
+      - name: Checkout Source
+        uses: actions/checkout@v5
+        with:
+          path: repos/PandABlocks-fpga
+          fetch-depth: 0
+
+      - name: Checkout rootfs and give build perms
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Python + autogen tests
+        run: |
+          set -euo pipefail
+          cd repos/PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
+          uv run --locked make python_tests
+          uv run --locked make python_timing
+          uv run --locked make autogen
