@@ -18,8 +18,7 @@ in the meta-panda docs.
   Zynq part for your target.
 - A build environment with the FPGA build dependencies. The recommended way to
   get one is the development container with Vivado mounted in — see
-  [](/how-to/local-development.md) and "Running in a container manually" in the
-  [meta-panda build guide](xref:meta-panda/how-to/build).
+  [](/how-to/local-development.md)
 
 ## Build steps
 
