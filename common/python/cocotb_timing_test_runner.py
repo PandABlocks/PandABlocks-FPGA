@@ -355,6 +355,9 @@ def do_test_module(
             "timing_ini_path": str(path),
             "panda_build_dir": str(panda_build_dir),
             "collect": str(collect),
+            # nvc's VHPI does not reliably propagate queued DEPOSIT writes;
+            # using immediate writes avoids the issue.
+            "COCOTB_TRUST_INERTIAL_WRITES": "1",
         },
     )
     if simulator == "nvc":
