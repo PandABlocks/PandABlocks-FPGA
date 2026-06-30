@@ -4,7 +4,7 @@
 # GitHub releases. Packages are provided for Ubuntu 22.04, 24.04, and 26.04.
 set -euo pipefail
 
-NVC_VERSION="1.21.1"
+NVC_VERSION="1.16.2"
 
 # Read the Ubuntu version from /etc/os-release
 . /etc/os-release
