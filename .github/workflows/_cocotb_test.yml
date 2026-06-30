@@ -20,7 +20,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Install nvc (VHDL simulator the cocotb tests drive)
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends nvc
+        run: sudo apt-get update && sudo bash .github/scripts/install_nvc.sh
 
       - name: Run cocotb tests
         run: |

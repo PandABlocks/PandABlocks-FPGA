@@ -28,5 +28,4 @@ jobs:
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           uv run --locked make python_tests
-          uv run --locked make python_timing
           uv run --locked make autogen

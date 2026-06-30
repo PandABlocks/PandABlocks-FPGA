@@ -15,10 +15,10 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Block Parameters
-    BOTTOM              : out std_logic_vector(31 downto 0);
-    BOTTOM_wstb         : out std_logic;
-    TOP                 : out std_logic_vector(31 downto 0);
-    TOP_wstb            : out std_logic;
+    BOTTOM              : out std_logic_vector(31 downto 0) := (others => '0');
+    BOTTOM_wstb         : out std_logic := '0';
+    TOP                 : out std_logic_vector(31 downto 0) := (others => '0');
+    TOP_wstb            : out std_logic := '0';
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);

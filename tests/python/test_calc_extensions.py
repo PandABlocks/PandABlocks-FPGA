@@ -15,7 +15,7 @@ class TestCalcApp(unittest.TestCase):
     def setUpClass(cls):
         here = os.path.dirname(__file__)
         path= "tests/python/test_data_calc_extensions"
-        app = os.path.join(here, "test_data_calc_extensions", "calc_extension.app.ini")
+        app = os.path.join(here, "test_data_calc_extensions", "calc-extension.app.ini")
         cls.app_build_dir = "/tmp/test_app_calc_extensions_build_dir"
         if os.path.exists(cls.app_build_dir):
             shutil.rmtree(cls.app_build_dir)
