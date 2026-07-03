@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 import csv
-import cocotb
-import cocotb.handle
 import logging
 import os
-import pandas as pd
-
-from cocotb.clock import Clock
-from cocotb.triggers import ReadOnly, RisingEdge
 from configparser import ConfigParser
-from dma_driver import DMADriver
 from pathlib import Path
 
+import cocotb
+import cocotb.handle
+import pandas as pd
+from cocotb.clock import Clock
+from cocotb.triggers import ReadOnly, RisingEdge
+
+from dma_driver import DMADriver
 
 module = os.getenv("module", "unknown")
 log = logging.getLogger(f'test.module.{module}')
@@ -173,10 +173,11 @@ def check_conditions(
     values: dict[str, tuple[int, int]] = {}
     for signal_name, val in conditions.items():
         log.debug('Condition: %s==%s', signal_name, val)
+        raw = getattr(dut, signal_name).value
         if val < 0:
-            sim_val = getattr(dut, signal_name).value.to_signed()
+            sim_val = raw.to_signed() if hasattr(raw, 'to_signed') else int(raw)
         else:
-            sim_val = getattr(dut, signal_name).value.to_unsigned()
+            sim_val = raw.to_unsigned() if hasattr(raw, 'to_unsigned') else int(raw)
         values[signal_name] = (int(val), int(sim_val))
         if sim_val != val:
             error = "Signal {} = {}, expecting {}. Ticks = {}".format(
@@ -421,7 +422,7 @@ async def simulate(
     last_ts = max(max(assignments_schedule.keys()),
                   max(conditions_schedule.keys()))
     clkedge = RisingEdge(dut.clk_i)
-    cocotb.start_soon(Clock(dut.clk_i, 1, units="ns").start(start_high=False))
+    cocotb.start_soon(Clock(dut.clk_i, 1, unit="ns").start(start_high=False))
     await initialise_dut(dut, signals_info)
     await clkedge
     condition_signals = (key for conditions in conditions_schedule.values()
@@ -478,7 +479,8 @@ async def section_timing_test(
         collect: Collect signals expected and actual values when True.
     """
     if block_has_dma(block_ini):
-        dma_driver = DMADriver(dut, module)
+        # Keep a live reference: DMADriver registers cocotb coroutines on dut.
+        _dma_driver = DMADriver(dut, module)
 
     signals_info = get_signals_info(block_ini)
     signals_info.update(get_extra_signals_info(module, panda_build_dir))

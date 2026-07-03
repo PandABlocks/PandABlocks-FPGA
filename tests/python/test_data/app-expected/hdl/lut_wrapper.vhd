@@ -26,6 +26,8 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
 
+    -- Extra IOs
+
     -- Bus outputs
     OUT_o               : out std_logic_vector(NUM-1 downto 0);
 
@@ -40,7 +42,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0) := (others => '0');
     write_ack_o         : out std_logic
 );
-end lut_wrapper;
+end;
 
 architecture rtl of lut_wrapper is
 
@@ -159,7 +161,5 @@ begin
             OUT_o               => OUT_o(I),
             clk_i               => clk_i
         );
-
-    END GENERATE;
-
-end rtl;
+    end generate;
+end;

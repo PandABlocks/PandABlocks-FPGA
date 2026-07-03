@@ -166,9 +166,9 @@ begin
         -- Output the result
         if trig_r1 = '1' then
             -- Mode 2 Sum low data
-            sum_l_o <= std_logic_vector(sum_data(31+(to_integer(unsigned(SHIFT_SUM))) downto (to_integer(unsigned(SHIFT_SUM)))));
+            sum_l_o <= std_logic_vector(shift_right(sum_data, to_integer(unsigned(SHIFT_SUM)))(31 downto 0));
             -- Mode 3 Sum High data
-            sum_h_o <= std_logic_vector(sum_data(63+(to_integer(unsigned(SHIFT_SUM))) downto 32+(to_integer(unsigned(SHIFT_SUM)))));
+            sum_h_o <= std_logic_vector(shift_right(sum_data, to_integer(unsigned(SHIFT_SUM)))(63 downto 32));
         end if;
 
         -- Clear sum on disable or trigger with no gate high
@@ -200,11 +200,11 @@ begin
         -- Output the result
         if trig_r1 = '1' then
             -- Mode 6 Sum^2 byte 0
-            sum_sq_0_o <= std_logic_vector(sum_data_sq(31+(to_integer(unsigned(SHIFT_SUM))) downto (to_integer(unsigned(SHIFT_SUM)))));
+            sum_sq_0_o <= std_logic_vector(shift_right(sum_data_sq, to_integer(unsigned(SHIFT_SUM)))(31 downto 0));
             -- Mode 7 Sum^2 byte 1
-            sum_sq_1_o <= std_logic_vector(sum_data_sq(63+(to_integer(unsigned(SHIFT_SUM))) downto 32+(to_integer(unsigned(SHIFT_SUM)))));
+            sum_sq_1_o <= std_logic_vector(shift_right(sum_data_sq, to_integer(unsigned(SHIFT_SUM)))(63 downto 32));
             -- Mode 8 Sum^2 byte 2
-            sum_sq_2_o <= std_logic_vector(sum_data_sq(95+(to_integer(unsigned(SHIFT_SUM))) downto 64+(to_integer(unsigned(SHIFT_SUM)))));
+            sum_sq_2_o <= std_logic_vector(shift_right(sum_data_sq, to_integer(unsigned(SHIFT_SUM)))(95 downto 64));
         end if;
 
         -- Clear sum on disable or trigger with no gate high

@@ -35,8 +35,9 @@ PANDA_ROOTFS = $(WORK_DIR)/repos/PandABlocks-rootfs
 #
 # PYTHON = python3
 
-# Sphinx build for documentation.
-# SPHINX_BUILD = sphinx-build
+# Version of mystmd used to build the docs with `make docs` / `make docs-dev`.
+# Run on demand via npx, so no global install is needed.
+# MYSTMD_VERSION = 1.10.1
 
 # List of default targets to build when running make
 # DEFAULT_TARGETS = zpkg

@@ -15,22 +15,22 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Block Parameters
-    IN_GAIN1_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN1_REG_wstb   : out std_logic;
-    IN_GAIN2_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN2_REG_wstb   : out std_logic;
-    IN_GAIN3_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN3_REG_wstb   : out std_logic;
-    IN_GAIN4_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN4_REG_wstb   : out std_logic;
-    IN_GAIN5_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN5_REG_wstb   : out std_logic;
-    IN_GAIN6_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN6_REG_wstb   : out std_logic;
-    IN_GAIN7_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN7_REG_wstb   : out std_logic;
-    IN_GAIN8_REG        : out std_logic_vector(31 downto 0);
-    IN_GAIN8_REG_wstb   : out std_logic;
+    IN_GAIN1_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN1_REG_wstb   : out std_logic := '0';
+    IN_GAIN2_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN2_REG_wstb   : out std_logic := '0';
+    IN_GAIN3_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN3_REG_wstb   : out std_logic := '0';
+    IN_GAIN4_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN4_REG_wstb   : out std_logic := '0';
+    IN_GAIN5_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN5_REG_wstb   : out std_logic := '0';
+    IN_GAIN6_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN6_REG_wstb   : out std_logic := '0';
+    IN_GAIN7_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN7_REG_wstb   : out std_logic := '0';
+    IN_GAIN8_REG        : out std_logic_vector(31 downto 0) := (others => '0');
+    IN_GAIN8_REG_wstb   : out std_logic := '0';
     OUT_VAL1_from_bus   : out std_logic_vector(31 downto 0);
     OUT_VAL2_from_bus   : out std_logic_vector(31 downto 0);
     OUT_VAL3_from_bus   : out std_logic_vector(31 downto 0);
@@ -50,17 +50,17 @@ end fmc_acq427_ctrl;
 
 architecture rtl of fmc_acq427_ctrl is
 
-signal OUT_VAL1      : std_logic_vector(31 downto 0);
-signal OUT_VAL1_wstb : std_logic;
+signal OUT_VAL1 : std_logic_vector(31 downto 0) := (others => '0');
+signal OUT_VAL1_wstb : std_logic := '0';
 
-signal OUT_VAL2      : std_logic_vector(31 downto 0);
-signal OUT_VAL2_wstb : std_logic;
+signal OUT_VAL2 : std_logic_vector(31 downto 0) := (others => '0');
+signal OUT_VAL2_wstb : std_logic := '0';
 
-signal OUT_VAL3      : std_logic_vector(31 downto 0);
-signal OUT_VAL3_wstb : std_logic;
+signal OUT_VAL3 : std_logic_vector(31 downto 0) := (others => '0');
+signal OUT_VAL3_wstb : std_logic := '0';
 
-signal OUT_VAL4      : std_logic_vector(31 downto 0);
-signal OUT_VAL4_wstb : std_logic;
+signal OUT_VAL4 : std_logic_vector(31 downto 0) := (others => '0');
+signal OUT_VAL4_wstb : std_logic := '0';
 
 
 -- Register interface common

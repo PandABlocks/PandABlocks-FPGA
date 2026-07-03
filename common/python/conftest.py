@@ -1,5 +1,6 @@
 import pytest
 
+
 def pytest_addoption(parser):
     parser.addoption("--sim", action="store", default="nvc")
     parser.addoption("--panda-build-dir", action="store", default="/build")

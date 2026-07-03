@@ -209,7 +209,7 @@ process(clk_i) begin
             else
                 cnt_samples <= (others => '0');
             end if;
-            samples <= std_logic_vector(cnt_samples(31+(to_integer(unsigned(SHIFT_SUM))) downto (to_integer(unsigned(SHIFT_SUM)))));
+            samples <= std_logic_vector(shift_right(cnt_samples, to_integer(unsigned(SHIFT_SUM)))(31 downto 0));
         elsif (gate_i = '1') then
             cnt_samples <= cnt_samples +1;
         end if;

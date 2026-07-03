@@ -19,8 +19,8 @@ port (
     DUMMY_READ_1        : in std_logic_vector(31 downto 0);
     DUMMY_READ_2        : in std_logic_vector(31 downto 0);
     DUMMY_READ_3        : in std_logic_vector(31 downto 0);
-    DUMMY_WRITE         : out std_logic_vector(31 downto 0);
-    DUMMY_WRITE_wstb    : out std_logic;
+    DUMMY_WRITE         : out std_logic_vector(31 downto 0) := (others => '0');
+    DUMMY_WRITE_wstb    : out std_logic := '0';
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);

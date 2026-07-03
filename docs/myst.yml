@@ -1,0 +1,88 @@
+version: 1
+project:
+  title: PandABlocks-FPGA
+  github: https://github.com/PandABlocks/PandABlocks-FPGA
+  # In-repo MyST plugins replacing the old Sphinx directives (common/python/*).
+  plugins:
+    - _plugins/block-fields.mjs
+    - _plugins/timing-plot.mjs
+    - https://github.com/DiamondLightSource/myst-version-switcher-plugin/releases/download/v0.23.0/version-switcher.mjs
+  # Cross-repository references (mystmd xref + Sphinx intersphinx).
+  # PROTOTYPE for upstreaming into the DLS python-copier-template (Stage A spec §6).
+  references:
+    # PandABlocks-client (Sphinx) is deployed today — used by the Stage A xref probe
+    # in how-to/local-development. Resolves via its objects.inv.
+    PandABlocks-client: https://pandablocks.github.io/PandABlocks-client/main
+    # The sibling MyST repos are mid-docs-migration: each base points at the repo's
+    # `docs`-branch build and the inventory is fetched from `<repo>/docs/myst.xref.json`
+    # (and `<repo>/docs/objects.inv`). These only resolve once each repo's `docs`
+    # branch has been pushed with folder-hierarchy URLs (`site.options.folders: true`).
+    # Switch the bases to `<repo>/stable` once releases + the switcher action land.
+    meta-panda: https://pandablocks.github.io/meta-panda/docs
+    PandABlocks-server: https://pandablocks.github.io/PandABlocks-server/docs
+    # Not deployed yet — kept commented (interim /docs target; -> /stable later).
+    # fastcs-PandABlocks: https://diamondlightsource.github.io/fastcs-PandABlocks/docs
+  # Escalate link/cross-reference quality rules from warning to error so that,
+  # combined with `myst build --strict`, a broken link, an unresolved cross
+  # reference, or an empty auto-filled label fails CI instead of publishing a
+  # dead link. See reference/documentation-standards in meta-panda for the
+  # linking conventions these rules enforce.
+  error_rules:
+    - rule: link-resolves
+      severity: error
+    - rule: reference-target-resolves
+      severity: error
+    - rule: link-text-exists
+      severity: error
+  toc:
+    - file: index.md
+    - file: tutorials.md
+    - file: how-to.md
+      children:
+        - file: how-to/app.md
+        - file: how-to/block.md
+        - file: how-to/testing.md
+        - file: how-to/cocotb.md
+        - file: how-to/build-fpga-image.md
+        - file: how-to/finedelay-test.md
+        - file: how-to/local-development.md
+        - file: how-to/contribute.md
+    - file: explanations.md
+      children:
+        - file: explanations/framework.md
+    - file: reference.md
+      children:
+        - file: reference/blocks.md
+          children:
+          # Per-block docs live physically next to their module.ini under
+          # modules/<block>/<block>_doc.md and are surfaced out-of-tree (Stage A §5
+          # decision: out-of-tree pattern chosen over a docs/modules symlink — both
+          # build clean, this avoids committing a symlink).
+          - pattern: ../modules/*/*_doc.md
+        - file: reference/glossary.md
+        - file: reference/vhdl-standard.md
+        - url: https://github.com/PandABlocks/PandABlocks-FPGA/releases
+          title: Release Notes
+site:
+  template: book-theme
+  parts:
+    navbar_end: navbar_end.md
+  nav:
+    - title: Tutorials
+      url: /tutorials
+    - title: How-to Guides
+      url: /how-to
+    - title: Explanations
+      url: /explanations
+    - title: Reference
+      url: /reference
+  options:
+    # Output page URLs by folder, e.g. /how-to/block rather than the default
+    # flattened /block. Keeps cross-repo xref target paths folder-qualified.
+    folders: true
+    logo: images/PandA-logo-for-black-background.svg
+    # Pin the favicon to the bundled PandA logo so `myst build` never fetches the
+    # default favicon from mystmd.org (a flaky remote fetch that intermittently
+    # fails the build).
+    favicon: images/PandA-logo-for-black-background.svg
+    github_url: https://github.com/PandABlocks/PandABlocks-FPGA

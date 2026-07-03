@@ -11,7 +11,8 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 
 # Build defaults that can be overwritten by the CONFIG file if required
 PYTHON = python3
-SPHINX_BUILD = sphinx-build
+# Version of mystmd used to build the docs with `make docs` (run on demand via npx).
+MYSTMD_VERSION = 1.10.1
 MAKE_FPGA_IPK = $(TOP)/packaging/make-fpga-ipk.sh
 MAKE_DOC_IPK = $(TOP)/packaging/make-fpga-doc-ipk.sh
 MAKE_BOOT_IPK = $(TOP)/packaging/make-fpga-boot-ipk.sh
@@ -164,25 +165,42 @@ $(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
 # ------------------------------------------------------------------------------
 # Documentation
 
-# Generated rst sources from modules are put here, unfortunately it has to be in
-# the docs dir otherwise matplotlib plot_directive screws up
-DOCS_BUILD_DIR = $(TOP)/docs/build
+# Docs are built with MyST (mystmd), run on demand through npx (no global install;
+# pin with MYSTMD_VERSION), matching `make docs` in the other PandABlocks repos.
+# The block_fields/timing_plot directives (docs/_plugins/*.mjs) shell out to
+# common/python/*, so matplotlib + numpy must be importable by $(PYTHON). MyST
+# writes its output into docs/_build, with the html under docs/_build/html.
+MYST = npx --yes --package mystmd@$(MYSTMD_VERSION) myst
 
-# The html docs are built into this dir
-DOCS_HTML_DIR = $(BUILD_DIR)/html
-ALL_RST_FILES = $(shell find docs modules -name '*.rst')
-BUILD_RST_FILES = $(wildcard docs/build/*.rst)
-SRC_RST_FILES = $(filter-out $(BUILD_RST_FILES),$(ALL_RST_FILES))
+DOCS_BUILD_DIR = $(TOP)/docs/_build
+# The html docs are built into this dir (consumed by the fpga-doc ipk packaging).
+DOCS_HTML_DIR = $(DOCS_BUILD_DIR)/html
 
-$(DOCS_HTML_DIR): docs/conf.py $(SRC_RST_FILES)
-	$(SPHINX_BUILD) -b html docs $@
+docs:
+	cd docs && $(MYST) build --html --strict
 
-docs: $(DOCS_HTML_DIR)
-.PHONY: docs
+docs-dev:
+	cd docs && $(MYST) start
+
+clean-docs:
+	rm -rf $(DOCS_BUILD_DIR)
+
+# Let the doc-ipk packaging depend on the build via the output dir.
+$(DOCS_HTML_DIR): docs
+
+.PHONY: docs docs-dev clean-docs
 
 
 # ------------------------------------------------------------------------------
 # Tests
+
+# Lint the Python test/codegen harness with ruff, run through uv. Only the dev
+# group is installed (--only-group dev), so this needs neither cocotb nor a
+# matching Python for the runtime deps. This is the only Python quality gate in
+# CI; the tests below stay driven through make.
+lint:
+	uv run --only-group dev ruff check common/python tests
+.PHONY: lint
 
 # Test just the python framework
 python_tests:

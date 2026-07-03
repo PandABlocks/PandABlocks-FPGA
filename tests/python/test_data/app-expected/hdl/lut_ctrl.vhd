@@ -20,18 +20,18 @@ port (
     INPC_from_bus       : out std_logic;
     INPD_from_bus       : out std_logic;
     INPE_from_bus       : out std_logic;
-    TYPEA               : out std_logic_vector(31 downto 0);
-    TYPEA_wstb          : out std_logic;
-    TYPEB               : out std_logic_vector(31 downto 0);
-    TYPEB_wstb          : out std_logic;
-    TYPEC               : out std_logic_vector(31 downto 0);
-    TYPEC_wstb          : out std_logic;
-    TYPED               : out std_logic_vector(31 downto 0);
-    TYPED_wstb          : out std_logic;
-    TYPEE               : out std_logic_vector(31 downto 0);
-    TYPEE_wstb          : out std_logic;
-    FUNC                : out std_logic_vector(31 downto 0);
-    FUNC_wstb           : out std_logic;
+    TYPEA               : out std_logic_vector(31 downto 0) := (others => '0');
+    TYPEA_wstb          : out std_logic := '0';
+    TYPEB               : out std_logic_vector(31 downto 0) := (others => '0');
+    TYPEB_wstb          : out std_logic := '0';
+    TYPEC               : out std_logic_vector(31 downto 0) := (others => '0');
+    TYPEC_wstb          : out std_logic := '0';
+    TYPED               : out std_logic_vector(31 downto 0) := (others => '0');
+    TYPED_wstb          : out std_logic := '0';
+    TYPEE               : out std_logic_vector(31 downto 0) := (others => '0');
+    TYPEE_wstb          : out std_logic := '0';
+    FUNC                : out std_logic_vector(31 downto 0) := (others => '0');
+    FUNC_wstb           : out std_logic := '0';
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
@@ -47,35 +47,35 @@ end lut_ctrl;
 
 architecture rtl of lut_ctrl is
 
-signal INPA      : std_logic_vector(31 downto 0);
-signal INPA_wstb : std_logic;
+signal INPA : std_logic_vector(31 downto 0) := (others => '0');
+signal INPA_wstb : std_logic := '0';
 
-signal INPA_DLY      : std_logic_vector(31 downto 0);
-signal INPA_DLY_wstb : std_logic;
+signal INPA_DLY : std_logic_vector(31 downto 0) := (others => '0');
+signal INPA_DLY_wstb : std_logic := '0';
 
-signal INPB      : std_logic_vector(31 downto 0);
-signal INPB_wstb : std_logic;
+signal INPB : std_logic_vector(31 downto 0) := (others => '0');
+signal INPB_wstb : std_logic := '0';
 
-signal INPB_DLY      : std_logic_vector(31 downto 0);
-signal INPB_DLY_wstb : std_logic;
+signal INPB_DLY : std_logic_vector(31 downto 0) := (others => '0');
+signal INPB_DLY_wstb : std_logic := '0';
 
-signal INPC      : std_logic_vector(31 downto 0);
-signal INPC_wstb : std_logic;
+signal INPC : std_logic_vector(31 downto 0) := (others => '0');
+signal INPC_wstb : std_logic := '0';
 
-signal INPC_DLY      : std_logic_vector(31 downto 0);
-signal INPC_DLY_wstb : std_logic;
+signal INPC_DLY : std_logic_vector(31 downto 0) := (others => '0');
+signal INPC_DLY_wstb : std_logic := '0';
 
-signal INPD      : std_logic_vector(31 downto 0);
-signal INPD_wstb : std_logic;
+signal INPD : std_logic_vector(31 downto 0) := (others => '0');
+signal INPD_wstb : std_logic := '0';
 
-signal INPD_DLY      : std_logic_vector(31 downto 0);
-signal INPD_DLY_wstb : std_logic;
+signal INPD_DLY : std_logic_vector(31 downto 0) := (others => '0');
+signal INPD_DLY_wstb : std_logic := '0';
 
-signal INPE      : std_logic_vector(31 downto 0);
-signal INPE_wstb : std_logic;
+signal INPE : std_logic_vector(31 downto 0) := (others => '0');
+signal INPE_wstb : std_logic := '0';
 
-signal INPE_DLY      : std_logic_vector(31 downto 0);
-signal INPE_DLY_wstb : std_logic;
+signal INPE_DLY : std_logic_vector(31 downto 0) := (others => '0');
+signal INPE_DLY_wstb : std_logic := '0';
 
 
 -- Register interface common

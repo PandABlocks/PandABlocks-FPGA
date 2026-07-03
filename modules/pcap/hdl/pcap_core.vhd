@@ -123,7 +123,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => pcap_reset,
         -- Register control
-    SHIft_SUM           => SHIFT_SUM,
+    SHIFT_SUM           => SHIFT_SUM,
     TRIG_EDGE           => TRIG_EDGE,
     --
     pos_bus_i           => pos_bus_i,

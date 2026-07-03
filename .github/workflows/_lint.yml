@@ -1,0 +1,23 @@
+# Python lint: run `make lint` (ruff via uv) over the test/codegen harness. The
+# Makefile target installs only uv's dev group, so no cocotb build is needed.
+# make stays the runner so the same `make lint` works locally. The Makefile's
+# `include CONFIG` means every target needs a CONFIG, so stage it from
+# CONFIG.example like the other jobs do.
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Create CONFIG
+        run: cp CONFIG.example CONFIG
+
+      - name: Lint Python harness
+        run: make lint
