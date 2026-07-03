@@ -46,7 +46,7 @@ jobs:
 
   # --- Docs build (never publishes) ------------------------------------------
   docs:
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.22.0
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.23.0
     with:
       # The timing_plot/block_fields directives shell out to the system python3, so
       # apt-install matplotlib+numpy (mirrors the repo Dockerfile); `make docs` reads
@@ -62,7 +62,7 @@ jobs:
   release:
     needs: [lint, cocotb_test, test_python_autogen, docs]
     if: github.ref_type == 'tag'
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.22.0
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.23.0
     permissions:
       contents: write    # create the GitHub Release + attach assets
 

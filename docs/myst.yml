@@ -6,7 +6,7 @@ project:
   plugins:
     - _plugins/block-fields.mjs
     - _plugins/timing-plot.mjs
-    - https://github.com/DiamondLightSource/myst-version-switcher-plugin/releases/download/v0.22.0/version-switcher.mjs
+    - https://github.com/DiamondLightSource/myst-version-switcher-plugin/releases/download/v0.23.0/version-switcher.mjs
   # Cross-repository references (mystmd xref + Sphinx intersphinx).
   # PROTOTYPE for upstreaming into the DLS python-copier-template (Stage A spec §6).
   references:
