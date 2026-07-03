@@ -1,5 +1,5 @@
 *METADATA
-    APPNAME             constant =calc_extension
+    APPNAME             constant =calc-extension
     DESIGN              string
     LAYOUT              multiline
     EXPORTS             multiline

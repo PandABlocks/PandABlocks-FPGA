@@ -1,21 +1,20 @@
-from __future__ import print_function
-import socket
-import select
-import struct
-import time
 import bisect
 import importlib
 import os
+import select
+import socket
+import struct
 import sys
-from collections import namedtuple, deque
+import time
+from collections import deque, namedtuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from .configs import BlockConfig, RegisterCounter, make_getter_setter
-from .compat import TYPE_CHECKING, add_metaclass
 
 if TYPE_CHECKING:
-    from typing import List, Dict, Tuple, Any
+    pass
 
 # These are the powers of two in an array
 POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
@@ -79,8 +78,7 @@ class BlockSimulationMeta(type):
         return super(BlockSimulationMeta, cls).__new__(cls, clsname, bases, dct)
 
 
-@add_metaclass(BlockSimulationMeta)
-class BlockSimulation(object):
+class BlockSimulation(metaclass=BlockSimulationMeta):
     bit_bus = np.zeros(128, dtype=np.bool_)
     pos_bus = np.zeros(32, dtype=np.int32)
     pos_change = []

@@ -1,7 +1,8 @@
-import cocotb
-
-from cocotb.triggers import RisingEdge
 from pathlib import Path
+
+import cocotb
+from cocotb.triggers import RisingEdge
+
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / 'modules'

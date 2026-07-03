@@ -1,55 +1,84 @@
-name: Docs CI
+name: CI
 
-# Build + verify the docs on every event, then publish on INTERNAL events. The
-# build (`_docs.yml`) runs for PRs (including forks), pushes to main/docs, and tags,
-# and uploads each build's `docs` artifact. Publishing is nested here (the `publish`
-# job -> `_publish.yml`) so its status is visible on the PR/commit, but ONLY for
-# internal events on this repo: a fork PR's build runs with a read-only token and
-# must never deploy.
+# Single entry point for this repo's GitHub Actions CI. Each substantial job is a
+# reusable workflow so this file stays orchestration-only:
 #
-# `docs` is a publish trigger during the docs migration: the new MyST docs live on
-# the `docs` branch (main has none yet), so `docs` is the live version.
+#   lint                -> _lint.yml                Python lint (ruff via uv)
+#   cocotb_test         -> _cocotb_test.yml         cocotb simulations (uv + nvc)
+#   test_python_autogen -> _test_python_autogen.yml python + autogen tests (uv)
+#   release             -> release.yml@<tag>        GitHub Release on a tag
+#   docs                -> docs.yml@<tag>            versioned MyST docs build
+#   publish             -> publish-dispatch.yml      deploy assembled docs site (the
+#                                                    shim that pins publish.yml@<tag>)
+#
+# The code/test half is local reusable `_*.yml` workflows (GitHub-hosted, driven through
+# uv); the docs half consumes the shared version-switcher reusable workflows
+# (DiamondLightSource/myst-version-switcher-plugin) pinned at a tag. make is the runner
+# throughout; CI only orchestrates.
+#
+# The heavy FPGA pipeline runs on Diamond's GitLab runners, NOT here: HDL synthesis
+# (Vivado), the HDL tests, and the boot-image / app-package builds. See .gitlab-ci.yml
+# (intentionally left untouched). HDL tests are being moved to GitLab separately.
+#
+# Every job runs on the same events — a pull request, a push to main, or a tag — so no
+# per-job `if:` event guards are needed. publish/release follow the server pattern:
+# release is tag-only; publish runs once for every event in the canonical repo and
+# publish.yml branches internally (deploy / tag re-dispatch / fork-PR warn), so there is
+# no fork guard here.
 on:
   pull_request:
   push:
-    branches: [main, docs]
+    branches: [main]
     tags: ['*']            # '*' never matches '/'
 
 jobs:
+  # --- Python lint -----------------------------------------------------------
+  lint:
+    uses: ./.github/workflows/_lint.yml
+
+  # --- cocotb simulations (uv + nvc on a GitHub runner) ----------------------
+  cocotb_test:
+    uses: ./.github/workflows/_cocotb_test.yml
+
+  # --- python + autogen tests (uv on a GitHub runner) ------------------------
+  test_python_autogen:
+    uses: ./.github/workflows/_test_python_autogen.yml
+
+  # --- Docs build (never publishes) ------------------------------------------
   docs:
-    uses: ./.github/workflows/_docs.yml
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.23.0
+    with:
+      # The timing_plot/block_fields directives shell out to the system python3, so
+      # apt-install matplotlib+numpy (mirrors the repo Dockerfile); `make docs` reads
+      # MYSTMD_VERSION from CONFIG. docs.yml sets BASE_URL + packs/uploads docs.zip.
+      build-command: >-
+        sudo apt-get update &&
+        sudo apt-get install -y --no-install-recommends python3-matplotlib python3-numpy &&
+        cp CONFIG.example CONFIG && make docs
 
-  # Tag-only: attach this build's docs.zip (bare html/ root) to the GitHub Release
-  # so `assemble` can reconstruct that released version on future deploys.
-  docs-release:
-    needs: [docs]
+  # Tag-only: create the GitHub Release and attach this run's docs.zip (the `docs`
+  # artifact) so `assemble` can reconstruct that released version later. Boot images and
+  # app packages are released from GitLab now.
+  release:
+    needs: [lint, cocotb_test, test_python_autogen, docs]
     if: github.ref_type == 'tag'
-    runs-on: ubuntu-latest
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.23.0
     permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: docs
-      - env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.ref_name }}" docs.zip --clobber --repo "${{ github.repository }}"
+      contents: write    # create the GitHub Release + attach assets
 
-  # Internal events only: an internal PR, or a push to main/docs/tag, has a
-  # same-repo build we can trust + deploy. Fork PRs (head repo != this repo) are
-  # excluded — _docs.yml's build job warns them instead.
+  # One publish job for every event in the canonical repo — publish.yml (via the
+  # publish-dispatch.yml shim) owns the branching (deploy / tag re-dispatch / fork-PR
+  # warn), so there's no fork or ref guard here. `actions: write` lets the re-dispatch
+  # job re-fire the shim; `version-name` injects this run's build inline.
   publish:
     needs: [docs]
-    if: >-
-      github.repository == 'PandABlocks/PandABlocks-FPGA' &&
-      ( github.event_name != 'pull_request' ||
-        github.event.pull_request.head.repo.full_name == github.repository )
-    uses: ./.github/workflows/_publish.yml
+    if: github.repository == 'PandABlocks/PandABlocks-FPGA'
+    uses: ./.github/workflows/publish-dispatch.yml
     with:
       version-name: ${{ needs.docs.outputs.version-name }}
     permissions:
       contents: read
-      actions: read
+      actions: write
       pages: write
       id-token: write
       statuses: write

@@ -11,15 +11,15 @@ else:
 
 import os
 from argparse import ArgumentParser
+from typing import TYPE_CHECKING
 
 from jinja2 import Environment, FileSystemLoader
 
-from .compat import TYPE_CHECKING, configparser
-from .configs import BlockConfig, pad, RegisterCounter
+from .configs import BlockConfig, RegisterCounter, pad
 from .ini_util import read_ini, timing_entries
 
 if TYPE_CHECKING:
-    from typing import List, Dict
+    pass
 
 # Some paths
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")

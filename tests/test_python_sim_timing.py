@@ -7,13 +7,12 @@ except ImportError:
 else:
     require("numpy")
 
-import sys
-import os
 import importlib
-import numpy
-
+import os
+import sys
 import unittest
 
+import numpy
 from common.python.ini_util import read_ini, timing_entries
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
@@ -30,7 +29,7 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
             # The scope of this timing test should be a block ini
             try:
                 block_ini_name = timing_ini.get(".", "scope")
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     "Can't find section '.' with entry 'scope' in module %s" % (
                         module_path))

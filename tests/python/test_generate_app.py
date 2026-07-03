@@ -1,8 +1,8 @@
 import os
 import shutil
 import unittest
-from common.python.generate_app import AppGenerator
 
+from common.python.generate_app import AppGenerator
 
 TEST_DATA = os.path.join(os.path.dirname(__file__), "test_data")
 
@@ -59,7 +59,7 @@ class TestGenerateApp(unittest.TestCase):
         self.assertTrue(self.app_generator.fpga_options['pcap_std_dev'])
 
     def test_fpga_option_can_be_enabled_and_disabled(self):
-        app_generator = AppGenerator('dummy_app', 'dummy_build_dir')
+        app_generator = AppGenerator('dummy-app', 'dummy-build-dir')
         app_generator.process_fpga_options('pcap_std_dev')
         self.assertTrue(app_generator.fpga_options['pcap_std_dev'])
         app_generator.process_fpga_options('!pcap_std_dev')

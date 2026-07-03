@@ -2,12 +2,10 @@
 # This script finds a needed file in the included modules
 
 import argparse
-import sys
 import os.path
 import shutil
 
-from .compat import configparser
-from .ini_util import read_ini, ini_get
+from .ini_util import ini_get, read_ini
 
 
 def parse_args():

@@ -8,11 +8,12 @@ FROM ghcr.io/diamondlightsource/ubuntu-devcontainer:resolute AS developer
 #
 # npm provides npx, used by `make docs` to run mystmd on demand. matplotlib + numpy
 # are installed to the system python because the block_fields/timing_plot docs
-# directives shell out to `python3 -m common.python.*`.
+# directives shell out to `python3 -m common.python.*`. nvc is the VHDL simulator the
+# cocotb tests drive (installed via install_nvc.sh, mirrored in CI).
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    curl \
     npm \
-    python3 \
-    python3-pip \
-    python3-matplotlib \
-    python3-numpy \
     && apt-get dist-clean
+
+COPY .github/scripts/install_nvc.sh /tmp/install_nvc.sh
+RUN bash /tmp/install_nvc.sh && rm /tmp/install_nvc.sh

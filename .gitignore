@@ -12,6 +12,10 @@
 /venv
 .idea
 
+# uv-managed virtual environment + tool caches
+/.venv
+.ruff_cache/
+
 # For mac
 *.DS_Store
 
