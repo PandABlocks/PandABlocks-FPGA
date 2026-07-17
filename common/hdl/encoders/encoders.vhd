@@ -105,6 +105,19 @@ signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
+-- EnDat
+signal edat                 : std_logic;
+signal posn_endat           : std_logic_vector(31 downto 0);
+signal posn_endat_sniffer   : std_logic_vector(31 downto 0);
+signal linkup_endat_sniffer : std_logic;
+signal health_endat_sniffer : std_logic_vector(31 downto 0);
+signal linkup_endat_master  : std_logic;
+signal health_endat_master  : std_logic_vector(31 downto 0);
+signal clk_out_encoder_endat : std_logic;
+signal health_endat_slave    : std_logic_vector(31 downto 0);
+
+
+
 signal inenc_dir            : std_logic;
 signal outenc_dir           : std_logic;
 signal inenc_ctrl           : std_logic_vector(2 downto 0);
@@ -135,6 +148,8 @@ signal OUTENC_PROTOCOL      : std_logic_vector(2 downto 0);
 signal OUTENC_PROTOCOL_rb   : std_logic_vector(2 downto 0);
 signal INENC_PROTOCOL_rb    : std_logic_vector(2 downto 0);
 
+
+
 begin
 
 -- Unused Nets.
@@ -155,8 +170,15 @@ OUTENC_PROTOCOL <=
 A_OUT <= a_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT <= b_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL = c_BISS) else sdat;
+
+--DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else 
+--            bdat when (OUTENC_PROTOCOL = c_BISS) else sdat;
+
+DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else
+            bdat        when (OUTENC_PROTOCOL = c_BISS) else
+            edat        when (OUTENC_PROTOCOL = c_enDat) else
+            sdat;
+
 
 --
 -- INCREMENTAL OUT
@@ -205,6 +227,34 @@ port map (
     biss_dat_o        => bdat
 );
 
+
+-- ENDAT SLAVE
+endat_slave_inst : entity work.endat_slave
+    generic map (
+        MAX_DATA_WIDTH      => 32,
+        SYS_CLOCK_FREQ_MHz  => 125,
+        STOP_TIME_uS        => 2,
+        TIMEOUT_mS          => 10,
+        ENDAT_S_SCLKDLY_CNT => 4
+    )
+    port map (
+        clk_i          => clk_i,
+        reset_i        => reset_i,
+        ENCODING       => "00",
+        BITS           => OUTENC_BITS_i,
+        enable_i       => enable_i,
+        GENERATOR_ERROR=> GENERATOR_ERROR_i,
+        health_o       => health_endat_slave,
+        posn_i         => posn_i,
+        endat_clk_i    => CLK_IN,
+        endat_data_i   => DATA_IN,
+        endat_data_o   => edat,
+        endat_wr_nrd_o => open
+    );
+
+
+
+
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
@@ -229,7 +279,7 @@ begin
                 when "010"  =>              -- BISS & Loopback
                     OUTENC_HEALTH_o <= health_biss_slave;
                 when c_enDat =>             -- enDat 
-                    OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
+                    OUTENC_HEALTH_o <= health_endat_slave; --std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
                 when others =>
                     OUTENC_HEALTH_o <= (others=>'0');
             end case;
@@ -267,11 +317,14 @@ begin
 end process ps_select;
 
 -- Loopbacks
+--CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
+--              clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+--              clk_out_encoder_ssi;
+
 CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
-              clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+              clk_out_encoder_biss  when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+              clk_out_encoder_endat when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "011") else
               clk_out_encoder_ssi;
-
-
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
@@ -375,6 +428,67 @@ port map (
     posn_o          => posn_biss_sniffer
 );
 
+
+--------------------------------------------------------------------------
+-- EnDat2 Instantiations
+--------------------------------------------------------------------------
+
+endat_master_inst : entity work.endat2_master
+    generic map (
+        g_rx_falling_edge => 1
+    )
+    port map (
+        clk_i          => clk_i,
+        reset_i        => reset_i,
+
+        BITS           => INENC_BITS_i,
+        CLK_PERIOD_i   => CLK_PERIOD_i,
+        FRAME_PERIOD_i => FRAME_PERIOD_i,
+
+        link_up_o      => linkup_endat_master,
+        health_o       => health_endat_master,
+        posn_o         => posn_endat,
+        posn_valid_o   => open,
+
+        cmd_o          => open,
+        cmd_valid_o    => open,
+
+        endat_sck_o    => clk_out_encoder_endat,
+        endat_dat_i    => DATA_IN,
+        endat_dat_o    => open      -- ???
+    );
+
+
+
+endat2_sniffer_inst : entity work.endat2_sniffer
+    generic map (
+        G_ENDAT2_2     => 0
+    )
+    port map (
+        clk_i          => clk_i,
+        reset_i        => reset_i,
+        ENCODING       => INENC_ENCODING_i,
+        BITS           => INENC_BITS_i,
+        link_up_o      => linkup_endat_sniffer,
+        health_o       => health_endat_sniffer,
+        error_o        => open,
+        endat_sck_i    => CLK_IN,
+        endat_dat_i    => DATA_IN,
+        posn_o         => posn_endat_sniffer,
+        -- Debugging ports
+        crc_rx_o       => open,
+        crc_calc_o     => open,
+        error_count_o  => open,
+        posn_valid_o   => open,
+        frame_ok_o     => open,
+        sample_count_o => open
+    );
+
+
+
+
+
+
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
@@ -423,6 +537,21 @@ begin
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
 
+                -- EnDat2 test
+                when "011"  =>              -- ENDAT & Loopback
+                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                        posn           <= posn_endat_sniffer;
+                        STATUS_o(0)    <= linkup_endat_sniffer;
+                        INENC_HEALTH_o <= health_endat_sniffer;
+                    else
+                        posn           <= posn_endat;
+                        STATUS_o(0)    <= linkup_endat_master;
+                        INENC_HEALTH_o <= health_endat_master;
+                    end if;
+                    HOMED_o <= TO_SVECTOR(1,32);
+                --
+
+
                 when others =>
                     INENC_HEALTH_o <= TO_SVECTOR(5,32);
                     posn <= (others => '0');
@@ -432,6 +561,9 @@ begin
         end if;
     end if;
 end process;
+
+
+
 
 -------------------dcard_interface----------------------------------------------
 --------------------------------------------------------------------------------
