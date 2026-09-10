@@ -19,14 +19,14 @@ entity clock is
 port (
     -- Clock and Reset
     clk_i             : in  std_logic;
-    ENABLE_i          : in  std_logic;                
+    enable_i          : in  std_logic;
     -- Block Input and Outputs
     out_o             : out std_logic := '0';
     -- Block Parameters
     PERIOD            : in  std_logic_vector(31 downto 0);
-    PERIOD_wstb       : in  std_logic;
+    PERIOD_WSTB       : in  std_logic;
     WIDTH             : in  std_logic_vector(31 downto 0);
-    WIDTH_wstb        : in  std_logic
+    WIDTH_WSTB        : in  std_logic
 );
 end;
 
@@ -43,7 +43,7 @@ process(clk_i)
     variable high_period : unsigned(31 downto 0);
 begin
     if rising_edge(clk_i) then
-        reset := PERIOD_wstb or WIDTH_wstb;
+        reset := PERIOD_WSTB or WIDTH_WSTB;
         enable <= enable_i and (not reset) and valid_period;
 
         if (unsigned(PERIOD) = 0 and unsigned(WIDTH) = 0) then

@@ -31,15 +31,15 @@ port (
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
     out_o               : out std_logic_vector(DW-1 downto 0) := (others => '0');
+    active_o            : out std_logic;
     -- Block Parameters
     REPEATS             : in  std_logic_vector(31 downto 0);
-    ACTIVE_o            : out std_logic;
     STATE               : out std_logic_vector(31 downto 0) := (others => '0');
     TABLE_ADDRESS       : in  std_logic_vector(31 downto 0);
     TABLE_ADDRESS_WSTB  : in  std_logic;
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic;
-    health              : out std_logic_vector(31 downto 0) := (others => '0');
+    HEALTH              : out std_logic_vector(31 downto 0) := (others => '0');
     -- DMA Engine Interface
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;
@@ -165,15 +165,15 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         -- Assign HEALTH output as Enum.
-        if health(1 downto 0) = "00" then
+        if HEALTH(1 downto 0) = "00" then
             if underrun_event then
-                health(1 downto 0) <= TO_SVECTOR(1,2);
+                HEALTH(1 downto 0) <= TO_SVECTOR(1,2);
             elsif overrun_event then
-                health(1 downto 0) <= TO_SVECTOR(2,2);
+                HEALTH(1 downto 0) <= TO_SVECTOR(2,2);
             end if;
         end if;
         if enable_rise then
-            health(1 downto 0) <= (others => '0');
+            HEALTH(1 downto 0) <= (others => '0');
         end if;
     end if;
 end process;

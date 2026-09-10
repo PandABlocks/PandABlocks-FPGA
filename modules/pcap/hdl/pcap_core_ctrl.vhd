@@ -72,7 +72,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i(DRV_CS),
     data_o(0)   => read_ack_o,
-    DELAY_i     => RD_ADDR2ACK
+    delay_i     => RD_ADDR2ACK
 );
 
 -- Integer conversion for address.
