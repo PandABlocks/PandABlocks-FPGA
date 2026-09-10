@@ -111,13 +111,12 @@ signal next_pos_en          : std_logic_vector(2 downto 0);
 signal current_pos_inp      : std_logic;
 signal next_pos_inp         : std_logic;
 
-signal next_ts : unsigned(31 downto 0);
+signal next_ts : unsigned(31 downto 0) := (others => '0');
 signal prescaler_rollover : unsigned(31 downto 0);
 signal timer_enable : std_logic;
 signal timer_rollover : unsigned(31 downto 0);
 signal timer_expired : std_logic;
 
-signal start : std_logic := '0';
 signal frame_valid : std_logic;
 signal transfer_busy : std_logic;
 signal frames_room : std_logic_vector(11 downto 0);

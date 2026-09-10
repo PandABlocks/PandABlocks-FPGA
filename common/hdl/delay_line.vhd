@@ -29,9 +29,9 @@ port (
     data_i              : in  std_logic_vector(DW-1 downto 0);
     data_o              : out std_logic_vector(DW-1 downto 0);
     -- Block registers
-    DELAY_i             : in  std_logic_vector(LOG2(TAPS)-1 downto 0)
+    delay_i             : in  std_logic_vector(LOG2(TAPS)-1 downto 0)
 );
-end delay_line;
+end;
 
 architecture rtl of delay_line is
 
@@ -49,10 +49,8 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         taps_line <= taps_line(TAPS-2 downto 0) & data_i;
         -- Output register
-        data_o <= taps_line(to_integer(unsigned(DELAY_i)));
+        data_o <= taps_line(to_integer(unsigned(delay_i)));
     end if;
 end process;
 
-
-end rtl;
-
+end;

@@ -26,25 +26,24 @@ port (
     pos_bus_i           : in  pos_bus_t;
     posn_o              : out std_logic_vector(31 downto 0) := (others => '0');
     -- Block Parameters
-    POSMUX_SEL_i        : in  std_logic_vector(31 downto 0)
+    posmux_sel_i        : in  std_logic_vector(31 downto 0)
 );
 
-end posmux;
+end;
 
 architecture rtl of posmux is
 
 begin
 
--- process(POSMUX_SEL_i,pos_bus_i)
 process (clk_i) begin
 if rising_edge(clk_i) then
-    if POSMUX_SEL_i(PBUSBW) = '0' then
+    if not posmux_sel_i(PBUSBW) then
         -- Select position field from the position array
-        posn_o <= PFIELD(pos_bus_i, POSMUX_SEL_i(PBUSBW-1 downto 0));
+        posn_o <= PFIELD(pos_bus_i, posmux_sel_i(PBUSBW-1 downto 0));
     else
         posn_o <= (others => '0');
     end if;
 end if;
 end process;
 
-end rtl;
+end;
