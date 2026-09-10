@@ -20,33 +20,29 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    OUTA_o              : out std_logic;
-    OUTB_o              : out std_logic;
-    OUTC_o              : out std_logic;
-    OUTD_o              : out std_logic;
+    outa_o              : out std_logic := '0';
+    outb_o              : out std_logic := '0';
+    outc_o              : out std_logic := '0';
+    outd_o              : out std_logic := '0';
     -- Block Parameters
     A                   : in  std_logic_vector(31 downto 0);
     B                   : in  std_logic_vector(31 downto 0);
     C                   : in  std_logic_vector(31 downto 0);
     D                   : in  std_logic_vector(31 downto 0)
 );
-end bits;
+end;
 
 architecture rtl of bits is
-
 begin
-
 
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        OUTA_o <= A(0);
-        OUTb_o <= B(0);
-        OUTc_o <= C(0);
-        OUTd_o <= D(0);
+        outa_o <= A(0);
+        outb_o <= B(0);
+        outc_o <= C(0);
+        outd_o <= D(0);
     end if;
 end process;
 
-end rtl;
-
-
+end;

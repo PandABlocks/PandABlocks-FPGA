@@ -28,7 +28,7 @@ entity fifo is
         -- Read interface
         read_valid_o : out std_logic := '0';
         read_ready_i : in std_logic;
-        read_data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        read_data_o : out std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 
         -- Control and status
         reset_fifo_i : in std_logic := '0';

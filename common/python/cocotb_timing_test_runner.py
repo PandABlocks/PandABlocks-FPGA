@@ -163,7 +163,7 @@ def get_test_args(simulator: str, build_args: list[str], test_name: str) -> list
     if simulator == "ghdl":
         return build_args
     elif simulator == "nvc":
-        return ["--ieee-warnings=off", f"--wave={test_name}.vcd"]
+        return ["--ieee-warnings=off", f"--wave={test_name}.fst"]
     else:
         raise NotImplementedError(f"{simulator} is not a valid simulator")
 
@@ -290,7 +290,7 @@ def cleanup_dir(test_name: str, build_dir: str | Path):
     for file in (WORKING_DIR / build_dir).glob(f"{test_name}*"):
         if file.is_file():
             new_name = str(file).split("/")[-1].replace(test_name, "")
-            if new_name.endswith(".vcd"):
+            if new_name.endswith(".vcd") or new_name.endswith(".fst"):
                 new_name = "wave" + new_name
             new_name = new_name.lstrip("_")
             file.rename(WORKING_DIR / build_dir / test_name / new_name)
