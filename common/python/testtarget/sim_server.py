@@ -9,6 +9,7 @@ import socket
 import time
 
 from cocotb.clock import Clock
+from cocotb.queue import Queue
 from cocotb.triggers import ClockCycles, RisingEdge
 from collections import deque, OrderedDict
 from dataclasses import dataclass, field
@@ -21,6 +22,27 @@ from util import get_top, run_testtarget
 
 OK_BYTES = b'\x00\x00\x00\x00'
 ERR_BYTES = b'\xFF\xFF\xFF\xFF'
+
+
+async def tick_counting(clock, time_travel):
+    TS_REPORT_PERIOD = 1.0
+    ticks = 0
+    last_ts = time.time()
+    last_ticks = ticks
+    last_extra_delay = 0
+    edge = RisingEdge(clock)
+    while True:
+        await edge
+        ticks += 1
+        current_ts = time.time()
+        if current_ts >= last_ts + TS_REPORT_PERIOD:
+            tps = (ticks - last_ticks) / (current_ts - last_ts)
+            diff_extra_delay = time_travel.extra_delay - last_extra_delay
+            last_extra_delay = time_travel.extra_delay
+            print(f'Ticks per second = {tps:.1f}, '
+                  f'Diff Extra delay = {diff_extra_delay:.3f}s')
+            last_ts = current_ts
+            last_ticks = ticks
 
 
 @dataclass
@@ -58,31 +80,112 @@ class SimServer(object):
     def __init__(self, dut, config_path):
         self.log = logging.getLogger(__class__.__name__)
         self.dut = dut
+        self.sbus_latched = dut.reg_inst.reg_inst.sbus_latched
+        self.sbus_change_latched = dut.reg_inst.reg_inst.sbus_change_latched
+        self.bit_read_index = 0
+        self.pbus_latched = dut.reg_inst.reg_inst.pbus_latched
+        self.pbus_change_latched = dut.reg_inst.reg_inst.pbus_change_latched
+        self.pos_num = len(dut.reg_inst.reg_inst.pos_bus_i)
+        self.pos_read_index = 0
         self.clock = dut.clk_i
-        self.pcap_buffer_size = 2 * 1024 * 1024
+        self.pcap_buffer_size = 4 * 1024
         self.pcap_n_buffers = 3
         self.pcap_mem_size = self.pcap_n_buffers * self.pcap_buffer_size
         self._pcap_buffer = 0
         self.pcap_next_buffer = 0
         self.pcap_current_buffer = 0
         self.pcap_next_buffer = 0
-        self.pcap_timeout = 48
-        self.table_buffer_size = 4 * 1024 * 1024
-        self.table_n_buffers = 8
+        self.pcap_timeout = 64
+        self.table_buffer_size = 4 * 1024
+        self.table_n_buffers = 32
         self.table_mem_size = self.table_n_buffers * self.table_buffer_size
-        self.table_next_buffer = 0
         self.table_available_buffers = \
             deque([TableBuffer(
                        i * self.table_buffer_size, self.table_buffer_size // 4)
                            for i in range(self.table_n_buffers)])
         self.test = PandaTestHarness(dut, config_path,
                                      pcap_mem_size=self.pcap_mem_size,
-                                     table_mem_size=self.table_mem_size)
-        self.pcap_arm_offsets = self.test.metadata.get_indexes('*REG.PCAP_ARM')
+                                     table_mem_size=self.table_mem_size,
+                                     do_time_travel=True)
         self.pcap_acquiring = False
         self.pcap_data = bytearray()
         self.command = bytearray()
         self.find_table_instances()
+        self.write_hooks = {}
+        self.read_hooks = {}
+        self.setup_hooks()
+
+    def setup_hooks(self):
+        self.setup_pcap_hooks()
+        self.setup_read_bypass_hooks()
+        self.setup_changes_hooks()
+
+    def setup_pcap_hooks(self):
+        self.set_write_hook('*REG.PCAP_ARM', self.pre_pcap_arm_hook)
+
+    def setup_changes_hooks(self):
+        self.set_write_hook('*REG.BIT_READ_RST', self.bit_read_reset_hook)
+        self.set_read_hook('*REG.BIT_READ_VALUE', self.bit_read_value_hook)
+        self.set_write_hook('*REG.POS_READ_RST', self.pos_read_reset_hook)
+        self.set_read_hook('*REG.POS_READ_VALUE', self.pos_read_value_hook)
+        self.set_read_hook('*REG.POS_READ_CHANGES', self.pos_read_changes_hook)
+
+    async def bit_read_reset_hook(self):
+        self.bit_read_index = 0
+
+    async def bit_read_value_hook(self):
+        index = self.bit_read_index
+        self.bit_read_index = (self.bit_read_index + 1) % 8
+        val =  (self.sbus_latched[index].value.to_unsigned() << 16)| \
+            self.sbus_change_latched[index].value.to_unsigned()
+
+        return val
+
+    async def pos_read_reset_hook(self):
+        self.pos_read_index = 0
+
+    async def pos_read_value_hook(self):
+        index = self.pos_read_index
+        self.pos_read_index = (self.pos_read_index + 1) % self.pos_num
+        val = self.pbus_latched[index].value.to_signed()
+        return val
+
+    async def pos_read_changes_hook(self):
+        val = self.pbus_change_latched.value.to_unsigned()
+        return val
+
+    def setup_read_bypass_hooks(self):
+        for block_name, block in self.test.metadata.blocks.items():
+            if block_name in ('*REG', '*DRV', 'PCAP', '*METADATA'):
+                continue  # different, bespoke readback path
+            try:
+                block_inst = getattr(self.dut.softblocks_inst, f'{block_name.lower()}_inst')
+            except AttributeError:
+                self.log.warning('No wrapper instance for block %s, skipping bypass', block_name)
+                continue
+
+            for field_name, field_attrs in block['fields'].items():
+                if not field_attrs.get('type', '').startswith('read'):
+                    continue
+
+                for num in range(block['n']):
+                    reg = field_attrs['args'][0]
+                    key = (block['address'], num, reg)
+                    sig = getattr(block_inst, f'{field_name}')[num]
+                    self.read_hooks[key] = self._make_direct_read_hook(sig, num)
+
+    def _make_direct_read_hook(self, sig, num):
+        async def direct_read_hook():
+            val = sig.value.to_unsigned()
+            return val
+
+        return direct_read_hook
+
+    def set_write_hook(self, field, func):
+        self.write_hooks[self.test.metadata.get_indexes(field)] = func
+
+    def set_read_hook(self, field, func):
+        self.read_hooks[self.test.metadata.get_indexes(field)] = func
 
     def find_table_instances(self):
         self.table_state = OrderedDict()
@@ -96,24 +199,21 @@ class SimServer(object):
                             length_reg=block['fields']['TABLE']['args'][-1],
                         )
 
-    async def interrupt_handler(self):
-        # We run this in a separate task to prevent the following situation:
-        # - the main task have pushed the first table buffer and continues to
-        #   push more tables.
-        # - Immediately after the first buffer is pushed, the ready table irq
-        #   arrives, but the second table is pushed before the interrupt handler
-        #   runs.
-        # - The interrupt handler wrongly thinks that the first buffer is
-        #   complete because there is a second buffer.
-        # - A subsequent table push will be sent to hardware without it being
-        #   ready.
-        #
-        # This can't happen in real hardware because the interrupt handler will
-        # run much faster(compared to the time lapse between 2 table pushes).
+    async def interrupt_listener(self):
+        await ClockCycles(self.clock, 2)
+        self.irq_queue = Queue()
         while True:
             irqs = await self.test.wait_for_irq(timeout=None)
             if irqs:
-                await self.process_irqs(irqs)
+                self.irq_queue.put_nowait(irqs)
+
+    async def process_interrupts(self):
+        if not self.irq_queue.empty():
+            irqs = self.irq_queue.get_nowait()
+            if irqs & 1:
+                await self.process_pcap_irq()
+            if irqs & 2:
+                await self.process_table_irq()
 
     def wait_for_client(self):
         lsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -128,13 +228,24 @@ class SimServer(object):
 
     async def process_client(self) -> bool:
         was_first = len(self.command) == 0
-        # optimization: check if there is data to read before calling recv, to
-        # avoid having to catch the BlockingIOError exception in the common case
-        # where there is no data.
-        if not select.select([self.client], [], [], 0)[0]:
+        timeout = self.test.time_travel.compute_timeout()
+        # If a timer is currently counting down towards a time-travel jump,
+        # block here until it's due (or until the client sends something,
+        # whichever comes first) instead of spinning through every clock
+        # edge in between with nothing useful to do. We must keep polling
+        # every edge (timeout 0) instead if either: a timer is running but
+        # too short to be worth a jump (it still needs real clock edges to
+        # progress), or PCAP is actively collecting samples/draining its DMA
+        # FIFO (also needs every edge processed).
+        if not select.select([self.client], [], [], timeout)[0]:
             return False
 
-        new_data = self.client.recv(4096)
+        try:
+            new_data = self.client.recv(4096)
+        except ConnectionResetError:
+            self.log.error('Client connection reset')
+            return True
+
         if new_data == b'':
             return True
 
@@ -149,7 +260,12 @@ class SimServer(object):
             self.command.clear()
             return False
 
-        await self.handle_command()
+        completed = await self.handle_command()
+        if completed:
+            # if command is enabling something, simulate a few cycles to make
+            # sure the effects propagates.
+            self.test.time_travel.boost_timeout()
+
         return False
 
     async def handle_read(self):
@@ -158,6 +274,14 @@ class SimServer(object):
 
         block, num, reg = self.command[1:4]
         self.log.debug('READ command to (%d, %d, %d)', block, num, reg)
+        hook = self.read_hooks.get((block, num, reg))
+        if hook is not None:
+            val = await hook()
+            if val is not None:
+                self.send(val.to_bytes(4, 'little'))
+                del self.command[:4]
+                return True
+
         val = await self.test.reg_read_raw(block, num, reg)
         self.send(val.to_bytes(4, 'little'))
         del self.command[:4]
@@ -168,12 +292,16 @@ class SimServer(object):
             return False
 
         block, num, reg = self.command[1:4]
-        if (block, num, reg) == self.pcap_arm_offsets:
-            await self.pre_pcap_arm_hook()
-
         value = int.from_bytes(self.command[4:8], 'little')
         self.log.debug('WRITE command to (%d, %d, %d) =>  %d',
                        block, num, reg, value)
+        hook = self.write_hooks.get((block, num, reg))
+        if hook is not None:
+            res = await hook()
+            if res is not None:
+                del self.command[:8]
+                return True
+
         await self.test.reg_write_raw(block, num, reg, value)
         del self.command[:8]
         return True
@@ -245,6 +373,7 @@ class SimServer(object):
         assert (block, num) in self.table_state, 'Invalid table block/instance'
         table_state = self.table_state[(block, num)]
         queued = table_state.nwords_queued
+        self.log.debug('Returning %d queued words', queued)
         self.send(queued.to_bytes(4, 'little'))
         del self.command[:4]
         return True
@@ -340,6 +469,8 @@ class SimServer(object):
             elif cmd == COMMAND.GET_PCAP_DATA:
                 command_completed = await self.handle_get_pcap_data()
 
+        return command_completed
+
     async def process_pcap_irq(self):
         self.log.debug('Handling PCAP IRQ')
         if not self.pcap_acquiring:
@@ -352,6 +483,7 @@ class SimServer(object):
         irq_status = self.dut.pcap_inst.pcap_dma_inst.irq_status.value.to_unsigned()
         self.log.debug('PCAP IRQ STATUS: %X', irq_status)
         if irq_status & 0x1:
+            self.log.debug('PCAP Completed')
             self.pcap_acquiring = False
 
         if irq_status & 0x61:
@@ -359,13 +491,15 @@ class SimServer(object):
             data_buffer = self.pcap_current_buffer
             self.pcap_current_buffer = self.pcap_next_buffer
             self.pcap_next_buffer = self.get_pcap_buffer()
-            self.pcap_data.extend(
-                self.test.pcap_memory.mem[data_buffer:data_buffer + count * 4])
+            data = self.test.pcap_memory.mem[data_buffer:data_buffer + count * 4]
+            self.log.debug('PCAP DMA count: %d, data: %s', count, data)
+            self.pcap_data.extend(data)
             await self.test.reg_write(
                 '*DRV.PCAP_DMA_ADDR', self.pcap_next_buffer)
 
     async def process_table_irq(self):
         self.log.debug('Handling TABLE IRQ')
+        await RisingEdge(self.clock)
         #irq_status = await self.test.reg_read('*REG.TABLE_IRQ_STATUS')
         # optimization/hack warning: we read internal register directly
         # instead of waiting for the AXI read.
@@ -400,22 +534,18 @@ class SimServer(object):
 
         return buffer
 
-    async def process_irqs(self, irqs):
-        if irqs & 1:
-            await self.process_pcap_irq()
-        if irqs & 2:
-            await self.process_table_irq()
-
     async def run(self):
         self.wait_for_client()
         cocotb.start_soon(Clock(self.clock, 1, 'ns').start(start_high=False))
-        cocotb.start_soon(self.interrupt_handler())
+        cocotb.start_soon(self.interrupt_listener())
+        cocotb.start_soon(tick_counting(self.clock, self.test.time_travel))
         want_quit = False
         # Wait a couple clock cycles to let the DUT initialize
         await ClockCycles(self.clock, 2)
         edge = RisingEdge(self.clock)
         while not want_quit:
             await edge
+            await self.process_interrupts()
             want_quit = await self.process_client()
 
         self.client.close()
