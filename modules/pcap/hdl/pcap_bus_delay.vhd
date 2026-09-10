@@ -31,8 +31,8 @@ entity pcap_bus_delay is
 port (
     clk_i         : in  std_logic;
     -- Block parameters inputs
-    TRIG_EDGE_i   : in  std_logic_vector(1 downto 0);
-    SHIFT_SUM_i   : in  std_logic_vector(5 downto 0);
+    trig_edge_i   : in  std_logic_vector(1 downto 0);
+    shift_sum_i   : in  std_logic_vector(5 downto 0);
     -- Block inputs
     enable_i      : in  std_logic;
     trig_i        : in  std_logic;
@@ -40,8 +40,8 @@ port (
     bit_bus_i     : in  bit_bus_t;    -- std_logic_vector(BBUSW-1 downto 0); BBUSW = 128
     pos_bus_i     : in  pos_bus_t;    -- std32_array(PBUSW-1 downto 0);  PBUSW = 18 to 30
     -- Block parameters outputs
-    TRIG_EDGE_o   : out std_logic_vector(1 downto 0);
-    SHIFT_SUM_o   : out std_logic_vector(5 downto 0);
+    trig_edge_o   : out std_logic_vector(1 downto 0);
+    shift_sum_o   : out std_logic_vector(5 downto 0);
     -- Block outputs
     enable_o      : out std_logic;
     trig_o        : out std_logic;
@@ -68,9 +68,8 @@ signal bit_bus_r1     : bit_bus_t;
 signal pos_bus_r1     : pos_bus_t;
 
 -- Block parameters pipeline registers
-signal TRIG_EDGE_r1   : std_logic_vector(1 downto 0);
-signal SHIFT_SUM_r1   : std_logic_vector(5 downto 0);
-
+signal trig_edge_r1   : std_logic_vector(1 downto 0);
+signal shift_sum_r1   : std_logic_vector(5 downto 0);
 
 -----------------------
 -- Beginning of Code --
@@ -81,8 +80,8 @@ begin
   begin
       if rising_edge(clk_i) then
           -- Block parameters pipeline registers
-          TRIG_EDGE_r1  <= TRIG_EDGE_i;
-          SHIFT_SUM_r1  <= SHIFT_SUM_i;
+          trig_edge_r1  <= trig_edge_i;
+          shift_sum_r1  <= shift_sum_i;
           -- Block inputs pipeline registers
           enable_r1     <= enable_i;
           trig_r1       <= trig_i;
@@ -93,8 +92,8 @@ begin
   end process;
 
   -- assign block parameters outputs
-  TRIG_EDGE_o  <= TRIG_EDGE_r1;
-  SHIFT_SUM_o  <= SHIFT_SUM_r1;
+  trig_edge_o  <= trig_edge_r1;
+  shift_sum_o  <= shift_sum_r1;
 
   -- assign block outputs
   enable_o      <= enable_r1;
@@ -103,6 +102,4 @@ begin
   bit_bus_o     <= bit_bus_r1;
   pos_bus_o     <= pos_bus_r1;
 
-
-end rtl;
-
+end;

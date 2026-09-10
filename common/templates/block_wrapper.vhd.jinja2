@@ -156,11 +156,11 @@ begin
 {% endfor %}
 {% for field in fields %}
     {% if field in filter_fields("bit_mux") %}
-            {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
+            {{ pad(field.name +"_i").lower() }} => {{ field.name }}(I)(0),
     {% elif field in filter_fields("pos_mux") %}
-            {{ pad(field.name +"_i") }} => {{ field.name }}(I),
+            {{ pad(field.name +"_i").lower() }} => {{ field.name }}(I),
     {% elif field in filter_fields(".*_out") %}
-            {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
+            {{ pad(field.name + "_o").lower() }} => {{ field.name }}_o(I),
     {% else %}
         {% for register in field.numbered_registers() %}
              {{ pad(register.name) }} => {{ register.name }}(I),
@@ -168,7 +168,7 @@ begin
     {% endif %}
     {% if field.wstb %}
             {% for register in field.numbered_registers() %}
-            {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
+            {{ pad(register.name + "_WSTB") }} => {{ register.name }}_wstb(I),
             {% endfor %}
     {% endif %}
 {% endfor %}

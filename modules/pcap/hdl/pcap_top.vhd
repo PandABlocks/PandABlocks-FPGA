@@ -138,13 +138,13 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => (others => (others => '0')),
     -- Block Parameters
-    enable_from_bus     => enable_from_bus,
-    gate_from_bus       => gate_from_bus,
-    trig_from_bus       => trig_from_bus,
+    ENABLE_from_bus     => enable_from_bus,
+    GATE_from_bus       => gate_from_bus,
+    TRIG_from_bus       => trig_from_bus,
     TRIG_EDGE           => TRIG_EDGE_reg,
-    TRIG_EDGE_WSTB      => open,
+    TRIG_EDGE_wstb      => open,
     SHIFT_SUM           => SHIFT_SUM_reg,
-    SHIFT_SUM_WSTB      => open,
+    SHIFT_SUM_wstb      => open,
     HEALTH              => HEALTH,      -- in
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i(PCAP_CS),
@@ -200,8 +200,8 @@ pcap_bus_delay_inst : entity work.pcap_bus_delay
 port map (
     clk_i               => clk_i,
     -- Block parameters inputs
-    TRIG_EDGE_i         => TRIG_EDGE_reg(1 downto 0),
-    SHIFT_SUM_i         => SHIFT_SUM_reg(5 downto 0),
+    trig_edge_i         => TRIG_EDGE_reg(1 downto 0),
+    shift_sum_i         => SHIFT_SUM_reg(5 downto 0),
     -- Block inputs
     enable_i            => enable_from_bus,
     trig_i              => trig_from_bus,
@@ -209,8 +209,8 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     -- Block parameters outputs
-    TRIG_EDGE_o         => TRIG_EDGE,
-    SHIFT_SUM_o         => SHIFT_SUM,
+    trig_edge_o         => TRIG_EDGE,
+    shift_sum_o         => SHIFT_SUM,
     -- Block outputs
     enable_o            => enable_i_dyd,
     trig_o              => trig_i_dyd,
