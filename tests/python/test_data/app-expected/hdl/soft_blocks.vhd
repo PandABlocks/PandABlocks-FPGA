@@ -7,7 +7,6 @@ use ieee.std_logic_1164.all;
 
 use work.addr_defines.all;
 use work.top_defines.all;
-use work.interface_types.all;
 
 entity soft_blocks is
 port (

@@ -29,7 +29,7 @@ port (
     -- Extra IOs
 
     -- Bus outputs
-    OUT_o               : out std_logic_vector(NUM-1 downto 0);
+    OUT_o               : out std_logic_vector(NUM-1 downto 0) := (others => '0');
 
     -- Memory Interface
     read_strobe_i       : in  std_logic := '0';
@@ -92,13 +92,24 @@ signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
 signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 signal read_ack         : std_logic_vector(NUM-1 downto 0);
 signal write_ack        : std_logic_vector(NUM-1 downto 0);
+signal inst_read_index  : natural := 0;
 
 begin
 
     -- Acknowledgement to AXI Lite interface
     write_ack_o <= or_reduce(write_ack);
     read_ack_o <= or_reduce(read_ack);
-    read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
+    read_data_o <= read_data(inst_read_index);
+
+    process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if read_strobe_i then
+                inst_read_index <=
+                    to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW)));
+            end if;
+        end if;
+    end process;
 
     -- Generate NUM instances of the blocks
     GEN : FOR I IN 0 TO (NUM-1) GENERATE
@@ -147,18 +158,18 @@ begin
         -- Connect to the actual logic entity
         lut : entity work.lut
         port map (
-            INPA_i              => INPA(I)(0),
-            INPB_i              => INPB(I)(0),
-            INPC_i              => INPC(I)(0),
-            INPD_i              => INPD(I)(0),
-            INPE_i              => INPE(I)(0),
+            inpa_i              => INPA(I)(0),
+            inpb_i              => INPB(I)(0),
+            inpc_i              => INPC(I)(0),
+            inpd_i              => INPD(I)(0),
+            inpe_i              => INPE(I)(0),
              TYPEA               => TYPEA(I),
              TYPEB               => TYPEB(I),
              TYPEC               => TYPEC(I),
              TYPED               => TYPED(I),
              TYPEE               => TYPEE(I),
              FUNC                => FUNC(I),
-            OUT_o               => OUT_o(I),
+            out_o               => OUT_o(I),
             clk_i               => clk_i
         );
     end generate;
