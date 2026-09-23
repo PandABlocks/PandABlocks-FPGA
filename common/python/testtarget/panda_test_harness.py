@@ -1,9 +1,9 @@
 import logging
-import numpy as np
 
-from axi import AxiLiteMaster, AxiWriteSlave, AxiReadSlave
+import numpy as np
+from axi import AxiLiteMaster, AxiReadSlave, AxiWriteSlave
 from block_metadata import BlockMetadata
-from cocotb.triggers import RisingEdge, ValueChange, Lock
+from cocotb.triggers import Lock, RisingEdge, ValueChange
 from panda_time_travel import PandaTimeTravel
 
 

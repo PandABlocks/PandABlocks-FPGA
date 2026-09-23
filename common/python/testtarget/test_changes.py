@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-import cocotb
 import os
-
-from cocotb.clock import Clock
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import cocotb
+from cocotb.clock import Clock
 
 sys.path.insert(1, str(Path(__file__).parent.resolve()))
 from panda_test_harness import PandaTestHarness

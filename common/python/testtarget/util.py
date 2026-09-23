@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import sys
+from pathlib import Path
 
 from cocotb_tools.runner import get_runner
-from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 from cocotb_timing_test_runner import order_hdl_files

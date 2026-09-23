@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from cocotb.triggers import RisingEdge
-from cocotb_bus_mini import Bus
-from cocotb_bus_mini import BusMonitor
 import logging
+
+from cocotb.triggers import RisingEdge
+from cocotb_bus_mini import Bus, BusMonitor
 
 
 class AxiLiteMaster(object):
