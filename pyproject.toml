@@ -9,8 +9,8 @@
 name = "pandablocks-fpga"
 version = "0.0.0"
 description = "Python test and code-generation harness for the PandABlocks FPGA firmware"
-# Upper bound: cocotb 2.x supports a maximum of Python 3.13.
-requires-python = ">=3.11,<3.14"
+# Upper bound: cocotb 2.x supports a maximum of Python 3.14.
+requires-python = ">=3.10, <=3.14"
 # Runtime third-party imports of the harness (numpy + jinja2 were the previous
 # tests/requirements.txt; the rest are imported by the cocotb tests and tooling).
 # pandai2c is intentionally absent: it is provided on the PandA target, not PyPI.
