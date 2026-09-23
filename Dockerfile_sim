@@ -1,0 +1,123 @@
+# The devcontainer should use the developer target and run as root with podman
+# or docker with user namespaces.
+FROM ghcr.io/diamondlightsource/ubuntu-devcontainer:resolute AS developer
+
+# Add any system dependencies for the developer/build environment here.
+# Vivado itself is not installed in the container: mount it in from the host
+# (see the commented mount in .devcontainer/devcontainer.json).
+#
+# npm provides npx, used by `make docs` to run mystmd on demand. matplotlib + numpy
+# are installed to the system python because the block_fields/timing_plot docs
+# directives shell out to `python3 -m common.python.*`. nvc is the VHDL simulator the
+# cocotb tests drive (installed via install_nvc.sh, mirrored in CI).
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    curl \
+    npm \
+    python3-dev \
+    python3-jinja2 \
+    python3-numpy \
+    python3-pip \
+    python3-tornado \
+    python3-setuptools \
+    python3-setuptools-scm \
+    supervisor \
+    tmux
+
+# Make sure git doesn't fail when used to obtain a tag name
+RUN git config --global --add safe.directory '*'
+
+COPY .github/scripts/install_nvc.sh /tmp/install_nvc.sh
+RUN apt-get update -y && bash /tmp/install_nvc.sh && rm /tmp/install_nvc.sh
+
+# Install uv
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
+
+RUN mkdir -p /repos
+# Build FPGA sim server
+COPY ./ /repos/PandABlocks-FPGA
+RUN cd /repos/PandABlocks-FPGA && echo APP_NAME=testtarget > CONFIG
+RUN cd /repos/PandABlocks-FPGA && uv sync --locked
+COPY --chmod=755 <<"EOF" /usr/bin/start-fpga-sim.sh
+#!/usr/bin/env bash
+cd /repos/PandABlocks-FPGA
+export dump_waveform=1
+export PYTHONUNBUFFERED=1
+uv run make run_sim_server APP_NAME=testtarget
+EOF
+
+# Build sim server
+RUN git clone https://github.com/PandABlocks/PandABlocks-server /repos/PandABlocks-server
+RUN cd /repos/PandABlocks-server && touch CONFIG && \
+    make sim_server PLATFORM=zynq
+COPY --chmod=755 <<"EOF" /usr/bin/start-sim-server.sh
+#!/usr/bin/env bash
+/repos/PandABlocks-server/build/sim_server/sim_server \
+    -c /repos/PandABlocks-FPGA/build/apps/testtarget/autogen/config_d/ \
+    -R
+EOF
+
+# Install webcontrol
+RUN git clone https://github.com/PandABlocks/PandABlocks-webcontrol /repos/PandABlocks-webcontrol
+RUN sed -i 's/"footerHeight": [0-9]\+/"footerHeight": 0/' /repos/PandABlocks-webcontrol/malcolm/modules/web/www/settings.json
+RUN cd /repos/PandABlocks-webcontrol && uv sync --locked
+COPY --chmod=755 <<"EOF" /usr/bin/start-webcontrol.sh
+#!/usr/bin/env bash
+export INVOCATION_ID=1
+export PYTHONUNBUFFERED=1
+mkdir -p /tmp/webcontrol/{etc,config,options}
+cd /repos/PandABlocks-webcontrol
+uv run panda-webcontrol \
+    --etcdir /tmp/webcontrol/etc \
+    --options /tmp/webcontrol/options \
+    --configdir /tmp/webcontrol/config \
+    --no-nav
+EOF
+
+COPY --chmod=744 <<"EOF" /etc/supervisor/supervisord.conf
+[unix_http_server]
+file=/tmp/supervisor.sock
+
+[supervisord]
+nodaemon=true
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[program:panda-fpga]
+command=/usr/bin/start-fpga-sim.sh
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes = 0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes = 0
+autostart=true
+autorestart=true
+startsecs=5
+
+[program:panda-server]
+command=/usr/bin/start-sim-server.sh
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes = 0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes = 0
+autostart=true
+autorestart=true
+startsecs=5
+
+[program:panda-webcontrol]
+command=/usr/bin/start-webcontrol.sh
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes = 0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes = 0
+autostart=true
+autorestart=true
+startsecs=5
+EOF
+
+EXPOSE 8008
+CMD ["/usr/bin/supervisord"]

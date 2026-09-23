@@ -26,8 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo mkdir -p /build && sudo chmod -R 777 /build
-          ln -s CONFIG.example CONFIG
-          sed -i 's|APP_NAME = .\+|APP_NAME = testtarget|g' CONFIG
+          echo APP_NAME=testtarget > CONFIG
           uv run --locked make cocotb_tests
           uv run --locked make cocotb_system_tests
 
