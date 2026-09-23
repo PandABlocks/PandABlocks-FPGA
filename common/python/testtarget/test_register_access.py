@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import cocotb
 import os
+import sys
+from pathlib import Path
 
+import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-from pathlib import Path
-import sys
 
 sys.path.insert(1, str(Path(__file__).parent.resolve()))
 from panda_test_harness import PandaTestHarness

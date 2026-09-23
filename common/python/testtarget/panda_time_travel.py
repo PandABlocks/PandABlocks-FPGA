@@ -1,12 +1,10 @@
 import logging
 import time
-
 from enum import Enum, auto
 
 import cocotb
-
-from cocotb.handle import HierarchyObject, HierarchyArrayObject
-from cocotb.triggers import ClockCycles, RisingEdge, ReadOnly
+from cocotb.handle import HierarchyArrayObject, HierarchyObject
+from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
 
 DEFAULT_TIMEOUT = 60  # seconds
 

@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 import argparse
-import cocotb
 import enum
 import logging
 import os
 import select
 import socket
+import sys
 import time
+from collections import OrderedDict, deque
+from dataclasses import dataclass, field
+from pathlib import Path
 
+import cocotb
 from cocotb.clock import Clock
 from cocotb.queue import Queue
 from cocotb.triggers import ClockCycles, RisingEdge
-from collections import deque, OrderedDict
-from dataclasses import dataclass, field
-from pathlib import Path
-import sys
 
 sys.path.insert(1, str(Path(__file__).parent.resolve()))
 from panda_test_harness import PandaTestHarness
