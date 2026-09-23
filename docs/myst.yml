@@ -43,6 +43,7 @@ project:
         - file: how-to/block.md
         - file: how-to/testing.md
         - file: how-to/cocotb.md
+        - file: how-to/run-sim-container.md
         - file: how-to/build-fpga-image.md
         - file: how-to/finedelay-test.md
         - file: how-to/local-development.md

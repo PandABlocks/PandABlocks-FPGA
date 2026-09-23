@@ -32,6 +32,7 @@ CI checks out the whole repo (default), so the out-of-tree files are present at 
 - ✅ how-to/block — source: reference/block.rst — converted (Prompt E); not split; "Block VHDL entity" filled with LUT entity example; "Writing docs" left as blocked: tooling stub w/ issue link
 - ⛔ how-to/testing — source: reference/testing.rst — blocked: verify
 - ✅ how-to/cocotb — source: reference/cocotb.rst — converted; IP assumption verify-note kept
+- ✅ how-to/run-sim-container — source: NEW (Dockerfile_sim + docker-sim.yml) — authored; PandABlocks-sim image
 - ✅ how-to/build-fpga-image — source: NEW (Interview5 §10) — authored; kas/opkg workflow
 - ✅ how-to/finedelay-test — source: github.io finedelay-test.rst — converted; image moved in
 - ✅ how-to/local-development — source: NEW (devcontainer pointer) — written; xref probe retained
