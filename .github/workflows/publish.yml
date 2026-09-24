@@ -24,7 +24,7 @@ jobs:
        github.event.workflow_run.event != 'merge_group')
     uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish-gh-pages.yml@v0.28.0
     with:
-      pr: ${{ inputs.pr }}
+      pr: ${{ github.event_name == 'workflow_dispatch' && inputs.pr || '' }}
     permissions:
       contents: read
       actions: read
