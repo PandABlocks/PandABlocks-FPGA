@@ -46,7 +46,7 @@ jobs:
 
   # --- Docs build (never publishes) ------------------------------------------
   docs:
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.23.0
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/docs.yml@v0.28.0
     with:
       # The timing_plot/block_fields directives shell out to the system python3, so
       # apt-install matplotlib+numpy (mirrors the repo Dockerfile); `make docs` reads
@@ -62,7 +62,7 @@ jobs:
   release:
     needs: [lint, cocotb_test, test_python_autogen, docs]
     if: github.ref_type == 'tag'
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.23.0
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.28.0
     permissions:
       contents: write    # create the GitHub Release + attach assets
 
@@ -72,13 +72,11 @@ jobs:
   # job re-fire the shim; `version-name` injects this run's build inline.
   publish:
     needs: [docs]
-    if: github.repository == 'PandABlocks/PandABlocks-FPGA'
-    uses: ./.github/workflows/publish-dispatch.yml
-    with:
-      version-name: ${{ needs.docs.outputs.version-name }}
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish-gh-pages.yml@v0.28.0
     permissions:
       contents: read
-      actions: write
+      actions: read
       pages: write
       id-token: write
       statuses: write
