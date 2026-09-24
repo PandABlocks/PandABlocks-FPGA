@@ -40,9 +40,9 @@ port (
     -- pcap interface
     m_pcap_axi_awaddr : out std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
     m_pcap_axi_awvalid : out std_logic;
-    m_pcap_axi_awready : out std_logic;
+    m_pcap_axi_awready : in std_logic;
     m_pcap_axi_awregion : out std_logic_vector(3 downto 0);
-    m_pcap_axi_bid : out std_logic_vector(5 downto 0);
+    m_pcap_axi_bid : in std_logic_vector(5 downto 0);
     m_pcap_axi_awburst : out std_logic_vector(1 downto 0);
     m_pcap_axi_awcache : out std_logic_vector(3 downto 0);
     m_pcap_axi_awid : out std_logic_vector(5 downto 0);
