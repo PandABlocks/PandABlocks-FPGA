@@ -14,7 +14,6 @@ PYTHON = python3
 # Version of mystmd used to build the docs with `make docs` (run on demand via npx).
 MYSTMD_VERSION = 1.10.1
 MAKE_FPGA_IPK = $(TOP)/packaging/make-fpga-ipk.sh
-MAKE_DOC_IPK = $(TOP)/packaging/make-fpga-doc-ipk.sh
 MAKE_BOOT_IPK = $(TOP)/packaging/make-fpga-boot-ipk.sh
 
 BUILD_DIR = $(TOP)/build
@@ -308,8 +307,6 @@ IPK_DEPENDS += fpga-bit
 
 IPK_FILE_NAME = panda-fpga-$(APP_NAME)_$(GIT_VERSION)_all.ipk
 IPK_FILE = $(BUILD_DIR)/$(IPK_FILE_NAME)
-DOC_IPK_FILE_NAME = panda-fpga-doc_$(GIT_VERSION)_all.ipk
-DOC_IPK_FILE = $(BUILD_DIR)/$(DOC_IPK_FILE_NAME)
 BOOT_IPK_FILE_NAME = panda-fpga-boot_$(TARGET)-$(GIT_VERSION)_all.ipk
 BOOT_IPK_FILE = $(BUILD_DIR)/$(BOOT_IPK_FILE_NAME)
 
@@ -337,18 +334,12 @@ $(IPK_FILE): $(IPK_DEPENDS)
 	$(MAKE_FPGA_IPK) $(TOP) $(APP_BUILD_DIR) $(APP_NAME) $(GIT_VERSION) && \
 		mv -f $(APP_BUILD_DIR)/$(IPK_FILE_NAME) $@
 
-$(DOC_IPK_FILE): $(DOCS_HTML_DIR)
-	$(MAKE_DOC_IPK) $(TOP) $(APP_BUILD_DIR) $(GIT_VERSION) && \
-		mv -f $(APP_BUILD_DIR)/$(DOC_IPK_FILE_NAME) $@
-
 $(BOOT_IPK_FILE): boot
 	$(MAKE_BOOT_IPK) $(TOP) $(APP_BUILD_DIR) $(TARGET) $(GIT_VERSION) && \
 		mv -f $(APP_BUILD_DIR)/$(BOOT_IPK_FILE_NAME) $@
 
 ipk: $(IPK_FILE)
 .PHONY: ipk
-doc-ipk: $(DOC_IPK_FILE)
-.PHONY: doc-ipk
 boot-ipk: $(BOOT_IPK_FILE)
 .PHONY: boot-ipk
 
