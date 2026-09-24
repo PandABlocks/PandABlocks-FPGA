@@ -51,7 +51,7 @@ XSIM_MODE ?= gui
 VER = $(BUILD_DIR)/VERSION
 
 default: $(DEFAULT_TARGETS)
-all: python_tests hdl_test default boot
+all: python_tests default boot
 .PHONY: default all
 
 
@@ -217,51 +217,7 @@ run_sim_%: $(TOP)/common/fpga.make
 
 
 # ------------------------------------------------------------------------------
-# Timing test benches using vivado to run FPGA simulations
-
-# every modules/MODULE/BLOCK.timing.ini
-TIMINGS = $(wildcard modules/*/*.timing.ini)
-
-# MODULE for every modules/MODULE_DIR/BLOCK.timing.ini
-MODULE_DIRS = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
-
-# Remove trailing backslash from module directory names
-MODULES = $(patsubst %/,%,$(MODULE_DIRS))
-
-# build/hdl_timing/MODULE for every MODULES
-TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
-
-# Make the built app from the ini file
-$(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
-	rm -rf $@_tmp $@
-	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv -f $@_tmp $@
-
-# Make the hdl_timing folders and run all tests, or specific modules by setting
-# the MODULES argument
-hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
-	rm -rf $(TEST_DIR)/regression_tests
-	rm -rf $(TEST_DIR)/*.jou
-	rm -rf $(TEST_DIR)/*.log
-	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source $(TOP)/tests/hdl/regression_tests.tcl \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(MODULES)
-
-# Make the hdl_timing folders and run a single test, set TEST argument
-# E.g. make TEST="clock 1" single_hdl_test
-single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
-	rm -rf $(TEST_DIR)/single_test
-	rm -rf $(TEST_DIR)/*.jou
-	rm -rf $(TEST_DIR)/*.log
-	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(TEST)
-
-# Make the hdl_timing folders without running tests
-hdl_timing: $(TIMING_BUILD_DIRS)
-.PHONY: hdl_timing
+# Timing test benches using NVC+cocotb to run FPGA simulations
 
 SIMULATOR = nvc
 # e.g. make cocotb_tests MODULES=pulse
