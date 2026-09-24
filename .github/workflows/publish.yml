@@ -1,0 +1,33 @@
+name: Publish
+
+# Publish runs separately from CI so the Pages deploy uses the workflow_run shape expected
+# by the version-switcher workflow, including re-serving tag builds cut from an already-
+# deployed commit.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Fork PR to approve + preview (empty = plain re-deploy)"
+        required: false
+        default: ""
+
+jobs:
+  publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.event != 'merge_group')
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish-gh-pages.yml@v0.28.0
+    with:
+      pr: ${{ inputs.pr }}
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+      statuses: write

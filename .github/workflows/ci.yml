@@ -8,8 +8,8 @@ name: CI
 #   test_python_autogen -> _test_python_autogen.yml python + autogen tests (uv)
 #   release             -> release.yml@<tag>        GitHub Release on a tag
 #   docs                -> docs.yml@<tag>            versioned MyST docs build
-#   publish             -> publish-dispatch.yml      deploy assembled docs site (the
-#                                                    shim that pins publish.yml@<tag>)
+#   publish             -> publish.yml               deploy assembled docs site after CI
+#                                                    finishes (workflow_run)
 #
 # The code/test half is local reusable `_*.yml` workflows (GitHub-hosted, driven through
 # uv); the docs half consumes the shared version-switcher reusable workflows
@@ -20,11 +20,8 @@ name: CI
 # (Vivado), the HDL tests, and the boot-image / app-package builds. See .gitlab-ci.yml
 # (intentionally left untouched). HDL tests are being moved to GitLab separately.
 #
-# Every job runs on the same events — a pull request, a push to main, or a tag — so no
-# per-job `if:` event guards are needed. publish/release follow the server pattern:
-# release is tag-only; publish runs once for every event in the canonical repo and
-# publish.yml branches internally (deploy / tag re-dispatch / fork-PR warn), so there is
-# no fork guard here.
+# Every job here runs directly on the same events — a pull request, a push to main, or a
+# tag — so no per-job `if:` event guards are needed beyond release being tag-only.
 on:
   pull_request:
   push:
@@ -65,18 +62,3 @@ jobs:
     uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/release.yml@v0.28.0
     permissions:
       contents: write    # create the GitHub Release + attach assets
-
-  # One publish job for every event in the canonical repo — publish.yml (via the
-  # publish-dispatch.yml shim) owns the branching (deploy / tag re-dispatch / fork-PR
-  # warn), so there's no fork or ref guard here. `actions: write` lets the re-dispatch
-  # job re-fire the shim; `version-name` injects this run's build inline.
-  publish:
-    needs: [docs]
-    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
-    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish-gh-pages.yml@v0.28.0
-    permissions:
-      contents: read
-      actions: read
-      pages: write
-      id-token: write
-      statuses: write
