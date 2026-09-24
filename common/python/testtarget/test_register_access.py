@@ -28,7 +28,7 @@ async def write_register_affecting_bit(dut):
 
 @cocotb.test()
 @cocotb.parametrize(n=range(1, 9))
-async def write_register_afecting_pos(dut, n=1):
+async def write_register_affecting_pos(dut, n=1):
     test = PandaTestHarness(dut, Path(os.getenv('AUTOGEN_PATH')) / 'config_d')
     cocotb.start_soon(Clock(dut.clk_i, 1, 'ns').start(start_high=False))
     expected_val = n
