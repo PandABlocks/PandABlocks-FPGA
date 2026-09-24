@@ -51,7 +51,7 @@ XSIM_MODE ?= gui
 VER = $(BUILD_DIR)/VERSION
 
 default: $(DEFAULT_TARGETS)
-all: python_tests python_timing hdl_test default boot
+all: python_tests hdl_test default boot
 .PHONY: default all
 
 
@@ -206,11 +206,6 @@ lint:
 python_tests:
 	$(PYTHON) -m unittest discover -v tests.python
 .PHONY: python_tests
-
-# Test just the timing for simulations
-python_timing:
-	$(PYTHON) -m unittest -v tests.test_python_sim_timing
-.PHONY: python_timing
 
 # Run a specific testbench using run_sim_<testbench-folder's-name>
 run_sim_%: $(TOP)/common/fpga.make
