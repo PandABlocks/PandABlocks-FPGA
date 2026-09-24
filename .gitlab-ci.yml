@@ -16,8 +16,6 @@ default:
     - sed -i 's|BUILD_DIR = .\+|BUILD_DIR = '"$PWD"'/build|g' CONFIG
     - if [ -n "$PLATFORM" ]; then echo PLATFORM = $PLATFORM >> CONFIG; fi
     - export LM_LICENSE_FILE=2100@diamcslicserv01.dc.diamond.ac.uk:2100@diamcslicserv02.diamond.ac.uk
-    # Workaround for failed docs building when this directory is missing
-    - mkdir -p build/apps/$APP
 
 build-fpga:
   rules:
@@ -68,21 +66,6 @@ build-boot:
     paths:
       - '*.ipk'
 
-build-doc:
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "gh-pages"'
-  parallel:
-    matrix:
-      - APP:
-        - pandabox-no-fmc
-  script:
-    - make doc-ipk
-    - mv build/*.ipk .
-  artifacts:
-    name: "panda-fpga-doc-$CI_COMMIT_REF_NAME"
-    paths:
-      - '*.ipk'
-
 release-all:
   image: gitlab/glab:latest
   rules:
@@ -95,8 +78,6 @@ release-all:
     - job: build-fpga
       artifacts: true
     - job: build-boot
-      artifacts: true
-    - job: build-doc
       artifacts: true
   script:
     - mkdir -p $RELEASE_DIR
