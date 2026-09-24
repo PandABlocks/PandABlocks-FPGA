@@ -3,7 +3,7 @@ import logging
 import numpy as np
 from axi import AxiLiteMaster, AxiReadSlave, AxiWriteSlave
 from block_metadata import BlockMetadata
-from cocotb.triggers import Lock, RisingEdge, ValueChange
+from cocotb.triggers import Lock, RisingEdge
 from panda_time_travel import PandaTimeTravel
 
 
@@ -34,12 +34,11 @@ class PandaTestHarness(object):
     async def wait_for_irq(self, timeout=1024):
         t = 0
         while True:
-            await ValueChange(self.dut.irqs_o)
+            await RisingEdge(self.clock)
             irqs_o = self.dut.irqs_o.value.to_unsigned()
             if irqs_o != 0:
                 await RisingEdge(self.clock)
                 return irqs_o
-
             t += 1
             if timeout is not None and t >= timeout:
                 return 0
