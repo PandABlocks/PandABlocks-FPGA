@@ -71,8 +71,7 @@ cd /repos/PandABlocks-webcontrol
 uv run panda-webcontrol \
     --etcdir /tmp/webcontrol/etc \
     --options /tmp/webcontrol/options \
-    --configdir /tmp/webcontrol/config \
-    --no-nav
+    --configdir /tmp/webcontrol/config
 EOF
 
 COPY --chmod=744 <<"EOF" /etc/supervisor/supervisord.conf
