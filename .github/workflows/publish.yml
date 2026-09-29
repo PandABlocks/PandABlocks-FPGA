@@ -1,0 +1,99 @@
+name: Publish
+
+# Deploys the assembled versioned docs site to GitHub Pages. Deliberately NOT a job in
+# ci.yml, and the only place this repo pins the publish engine's tag.
+#
+# Why it is not in ci.yml — the first reason was breaking tag releases outright:
+#
+#   1. TAGS COULD NEVER PUBLISH. actions/deploy-pages stamps every deployment with
+#      pages_build_version = GITHUB_SHA and will not repeat a SHA
+#      (actions/deploy-pages#383) — EXCEPT under `workflow_run` and `workflow_dispatch`,
+#      which force a re-serve. We cut tags on the commit main has just pushed and
+#      deployed, so the inline push-triggered job always arrived at an already-deployed
+#      SHA and died in "Deploy to GitHub Pages" (run 36007642179, tag 5.0b1). This is not
+#      an edge case: under `workflow_run` GITHUB_SHA is ALWAYS main's HEAD, never the
+#      commit that was built, so every deploy is a "repeat" and the exemption is what
+#      makes the whole architecture work. Triggering from here is the entire fix — no
+#      re-dispatch shim needed.
+#
+#   2. A TAG'S DOCS COME FROM ITS RELEASE, NOT ITS RUN. assemble.mjs gathers only the
+#      newest default-branch `docs` artifact plus open-PR artifacts; a tag's own artifact
+#      is never looked at. A tag reaches the site solely via its GitHub Release's docs.zip
+#      asset — which the inline job's `needs: [docs]` did not wait for. Here,
+#      `types: [completed]` fires only after the ENTIRE CI run is terminal, so `release`
+#      has attached that asset by construction.
+#
+# Two side benefits: this is O(the whole site) and independent of the change, so it left
+# every PR's critical path; and a wedged Pages origin is not a PR author's to fix, so its
+# red check stopped landing on their PR.
+on:
+  # `workflows:` matches the entry workflow by its `name:` — "CI" — NOT by filename. If
+  # ci.yml's `name:` ever changes, change it here too or publishing silently stops.
+  #
+  # Fires on pull requests, main pushes and tags alike. Every deploy reconstructs the
+  # WHOLE site from durable sources, so this breadth is what makes the site self-healing:
+  # a deploy that came out wrong is corrected by the next one, whatever triggered it.
+  # Never narrow this to tags alone — then a bad release deploy is the only chance that
+  # release ever gets.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+  # Fork-PR previews and manual re-deploys. Dispatching with `pr` is the only way an
+  # external contributor's build reaches the site (see the fork guard below). Dispatching
+  # with it EMPTY re-deploys whatever the durable sources currently say — the way to pull
+  # in a version the live site is missing without waiting for the next push.
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Fork PR to approve + preview (empty = plain re-deploy)"
+        required: false
+        default: ""
+
+jobs:
+  publish:
+    # Three guards. All load-bearing, and all fail OPEN if removed — the site keeps
+    # deploying and nothing looks wrong:
+    #
+    #   conclusion == 'success' — workflow_run fires on FAILED runs too, and a failed run
+    #   has no usable docs artifact (and, on a tag, possibly no Release).
+    #
+    #   head_repository == this repo — workflow_run runs with a WRITE token even when the
+    #   triggering run came from a fork's pull request, so auto-deploying a fork build
+    #   would hand untrusted content a privileged path to the live site (the classic
+    #   pwn-request shape). This is the fork guard the old inline publish job had none of.
+    #   A fork build reaches the site only when a maintainer dispatches this workflow with
+    #   `pr`, which records approval against that exact head SHA — so a later push to the
+    #   PR drops the preview until it is re-approved.
+    #
+    #   event != 'merge_group' — a merge-queue run's docs build is never uploaded under a
+    #   gatherable version name, so without this term every queue entry reassembles and
+    #   redeploys an unchanged site, on top of the deploy the following push to main
+    #   already causes.
+    #
+    # A manual dispatch carries no workflow_run payload, so all three terms are empty and
+    # the first clause carries it.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.event != 'merge_group')
+    uses: DiamondLightSource/myst-version-switcher-plugin/.github/workflows/publish-gh-pages.yml@v0.28.0
+    with:
+      # Set (dispatch only) -> approve that fork PR's head SHA and publish its preview.
+      pr: ${{ inputs.pr }}
+      # The site deploys as ONE Pages artifact against a hard 1 GB cap, and every release
+      # and open PR is a full copy of the docs. Only docs-bearing releases consume a slot,
+      # so 20 covers every release ever cut here with room to spare. These also bound the
+      # release-zip Actions cache entry against the repo's 10 GB cache quota. LITERALS,
+      # not threaded-in inputs: this is site-size policy, and this workflow is the
+      # engine's only caller, so a literal here cannot be bypassed by a dispatch. Nothing
+      # is deleted by a cap — raising it again brings the old versions straight back.
+      max-releases: "20"
+      max-prs: "10"
+    permissions:
+      contents: read     # checkout + read each release's docs.zip asset
+      actions: read      # gather the `docs` artifact from other CI runs
+      pages: write
+      id-token: write    # deploy-pages OIDC
+      statuses: write    # the docs-preview status, and the fork-preview approval
