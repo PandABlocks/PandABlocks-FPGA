@@ -133,7 +133,7 @@ class SumCaptureEntry(CaptureEntry):
 
     def latch_value(self, ts):
         self.prev_ts = ts
-        self.prev_value = self.value
+        self.prev_value = int(self.value)
 
     def on_disable(self):
         self.data = 0
@@ -168,7 +168,7 @@ class Sum2CaptureEntry(SumCaptureEntry):
 
     def latch_value(self, ts):
         self.prev_ts = ts
-        self.prev_value = self.value**2
+        self.prev_value = int(self.value)**2
 
     def yield_data(self):
         data =int(self.data >> self.shift)
@@ -529,7 +529,9 @@ class PcapSimulation(BlockSimulation):
             self.pend_error = ts + 4
         else:
             new_size = len(new_data)
-            self.buf[self.buf_len:self.buf_len + new_size] = new_data
+            # Wrap unsigned 32-bit words into int32 (NumPy 2 rejects overflow)
+            self.buf[self.buf_len:self.buf_len + new_size] = \
+                np.array(new_data, dtype=np.int64).astype(np.int32)
             self.buf_len += len(new_data)
 
     def read_data(self, max_length):
