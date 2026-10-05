@@ -21,12 +21,16 @@ OK = 0
 ERR_PJUMP = 1
 ERR_GUESS = 2
 
+# for WHEN_DONE
+STOP = 0
+REARM = 1
+
 NAMES, PROPERTIES = properties_from_ini(__file__, "pcomp.block.ini")
 
 
 class PcompSimulation(BlockSimulation):
     ENABLE, INP, PRE_START, START, WIDTH, STEP, PULSES, RELATIVE, \
-        DIR, ACTIVE, OUT, HEALTH, PRODUCED, STATE = PROPERTIES
+        DIR, WHEN_DONE, ACTIVE, OUT, HEALTH, PRODUCED, STATE = PROPERTIES
 
     def __init__(self):
         # The direction of the position compare
@@ -36,6 +40,8 @@ class PcompSimulation(BlockSimulation):
         # The inp value at the start of the current pulse, and the next
         self.last_crossing = 0
         self.next_crossing = 0
+        # Re-arm on the next clock after finishing if WHEN_DONE=Re-Arm
+        self.rearm = False
 
     def pulse_start(self):
         if self.dir_pos or self.RELATIVE == 0:
@@ -99,10 +105,13 @@ class PcompSimulation(BlockSimulation):
             # When disabled, set outputs
             self.ACTIVE = 0
             self.OUT = 0
+            self.rearm = False
             state = WAIT_ENABLE
         else:
             if self.STATE == WAIT_ENABLE:
-                if changes.get(NAMES.ENABLE, None) is 1:
+                if changes.get(NAMES.ENABLE, None) is 1 or (
+                        self.rearm and self.ENABLE):
+                    self.rearm = False
                     # When enabled, reset outputs and readbacks
                     self.ACTIVE = 1
                     self.HEALTH = OK
@@ -184,6 +193,7 @@ class PcompSimulation(BlockSimulation):
                     self.OUT = 0
                     if self.PRODUCED == self.PULSES:
                         self.ACTIVE = 0
+                        self.rearm = self.WHEN_DONE == REARM
                         state = WAIT_ENABLE
                     elif self.jumped_more_than_step():
                         self.ACTIVE = 0

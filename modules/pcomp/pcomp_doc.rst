@@ -11,6 +11,7 @@ of operations is something like this:
 * Wait until position has passed START + STEP and set OUT=1
 * Wait until position has passed START + STEP + WIDTH and set OUT=0
 * Continue until PULSES have been produced
+* If WHEN_DONE=Re-Arm and ENABLE is still high, start again on the next clock tick
 
 It can be used to generate a position based pulse train against an input encoder
 or analogue system, or to work as repeating comparator.
@@ -79,6 +80,23 @@ the user to see what the Block is currently doing:
     [label=" jump > \nWIDTH + STEP\n or Finished \nor Disabled",fontsize=13]
     WAIT_FALLING -> WAIT_RISING [label=" >= pulse \n + WIDTH "]
     [fontsize=13]
+
+After Finished with WHEN_DONE=Re-Arm, the Block leaves WAIT_ENABLE on the next
+clock tick if ENABLE is still high, exactly as if ENABLE had just risen.
+
+Re-arming when done
+-------------------
+
+By default (WHEN_DONE=Stop) the Block produces PULSES once per rising edge of
+ENABLE. With WHEN_DONE=Re-Arm, once PULSES have been produced ACTIVE drops for
+one clock tick and the Block re-arms if ENABLE is still high. Parameters such
+as START and PULSES are read again, so they can be changed between sequences.
+In RELATIVE mode the position is latched again when re-arming. Errors do not
+re-arm the Block; toggle ENABLE to clear them:
+
+.. timing_plot::
+   :path: modules/pcomp/pcomp.timing.ini
+   :section: Re-arm when done
 
 Not generating a pulse more than once
 -------------------------------------

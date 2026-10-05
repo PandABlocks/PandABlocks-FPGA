@@ -34,6 +34,7 @@ port (
     PULSES              : in  std_logic_vector(31 downto 0);
     RELATIVE            : in  std_logic_vector(31 downto 0);
     DIR                 : in  std_logic_vector(31 downto 0);
+    WHEN_DONE           : in  std_logic_vector(31 downto 0);
     health              : out std_logic_vector(31 downto 0);
     produced            : out std_logic_vector(31 downto 0);
     state               : out std_logic_vector(31 downto 0) := (others => '0');
@@ -64,6 +65,8 @@ signal pcomp_fsm               : fsm_t;
 signal enable_prev             : std_logic;
 signal enable_rise             : std_logic;
 signal enable_fall             : std_logic;
+signal rearm                   : std_logic := '0';
+signal arm                     : std_logic;
 signal posn_latched            : signed(31 downto 0);
 signal posn_relative           : signed(31 downto 0);
 signal posn                    : signed(31 downto 0);
@@ -137,6 +140,9 @@ end process;
 enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
 
+-- Start on rising ENABLE, or re-arm after finishing while ENABLE stays high
+arm <= enable_rise or (rearm and enable_i);
+
 ---------------------------------------------------------------------------
 -- Invert parameters' sign based on encoder direction
 ---------------------------------------------------------------------------
@@ -154,12 +160,11 @@ pulse_step_neg <= signed(not unsigned(STEP) + 1);
 pulse_step <= pulse_step_pos when (dir_pos = '1') else pulse_step_neg;
 
 ---------------------------------------------------------------------------
--- Latch position on the rising edge of enable_i input, and calculate
--- relative position
+-- Latch position on arm, and calculate relative position
 ---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (enable_rise = '1') then
+        if (arm = '1') then
             posn_latched <= signed(inp_i);
         end if;
     end if;
@@ -239,9 +244,11 @@ begin
             next_crossing <= (others => '0');
             health <= (others => '0');
             pulse_counter <= (others => '0');
+            rearm <= '0';
         elsif (enable_fall = '1') then
             out_o <= '0';
             active_o <= '0';
+            rearm <= '0';
             pcomp_fsm <= WAIT_ENABLE;
         else
 
@@ -249,7 +256,8 @@ begin
 
                 -- State 0
                 when WAIT_ENABLE =>
-                    if enable_rise = '1' then
+                    if arm = '1' then
+                        rearm <= '0';
                         active_o <= '1';
                         health <= (others => '0');
                         pulse_counter <= (others => '0');
@@ -364,8 +372,9 @@ begin
                     if reached_last_crossing = '1' then
                         out_o <= '0';
                         if (pulse_counter = unsigned(PULSES)) then
-                            -- Finished
+                            -- Finished, re-arm next clock if WHEN_DONE=Re-Arm
                             active_o <= '0';
+                            rearm <= WHEN_DONE(0);
                             pcomp_fsm <= WAIT_ENABLE;
                         elsif jumped_more_than_step = '1' then
                             -- Jump > WIDTH + STEP
