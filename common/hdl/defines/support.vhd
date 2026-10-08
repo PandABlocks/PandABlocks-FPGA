@@ -10,6 +10,7 @@ constant c_SIGNED_BINARY_ENCODING    : std_logic_vector(1 downto 0) := "10";
 constant c_SIGNED_GRAY_ENCODING      : std_logic_vector(1 downto 0) := "11";
 
 type vector_array is array(natural range <>) of std_logic_vector;
+type signed_array is array(natural range <>) of signed;
 
 --
 -- Functions
@@ -23,6 +24,10 @@ function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 function BITREV(A : std_logic_vector) return std_logic_vector;
 function ONEHOT_INDEX (arg : std_logic_vector) return natural;
 function to_std_logic(cond : boolean) return std_logic;
+function reverse(data : in std_ulogic_vector) return std_ulogic_vector;
+function to_std_ulogic(bool : boolean) return std_ulogic;
+function to_std_ulogic(nat : natural range 0 to 1) return std_ulogic;
+function bits(x : natural) return natural;
 
 end support;
 
@@ -107,5 +112,44 @@ begin
         return '0';
     end if;
 end function;
+
+function reverse(data : in std_ulogic_vector) return std_ulogic_vector
+is
+    variable result : std_ulogic_vector(data'REVERSE_RANGE);
+begin
+    for i in data'RANGE loop
+        result(i) := data(i);
+    end loop;
+    return result;
+end;
+
+function bits(x: natural) return natural is
+    variable t : natural := x;
+    variable n : natural := 0;
+begin
+    while t > 0 loop
+        t := t / 2;
+        n := n + 1;
+    end loop;
+    return n;
+end function;
+
+function to_std_ulogic(bool : boolean) return std_ulogic is
+begin
+    if bool then
+        return '1';
+    else
+        return '0';
+    end if;
+end;
+
+function to_std_ulogic(nat : natural range 0 to 1) return std_ulogic is
+begin
+    case nat is
+        when 0 => return '0';
+        when 1 => return '1';
+    end case;
+end;
+
 
 end support;
