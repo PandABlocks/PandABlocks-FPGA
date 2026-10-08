@@ -232,7 +232,7 @@ debug_cocotb_tests: cocotb_tests
 .PHONY: debug_cocotb_tests
 
 cocotb_system_tests: $(AUTOGEN_BUILD_DIR)
-	$(PYTHON) -m pytest $(TOP)/common/python/testtarget/ -v \
+	$(PYTHON) -m pytest $(TOP)/tests/system/ -v \
 	    $(COCOTB_PYTEST_EXTRA_ARGS) --build-dir $(BUILD_DIR)
 .PHONY: cocotb_system_tests
 

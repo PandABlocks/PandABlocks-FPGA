@@ -109,3 +109,19 @@ Add a `test_config.py` if the module needs paths to extra HDL files, signal
 information beyond `block.ini`, or a non-default top-level entity name.
 
 Modules with a `timing.ini` are automatically identified as testable.
+
+## System tests
+
+System tests live in `tests/system/`. They simulate the whole `testtarget`
+design, including the generated register map, PCAP DMA and PGEN table streaming,
+so they cover how the blocks work together rather than the timing of one block.
+The shared harness they use (AXI models, `PandaTestHarness`, etc.) lives in
+`common/python/testtarget/`, together with the simulation server.
+
+Set `APP_NAME = testtarget` in `CONFIG`, then run:
+
+```shell
+make cocotb_system_tests
+```
+
+Use `make debug_cocotb_system_tests` to see test output as it runs.
