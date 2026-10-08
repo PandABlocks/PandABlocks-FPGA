@@ -15,6 +15,7 @@ generic (
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
+    clk_200_i               : in  std_logic;
     reset_i                 : in  std_logic;
     -- Memory Bus Interface
     OUTENC_read_strobe_i    : in  std_logic;
@@ -116,6 +117,7 @@ encoders_block_inst : entity work.encoders_block
 port map (
     -- Clock and Reset
     clk_i                   => clk_i,
+    clk_200_i               => clk_200_i,
     reset_i                 => reset_i,
     -- Memory Bus Interface
     OUTENC_read_strobe_i    => OUTENC_read_strobe(I),
