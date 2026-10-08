@@ -165,7 +165,7 @@ CLK_2X_GEN_1 : if FINE_DELAY_OPTION = '1' generate
              I => pll2_clkfbout
     );
 
-    flck_buf2 : BUFG port map (
+    fclk_buf2 : BUFG port map (
             O => fclk_clk_2x_buf,
             I => fclk_clk_2x
         );
