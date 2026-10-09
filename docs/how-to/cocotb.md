@@ -109,3 +109,57 @@ Add a `test_config.py` if the module needs paths to extra HDL files, signal
 information beyond `block.ini`, or a non-default top-level entity name.
 
 Modules with a `timing.ini` are automatically identified as testable.
+
+## System tests
+
+System tests live in `tests/system/`. They simulate the whole `testtarget`
+design, including the generated register map, PCAP DMA and PGEN table streaming,
+so they cover how the blocks work together rather than the timing of one block.
+The shared harness they use (AXI models, `PandaTestHarness`, etc.) lives in
+`common/python/testtarget/`, together with the simulation server.
+
+Set `APP_NAME = testtarget` in `CONFIG`, then run:
+
+```shell
+make cocotb_system_tests
+```
+
+Use `make debug_cocotb_system_tests` to see test output as it runs.
+
+## Unit tests
+
+Unit tests live in `tests/unit/`. Each one is a hand-written cocotb test for a
+single VHDL entity, for logic that is easier to check directly than through a
+`timing.ini` or the whole `testtarget` design. Run them with:
+
+```shell
+make cocotb_unit_tests
+```
+
+A test file holds the `@cocotb.test()` coroutines plus a pytest function that
+builds the entity with `run_entity_test` from `tests/unit/entity_runner.py`.
+List the VHDL sources the entity needs, relative to the repository root; they
+are put in compilation order automatically. Generics are passed as
+`parameters`:
+
+```python
+import cocotb
+from entity_runner import run_entity_test
+
+
+@cocotb.test()
+async def my_entity_works(dut):
+    ...
+
+
+def test_my_entity(build_dir):
+    run_entity_test(
+        'test_my_entity', 'my_entity',
+        ['common/hdl/my_entity.vhd', 'common/hdl/defines/support.vhd'],
+        build_dir, parameters={'WIDTH': 8})
+```
+
+The first argument must match the file's module name. Every cocotb test in the
+file runs against the same simulation, so reset the entity at the start of
+each test. Pass `waves=True` to dump `wave.fst` into the test's build
+directory. See `tests/unit/test_fifo.py` for a complete example.

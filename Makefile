@@ -232,13 +232,23 @@ debug_cocotb_tests: cocotb_tests
 .PHONY: debug_cocotb_tests
 
 cocotb_system_tests: $(AUTOGEN_BUILD_DIR)
-	$(PYTHON) -m pytest $(TOP)/common/python/testtarget/ -v \
+	$(PYTHON) -m pytest $(TOP)/tests/system/ -v \
 	    $(COCOTB_PYTEST_EXTRA_ARGS) --build-dir $(BUILD_DIR)
 .PHONY: cocotb_system_tests
 
 debug_cocotb_system_tests: COCOTB_PYTEST_EXTRA_ARGS=-s
 debug_cocotb_system_tests: cocotb_system_tests
 .PHONY: debug_cocotb_system_tests
+
+# Cocotb tests of a single VHDL entity (tests/unit)
+cocotb_unit_tests:
+	$(PYTHON) -m pytest $(TOP)/tests/unit/ -v \
+	    $(COCOTB_PYTEST_EXTRA_ARGS) --build-dir $(BUILD_DIR)
+.PHONY: cocotb_unit_tests
+
+debug_cocotb_unit_tests: COCOTB_PYTEST_EXTRA_ARGS=-s
+debug_cocotb_unit_tests: cocotb_unit_tests
+.PHONY: debug_cocotb_unit_tests
 
 
 run_sim_server: $(AUTOGEN_BUILD_DIR)
