@@ -40,6 +40,7 @@ async def tick_counting(clock, time_travel):
             diff_extra_delay = time_travel.extra_delay - last_extra_delay
             last_extra_delay = time_travel.extra_delay
             print(f'Ticks per second = {tps:.1f}, '
+                  f'Jumps = {time_travel.njumps}, '
                   f'Diff Extra delay = {diff_extra_delay:.3f}s')
             last_ts = current_ts
             last_ticks = ticks
@@ -229,14 +230,13 @@ class SimServer(object):
     async def process_client(self) -> bool:
         was_first = len(self.command) == 0
         timeout = self.test.time_travel.compute_timeout()
-        # If a timer is currently counting down towards a time-travel jump,
-        # block here until it's due (or until the client sends something,
-        # whichever comes first) instead of spinning through every clock
-        # edge in between with nothing useful to do. We must keep polling
-        # every edge (timeout 0) instead if either: a timer is running but
-        # too short to be worth a jump (it still needs real clock edges to
-        # progress), or PCAP is actively collecting samples/draining its DMA
-        # FIFO (also needs every edge processed).
+        # If a time-travel jump is scheduled, block here until it's due (or
+        # until the client sends something, whichever comes first) instead of
+        # spinning through every clock edge in between with nothing useful to
+        # do. The timeout is 0 (poll every edge) while real clock edges are
+        # needed: right after a jump, a command or an event so that it can
+        # propagate, when the next event is too close to be worth a jump, or
+        # while PCAP is collecting samples/draining its DMA FIFO.
         if not select.select([self.client], [], [], timeout)[0]:
             return False
 

@@ -1,3 +1,25 @@
+"""Time travel for the testtarget simulation.
+
+The simulator runs orders of magnitude slower than the 125 MHz FPGA clock, so
+a CLOCK block with a one second period would take hours of wall-clock time to
+toggle. ``PandaTimeTravel`` keeps a Python model of every tick-counting entity
+in the design. When every pending event is far enough away, it moves *all* of
+them forward together by the number of ticks until the earliest event (a
+"jump"), paced so that the jump happens once the corresponding wall-clock time
+has elapsed. Between jumps the simulation runs real clock cycles so that the
+event and its effects propagate through the design.
+
+Jumping every entity by the same amount in the same clock cycle is what keeps
+them consistent with each other: the timestamp counter of a PULSE block sees
+exactly the same elapsed time as the CLOCK block that triggers it, and PCAP
+timestamps and sample counts match both.
+
+Models read the design state right after a rising clock edge, before the
+processes triggered by that edge have updated their signals, and deposit the
+advanced values so they replace the single-tick update the processes are
+about to make. The edge is therefore absorbed into the jump: everything moves
+by exactly ``n`` ticks, not ``n + 1``.
+"""
 import logging
 import time
 from enum import Enum, auto
@@ -9,101 +31,332 @@ from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
 DEFAULT_TIMEOUT = 60  # seconds
 
 
-class ClockTimerState(Enum):
-    IDLE = auto()
-    WAIT_FOR_LOW = auto()
-    WAIT_FOR_ZERO = auto()
+def _unsigned(sig):
+    return sig.value.to_unsigned()
 
 
-class PrescaledTimerState(Enum):
-    IDLE = auto()
-    WAIT_FOR_COUNTER = auto()
+def _signed(sig):
+    return sig.value.to_signed()
 
 
-class PulseTrainState(Enum):
-    IDLE = auto()
-    WAIT_FOR_COUNTER = auto()
+def _mask(sig):
+    return (1 << len(sig)) - 1
 
 
-class TimeStampQueueState(Enum):
-    IDLE = auto()
-    WAIT_FOR_COUNTER = auto()
+class TickModel:
+    """Python model of one tick-counting entity in the design.
 
-
-class PcapFrameModeHelper:
-    SUM_MASK = 2**72 - 1
-    SQ_MASK = 2**104 - 1
+    ``remaining()`` returns the number of clock ticks until the entity's next
+    event (a change that other blocks may observe), or ``None`` when it has no
+    pending event. ``advance(n)`` moves the entity's state forward by ``n``
+    ticks; the coordinator guarantees ``n <= remaining()`` for models that
+    reported a pending event, so no event is ever skipped.
+    """
 
     def __init__(self, inst):
         self.inst = inst
+        self.path = inst._path
+
+    def remaining(self):
+        return None
+
+    def advance(self, n):
+        raise NotImplementedError
+
+
+class ClockTimerModel(TickModel):
+    """``timer_for_clock``: counts down from ``auto_reload`` to 0.
+
+    Events are the output going low at ``counter = low`` and going high
+    (with reload) at ``counter = 0``.
+    """
+
+    def __init__(self, inst):
+        super().__init__(inst)
         self.enable_i = inst.enable_i
-        self.trig_r1 = inst.trig_r1
+        self.low_i = inst.low_i
+        self.counter = inst.counter
+
+    def remaining(self):
+        if self.enable_i.value != 1:
+            return None
+        counter = _unsigned(self.counter)
+        low = _unsigned(self.low_i)
+        if counter > low:
+            return counter - low
+        return counter
+
+    def advance(self, n):
+        if self.enable_i.value != 1:
+            return
+        self.counter.value = _unsigned(self.counter) - n
+
+
+class PrescaledTimerModel(TickModel):
+    """``prescaled_timer``: ``precounter`` counts 0..P, ``counter`` 0..T.
+
+    The timer expires when both have reached their rollover values.
+    """
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_i = inst.enable_i
+        self.prescaler_rollover_i = inst.prescaler_rollover_i
+        self.timer_rollover_i = inst.timer_rollover_i
+        self.counter = inst.counter
+        self.precounter = inst.precounter
+
+    def remaining(self):
+        if self.enable_i.value != 1:
+            return None
+        prescale = _unsigned(self.prescaler_rollover_i)
+        rollover = _unsigned(self.timer_rollover_i)
+        counter = _unsigned(self.counter)
+        precounter = _unsigned(self.precounter)
+        if counter > rollover or precounter > prescale:
+            # Parameters changed under the running timer: let the RTL sort
+            # itself out with real clock cycles.
+            return 0
+        total = counter * (prescale + 1) + precounter
+        end = rollover * (prescale + 1) + prescale
+        return end - total
+
+    def advance(self, n):
+        if self.enable_i.value != 1:
+            return
+        prescale = _unsigned(self.prescaler_rollover_i)
+        total = _unsigned(self.counter) * (prescale + 1) + \
+            _unsigned(self.precounter) + n
+        self.counter.value = total // (prescale + 1)
+        self.precounter.value = total % (prescale + 1)
+
+
+class PulseTrainModel(TickModel):
+    """``pulse_train``: ``pulse_counter`` counts down to the next output edge
+    while ``edges_remaining`` is non-zero."""
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_i = inst.enable_i
+        self.edges_remaining = inst.edges_remaining
+        self.pulse_counter = inst.pulse_counter
+
+    def _active(self):
+        return self.enable_i.value == 1 and \
+            _unsigned(self.edges_remaining) != 0
+
+    def remaining(self):
+        if not self._active():
+            return None
+        return _unsigned(self.pulse_counter)
+
+    def advance(self, n):
+        if not self._active():
+            return
+        self.pulse_counter.value = _unsigned(self.pulse_counter) - n
+
+
+class TimestampQueueModel(TickModel):
+    """``timestamp_queue``: free-running ``timestamp`` compared against the
+    absolute timestamps queued in its FIFO.
+
+    The counter must advance whenever the block is enabled, even with nothing
+    queued, because later triggers are stamped relative to it.
+    """
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_i = inst.enable_i
+        self.read_valid = inst.read_valid
+        self.timestamp = inst.timestamp
+        self.queue_pulse_ts = inst.queue_pulse_ts
+        self.pulse_override_o = inst.pulse_override_o
+        self.override_ends_ts = inst.override_ends_ts
+
+    def remaining(self):
+        if self.enable_i.value != 1:
+            return None
+        timestamp = _unsigned(self.timestamp)
+        pending = []
+        if self.read_valid.value == 1:
+            pending.append(_unsigned(self.queue_pulse_ts) - timestamp)
+        if self.pulse_override_o.value == 1:
+            pending.append(_unsigned(self.override_ends_ts) - timestamp)
+        # A target already in the past can never match again in the RTL
+        # (equality compare), so it is not a pending event.
+        pending = [p for p in pending if p >= 0]
+        if not pending:
+            return None
+        return min(pending)
+
+    def advance(self, n):
+        if self.enable_i.value != 1:
+            return
+        self.timestamp.value = \
+            (_unsigned(self.timestamp) + n) & _mask(self.timestamp)
+
+
+class PcapTimestampModel(TickModel):
+    """``pcap_arming``: timestamp counting from ARM while enabled."""
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_i = inst.enable_i
+        self.pcap_armed = inst.pcap_armed
+        self.timestamp = inst.timestamp
+
+    def advance(self, n):
+        if self.pcap_armed.value != 1 or self.enable_i.value != 1:
+            return
+        timestamp = _unsigned(self.timestamp)
+        if timestamp > 0:
+            self.timestamp.value = (timestamp + n) & _mask(self.timestamp)
+
+
+class PcapFrameModel(TickModel):
+    """``pcap_frame``: counts gated samples between captures (SAMPLES)."""
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_i = inst.enable_i
+        self.gate_i = inst.gate_i
+        self.cnt_samples = inst.cnt_samples
+
+    def advance(self, n):
+        if self.enable_i.value != 1 or self.gate_i.value != 1:
+            return
+        self.cnt_samples.value = \
+            (_unsigned(self.cnt_samples) + n) & _mask(self.cnt_samples)
+
+
+class PcapFrameModeModel(TickModel):
+    """``pcap_frame_mode``: running sum and sum of squares of the gated value.
+
+    Min, max and difference do not depend on the number of ticks, so only the
+    accumulators need advancing. The value is constant during a jump.
+    """
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.enable_r1 = inst.enable_r1
         self.gate_r1 = inst.gate_r1
         self.value_r1 = inst.value_r1
         self.sum_data = inst.sum_data
         self.sum_data_sq = inst.sum_data_sq
 
-    def advance(self, diff_ticks):
-        if self.enable_i.value != 1 or self.gate_r1.value != 1:
+    def advance(self, n):
+        if self.enable_r1.value != 1 or self.gate_r1.value != 1:
             return
-
+        value = _signed(self.value_r1)
         self.sum_data.value = \
-            (self.sum_data.value.to_unsigned() + \
-                diff_ticks * self.value_r1.value.to_unsigned()) & self.SUM_MASK
-
+            (_signed(self.sum_data) + n * value) & _mask(self.sum_data)
         self.sum_data_sq.value = \
-            (self.sum_data_sq.value.to_unsigned() + \
-                diff_ticks * self.value_r1.value.to_unsigned() ** 2) & \
-                    self.SQ_MASK
+            (_unsigned(self.sum_data_sq) + n * value * value) & \
+            _mask(self.sum_data_sq)
+
+
+class FilterModel(TickModel):
+    """``filter`` in average mode: accumulates the input and a sample count
+    on every tick while enabled."""
+
+    AVERAGE = 1
+
+    def __init__(self, inst):
+        super().__init__(inst)
+        self.mode = inst.mode
+        self.enable_i_dly = inst.enable_i_dly
+        self.inp_i = inst.inp_i
+        self.sum_i = inst.sum_i
+        self.sum_num = inst.sum_num
+
+    def advance(self, n):
+        if self.enable_i_dly.value != 1:
+            return
+        mode = self.mode.value
+        # the MODE register port stays 'U' until the register is written for
+        # the first time; the server does that at startup, tests may not
+        if not mode.is_resolvable or (mode.to_unsigned() & 1) != self.AVERAGE:
+            return
+        self.sum_i.value = \
+            (_signed(self.sum_i) + n * _signed(self.inp_i)) & _mask(self.sum_i)
+        self.sum_num.value = (_unsigned(self.sum_num) + n) & _mask(self.sum_num)
+
+
+MODEL_CLASSES = {
+    'timer_for_clock': ClockTimerModel,
+    'prescaled_timer': PrescaledTimerModel,
+    'pulse_train': PulseTrainModel,
+    'timestamp_queue': TimestampQueueModel,
+    'pcap_arming': PcapTimestampModel,
+    'pcap_frame': PcapFrameModel,
+    'pcap_frame_mode': PcapFrameModeModel,
+    'filter': FilterModel,
+}
+
+
+class TimeTravelState(Enum):
+    # nothing is counting down: nothing to wait for
+    IDLE = auto()
+    # some event is too close to be worth a jump, or PCAP is moving data:
+    # every real clock edge is needed
+    BUSY = auto()
+    # a jump is scheduled for ``deadline`` (wall-clock)
+    WAITING = auto()
 
 
 class PandaTimeTravel:
-    # we jump only if jump is bigger than this value
+    # we jump only if the jump is bigger than this value
     JUMP_THRES = 512
-    # after a jump, force this many real polling cycles before another jump
-    # is allowed, giving the simulation a chance to actually run for a bit
+    # after a jump, a command, or any observed event, force this many real
+    # clock cycles before another jump is allowed so that the event
+    # propagates through the design (bit bus delays, pipelines, FIFOs)
     MIN_TICKS = 38
 
     def __init__(self, dut, fpga_clock_freq=125000000):
         self.log = logging.getLogger(__class__.__name__)
         self.dut = dut
-        self.pcap_fifo_count = dut.pcap_inst.pcap_dma_inst.fifo_count
         self.fpga_clock_freq = fpga_clock_freq
+        self.pcap_fifo_count = dut.pcap_inst.pcap_dma_inst.fifo_count
+        self.models = []
+        self.find_models()
+        # simulated ticks elapsed, including the jumped ones
         self.timestamp = 0
-        cocotb.start_soon(self.timestamp_inc())
-        self.pcap_frame_modes = []
-        self.pending_deadlines = {}
-        self.busy_keys = set()
-        self.post_jump_cycles = 0
-        self.watch_entities()
+        self.was_advanced = False
+        # statistics
         self.advanced_ticks = 0
         self.extra_delay = 0
-        self.was_advanced = False
-        self.pcap_timestamp = \
-            self.dut.pcap_inst.pcap_core_inst.pcap_arming.timestamp
+        self.njumps = 0
+        # scheduling state, refreshed every clock edge by ``step``
+        self.post_jump_cycles = 0
+        self.state = TimeTravelState.IDLE
+        self.deadline = None
+        # wall-clock time corresponding to simulated tick 0: the simulated
+        # tick ``t`` is due at ``origin + t / fpga_clock_freq``
+        self.origin = time.time()
+        self._last_remaining = {}
+        cocotb.start_soon(self.timestamp_inc())
+        cocotb.start_soon(self.run())
 
-    def register_deadline(self, key, end_time):
-        self.pending_deadlines[key] = end_time
+    def find_models(self):
+        frontier = [self.dut]
+        while frontier:
+            current = frontier.pop()
+            # generate-loop arrays share the definition name of their
+            # instances, only the instances themselves have the signals
+            model_class = MODEL_CLASSES.get(current._def_name.lower()) \
+                if isinstance(current, HierarchyObject) else None
+            if model_class is not None:
+                self.log.info('Modelling %s as %s',
+                              current._path, model_class.__name__)
+                self.models.append(model_class(current))
 
-    def clear_deadline(self, key):
-        self.pending_deadlines.pop(key, None)
-
-    def next_deadline(self):
-        # earliest real wall-clock time at which some timer is due to jump,
-        # or None if nothing is currently counting down
-        if not self.pending_deadlines:
-            return None
-
-        return min(self.pending_deadlines.values())
-
-    def mark_busy(self, key):
-        # a timer that's running but below JUMP_THRES never gets a
-        # registered deadline - it still needs a real clock edge every
-        # cycle to decrement, so blocking would freeze it incorrectly
-        self.busy_keys.add(key)
-
-    def clear_busy(self, key):
-        self.busy_keys.discard(key)
+            if isinstance(current, HierarchyObject):
+                for name in dir(current):
+                    if not name.startswith('_'):
+                        frontier.append(getattr(current, name))
+            elif isinstance(current, HierarchyArrayObject):
+                for i in range(len(current)):
+                    frontier.append(current[i])
 
     def pcap_busy(self):
         # don't jump while PCAP is collecting samples or draining its DMA
@@ -114,35 +367,83 @@ class PandaTimeTravel:
         self.post_jump_cycles = self.MIN_TICKS
 
     def compute_timeout(self):
-        if self.post_jump_cycles > 0:
-            self.post_jump_cycles -= 1
+        """Seconds the caller may block before the next clock edge matters.
+
+        0 means every edge is needed, otherwise it is the time left until the
+        scheduled jump (or ``DEFAULT_TIMEOUT`` when nothing is pending).
+        """
+        if self.post_jump_cycles > 0 or self.state == TimeTravelState.BUSY:
             return 0
 
-        if self.busy_keys or self.pcap_busy():
-            return 0
-
-        deadline = self.next_deadline()
-        if deadline is None:
+        if self.state == TimeTravelState.IDLE:
             return DEFAULT_TIMEOUT
 
-        return max(0, deadline - time.time())
+        return max(0, self.deadline - time.time())
 
-    def advance_timestamp_in_pcap(self, diff_ticks):
-        current_pcap_timestamp = self.pcap_timestamp.value.to_unsigned()
-        if current_pcap_timestamp > 0:
-            self.pcap_timestamp.value = current_pcap_timestamp + diff_ticks
-            for pcap_frame_mode in self.pcap_frame_modes:
-                pcap_frame_mode.advance(diff_ticks)
+    def tick_deadline(self, ticks_ahead):
+        return self.origin + \
+            (self.timestamp + ticks_ahead) / self.fpga_clock_freq
 
-    def advance_timestamp(self, target_timestamp, end_time):
-        diff_ticks = target_timestamp - self.timestamp
-        if diff_ticks > 0:
-            self.advanced_ticks += diff_ticks
-            self.extra_delay += time.time() - end_time
-            self.advance_timestamp_in_pcap(diff_ticks)
-            self.timestamp = target_timestamp
-            self.was_advanced = True
-            self.boost_timeout()
+    def anchor(self, now):
+        # make the current simulated tick correspond to now
+        self.origin = now - self.timestamp / self.fpga_clock_freq
+
+    async def run(self):
+        edge = RisingEdge(self.dut.clk_i)
+        # wait for the design to be stable
+        await ClockCycles(self.dut.clk_i, 2)
+        while True:
+            await edge
+            self.step()
+
+    def step(self):
+        now = time.time()
+        if self.post_jump_cycles > 0:
+            self.post_jump_cycles -= 1
+
+        pending = []
+        for model in self.models:
+            remaining = model.remaining()
+            last = self._last_remaining.get(model)
+            self._last_remaining[model] = remaining
+            if remaining is None:
+                continue
+            if last is None or remaining > last:
+                # a countdown started or restarted: an event has just
+                # happened, give it real cycles to propagate
+                self.boost_timeout()
+            pending.append(remaining)
+
+        if not pending:
+            self.state = TimeTravelState.IDLE
+            self.deadline = None
+            self.anchor(now)
+            return
+
+        ticks = min(pending)
+        if ticks < self.JUMP_THRES or self.pcap_busy():
+            self.state = TimeTravelState.BUSY
+            self.deadline = None
+            return
+
+        self.state = TimeTravelState.WAITING
+        self.deadline = self.tick_deadline(ticks)
+        if self.post_jump_cycles == 0 and now >= self.deadline:
+            self.jump(ticks, now)
+
+    def jump(self, ticks, now):
+        self.log.debug('Jumping %d ticks at timestamp %d', ticks, self.timestamp)
+        for model in self.models:
+            model.advance(ticks)
+
+        self.timestamp += ticks
+        self.was_advanced = True
+        self.advanced_ticks += ticks
+        self.njumps += 1
+        self.extra_delay += now - self.deadline
+        # don't accumulate lag: the next deadline is relative to this jump
+        self.anchor(now)
+        self.boost_timeout()
 
     async def timestamp_inc(self):
         while True:
@@ -152,199 +453,3 @@ class PandaTimeTravel:
                 self.timestamp += 1
 
             self.was_advanced = False
-
-    def add_pcap_frame_mode(self, pcap_frame_mode_inst):
-        self.pcap_frame_modes.append(PcapFrameModeHelper(pcap_frame_mode_inst))
-
-    def watch_entities(self):
-        watchers = {
-            'timer_for_clock': self.watch_clock_timer,
-            'prescaled_timer': self.watch_prescaled_timer,
-            'pulse_train': self.watch_pulse_train,
-            'timestamp_queue': self.watch_timestamp_queue,
-        }
-        functions = {
-            'pcap_frame_mode': self.add_pcap_frame_mode,
-        }
-        frontier = [self.dut]
-        while frontier:
-            current = frontier.pop()
-            path = current._path
-            entity = current._def_name.lower()
-            watch = watchers.get(entity, None)
-            if watch is not None:
-                print(f'Watching: {path}')
-                cocotb.start_soon(watch(current))
-
-            func = functions.get(entity, None)
-            if func is not None:
-                print(f'Processing: {path}')
-                func(current)
-
-            if isinstance(current, HierarchyObject):
-                for name in dir(current):
-                    if not name.startswith('_'):
-                        frontier.append(getattr(current, name))
-            elif isinstance(current, HierarchyArrayObject):
-                for i in range(len(current)):
-                    frontier.append(current[i])
-
-    async def watch_clock_timer(self, timer):
-        state = ClockTimerState.IDLE
-        end_time = 0
-        low = 0
-        # wait for the timer to be stable
-        await ClockCycles(timer.clk_i, 2)
-        while True:
-            await RisingEdge(timer.clk_i)
-            match state:
-                case ClockTimerState.IDLE:
-                    if timer.enable_i.value == 0:
-                        self.clear_busy(id(timer))
-                        continue
-                    auto_reload = timer.auto_reload_i.value.to_unsigned()
-                    if auto_reload >= self.JUMP_THRES:
-                        self.clear_busy(id(timer))
-                        state = ClockTimerState.WAIT_FOR_LOW
-                        low = timer.low_i.value.to_unsigned()
-                        end_time = time.time() + \
-                            (auto_reload - low) / self.fpga_clock_freq
-                        end_tick = self.timestamp + auto_reload - low
-                        self.register_deadline(id(timer), end_time)
-                        # make sure we do a few cycles after enabling
-                        self.boost_timeout()
-                    else:
-                        # running, but too short to be worth jumping - it
-                        # still needs real clock edges to progress
-                        self.mark_busy(id(timer))
-
-                case ClockTimerState.WAIT_FOR_LOW:
-                    if timer.enable_i.value == 0:
-                        state = ClockTimerState.IDLE
-                        self.clear_deadline(id(timer))
-                    elif timer.counter.value.to_unsigned() == low:
-                        end_time = time.time() + low / self.fpga_clock_freq
-                        end_tick = self.timestamp + low
-                        state = ClockTimerState.WAIT_FOR_ZERO
-                        self.register_deadline(id(timer), end_time)
-                    elif time.time() >= end_time and not self.pcap_busy():
-                        # see you in the future
-                        self.advance_timestamp(end_tick, end_time)
-                        timer.counter.value = low
-
-                case ClockTimerState.WAIT_FOR_ZERO:
-                    if timer.enable_i.value == 0:
-                        state = ClockTimerState.IDLE
-                        self.clear_deadline(id(timer))
-                    elif timer.counter.value == 0:
-                        end_time = time.time() + \
-                            (auto_reload - low) / self.fpga_clock_freq
-                        end_tick = self.timestamp + auto_reload - low
-                        state = ClockTimerState.WAIT_FOR_LOW
-                        self.register_deadline(id(timer), end_time)
-                    elif time.time() >= end_time and not self.pcap_busy():
-                        # see you in the future
-                        self.advance_timestamp(end_tick, end_time)
-                        timer.counter.value = 0
-
-    async def watch_prescaled_timer(self, timer):
-        state = PrescaledTimerState.IDLE
-        # wait for the timer to be stable
-        await ClockCycles(timer.clk_i, 2)
-        while True:
-            await RisingEdge(timer.clk_i)
-            match state:
-                case PrescaledTimerState.IDLE:
-                    if timer.enable_i.value == 1:
-                        ticks = \
-                            (timer.prescaler_rollover_i.value.to_unsigned() + 1) \
-                            * (timer.timer_rollover_i.value.to_unsigned() + 1)
-                        if ticks >= self.JUMP_THRES:
-                            self.clear_busy(id(timer))
-                            end_time = time.time() + ticks / self.fpga_clock_freq
-                            end_tick = self.timestamp + ticks
-                            state = PrescaledTimerState.WAIT_FOR_COUNTER
-                            self.register_deadline(id(timer), end_time)
-                            # make sure we do a few cycles after enabling
-                            self.boost_timeout()
-                        else:
-                            self.mark_busy(id(timer))
-                    else:
-                        self.clear_busy(id(timer))
-                case PrescaledTimerState.WAIT_FOR_COUNTER:
-                    if timer.enable_i.value == 0:
-                        state = PrescaledTimerState.IDLE
-                        self.clear_deadline(id(timer))
-                    elif time.time() >= end_time and not self.pcap_busy():
-                        self.advance_timestamp(end_tick, end_time)
-                        timer.counter.value = timer.timer_rollover_i.value
-                        timer.precounter.value = timer.prescaler_rollover_i.value
-                        state = PrescaledTimerState.IDLE
-                        self.clear_deadline(id(timer))
-
-    async def watch_pulse_train(self, pulse_gen):
-        state = PulseTrainState.IDLE
-        # wait for the timer to be stable
-        await ClockCycles(pulse_gen.clk_i, 2)
-        while True:
-            await RisingEdge(pulse_gen.clk_i)
-            counter = pulse_gen.pulse_counter.value.to_unsigned()
-            match state:
-                case PulseTrainState.IDLE:
-                    if counter >= self.JUMP_THRES:
-                        self.clear_busy(id(pulse_gen))
-                        end_time = time.time() + counter / self.fpga_clock_freq
-                        end_tick = self.timestamp + counter
-                        state = PulseTrainState.WAIT_FOR_COUNTER
-                        self.register_deadline(id(pulse_gen), end_time)
-                        # make sure we do a few cycles after enabling
-                        self.boost_timeout()
-                    elif counter > 0:
-                        self.mark_busy(id(pulse_gen))
-                    else:
-                        self.clear_busy(id(pulse_gen))
-                case PulseTrainState.WAIT_FOR_COUNTER:
-                    if counter == 0:
-                        state = PulseTrainState.IDLE
-                        self.clear_deadline(id(pulse_gen))
-                    elif time.time() >= end_time and not self.pcap_busy():
-                        self.advance_timestamp(end_tick, end_time)
-                        pulse_gen.pulse_counter.value = 0
-                        state = PulseTrainState.IDLE
-                        self.clear_deadline(id(pulse_gen))
-
-    async def watch_timestamp_queue(self, timestamp_queue):
-        state = TimeStampQueueState.IDLE
-        # wait for the queue to be stable
-        await ClockCycles(timestamp_queue.clk_i, 2)
-        while True:
-            await RisingEdge(timestamp_queue.clk_i)
-            read_valid = True if timestamp_queue.read_valid.value == 1 \
-                              else False
-            match state:
-                case TimeStampQueueState.IDLE:
-                    if read_valid:
-                        timestamp = timestamp_queue.timestamp.value.to_unsigned()
-                        next_timestamp = timestamp_queue.queue_pulse_ts.value.to_unsigned()
-                        diff_tick = next_timestamp - timestamp
-                        if diff_tick >= self.JUMP_THRES:
-                            self.clear_busy(id(timestamp_queue))
-                            end_time = time.time() + diff_tick / self.fpga_clock_freq
-                            end_tick = self.timestamp + diff_tick
-                            state = TimeStampQueueState.WAIT_FOR_COUNTER
-                            self.register_deadline(id(timestamp_queue), end_time)
-                            # make sure we do a few cycles after enabling
-                            self.boost_timeout()
-                        else:
-                            self.mark_busy(id(timestamp_queue))
-                    else:
-                        self.clear_busy(id(timestamp_queue))
-                case TimeStampQueueState.WAIT_FOR_COUNTER:
-                    if not read_valid:
-                        state = TimeStampQueueState.IDLE
-                        self.clear_deadline(id(timestamp_queue))
-                    elif time.time() >= end_time and not self.pcap_busy():
-                        self.advance_timestamp(end_tick, end_time)
-                        timestamp_queue.timestamp.value = next_timestamp
-                        state = TimeStampQueueState.IDLE
-                        self.clear_deadline(id(timestamp_queue))

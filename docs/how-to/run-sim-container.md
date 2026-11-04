@@ -30,6 +30,16 @@ server and web control to log connection failures on the first attempts while
 the simulation is still generating `config_d` and elaborating the design.
 :::
 
+To make long timers usable despite the slow simulation, the FPGA simulation
+"time travels": it models every tick-counting entity in the design (CLOCK and
+SEQ timers, PULSE queues and trains, PCAP timestamps and sample counts, FILTER
+averages) and, when the next event is far enough away, advances all of them
+together by the number of ticks until that event, paced so that the jump
+happens once the corresponding wall-clock time has elapsed. A CLOCK with a
+one second period therefore toggles about once a second, and every other block
+sees the same elapsed time as that CLOCK. Short timers (below a few hundred
+ticks) still run cycle by cycle.
+
 ## Expose the server ports as well
 
 To talk to the simulated PandA with the
