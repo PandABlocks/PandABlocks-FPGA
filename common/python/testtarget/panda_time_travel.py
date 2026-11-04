@@ -397,10 +397,15 @@ class PandaTimeTravel:
             self.step()
 
     def step(self):
-        now = time.time()
         if self.post_jump_cycles > 0:
             self.post_jump_cycles -= 1
 
+        if self.pcap_busy():
+            self.state = TimeTravelState.BUSY
+            self.deadline = None
+            return
+
+        now = time.time()
         pending = []
         for model in self.models:
             remaining = model.remaining()
@@ -421,7 +426,7 @@ class PandaTimeTravel:
             return
 
         ticks = min(pending)
-        if ticks < self.JUMP_THRES or self.pcap_busy():
+        if ticks < self.JUMP_THRES:
             self.state = TimeTravelState.BUSY
             self.deadline = None
             return
