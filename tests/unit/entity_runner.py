@@ -21,6 +21,7 @@ def run_entity_test(test_module, toplevel, sources, build_dir,
         waves: Dump a wave.fst waveform in the test build directory.
     """
     sim_build_dir = Path(build_dir) / f'unit_{test_module}'
+    sim_build_dir.mkdir(parents=True, exist_ok=True)
     sources = [TOP / source for source in sources]
     for source in sources:
         if not source.exists():
