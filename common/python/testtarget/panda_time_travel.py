@@ -412,6 +412,9 @@ class PandaTimeTravel:
             last = self._last_remaining.get(model)
             self._last_remaining[model] = remaining
             if remaining is None:
+                if last is not None:
+                    # an event just happened, give it real cycles to propagate
+                    self.delay_wait()
                 continue
             if last is None or remaining > last:
                 # a countdown started or restarted: an event has just
