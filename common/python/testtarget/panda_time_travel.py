@@ -66,38 +66,13 @@ class TickModel:
         raise NotImplementedError
 
 
-class ClockTimerModel(TickModel):
-    """``timer_for_clock``: counts down from ``auto_reload`` to 0.
-
-    Events are the output going low at ``counter = low`` and going high
-    (with reload) at ``counter = 0``.
-    """
-
-    def __init__(self, inst):
-        super().__init__(inst)
-        self.enable_i = inst.enable_i
-        self.low_i = inst.low_i
-        self.counter = inst.counter
-
-    def remaining(self):
-        if self.enable_i.value != 1:
-            return None
-        counter = _unsigned(self.counter)
-        low = _unsigned(self.low_i)
-        if counter > low:
-            return counter - low
-        return counter
-
-    def advance(self, n):
-        if self.enable_i.value != 1:
-            return
-        self.counter.value = _unsigned(self.counter) - n
-
-
 class PrescaledTimerModel(TickModel):
     """``prescaled_timer``: ``precounter`` counts 0..P, ``counter`` 0..T.
 
-    The timer expires when both have reached their rollover values.
+    Events are the timer expiring, when both have reached their rollover
+    values, and the output going low when ``counter = low`` with the
+    prescaler rolled (only if ``low`` is within the counter's range: a block
+    that leaves the output unused ties ``low`` to all ones).
     """
 
     def __init__(self, inst):
@@ -105,6 +80,7 @@ class PrescaledTimerModel(TickModel):
         self.enable_i = inst.enable_i
         self.prescaler_rollover_i = inst.prescaler_rollover_i
         self.timer_rollover_i = inst.timer_rollover_i
+        self.low_i = inst.low_i
         self.counter = inst.counter
         self.precounter = inst.precounter
 
@@ -121,7 +97,13 @@ class PrescaledTimerModel(TickModel):
             return 0
         total = counter * (prescale + 1) + precounter
         end = rollover * (prescale + 1) + prescale
-        return end - total
+        pending = [end - total]
+        low = _unsigned(self.low_i)
+        if low <= rollover:
+            low_end = low * (prescale + 1) + prescale
+            if low_end >= total:
+                pending.append(low_end - total)
+        return min(pending)
 
     def advance(self, n):
         if self.enable_i.value != 1:
@@ -294,7 +276,6 @@ class FilterModel(TickModel):
 
 
 MODEL_CLASSES = {
-    'timer_for_clock': ClockTimerModel,
     'prescaled_timer': PrescaledTimerModel,
     'pulse_train': PulseTrainModel,
     'timestamp_queue': TimestampQueueModel,

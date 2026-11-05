@@ -471,6 +471,7 @@ timer_rollover <= next_ts - 1;
 --------------------------------------------------------------------------
 -- Frame counter :
 --  Timer stays synchronous during Phase 1 + Phase 2 states
+--  Only the expiry strobe is used, the waveform output stays open
 --------------------------------------------------------------------------
 ptimer_inst : entity work.prescaled_timer port map (
     clk_i => clk_i,

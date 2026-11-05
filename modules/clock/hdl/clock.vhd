@@ -32,9 +32,10 @@ end;
 
 architecture rtl of clock is
     signal enable : std_logic;
-    signal reload : unsigned(31 downto 0);
+    signal reload : unsigned(31 downto 0) := (others => '0');
     signal valid_period : std_logic := '0';
-    signal low_period : unsigned(31 downto 0);
+    -- counter value after which the output goes low
+    signal high_minus_one : unsigned(31 downto 0) := (others => '0');
 begin
 
 process(clk_i)
@@ -69,15 +70,22 @@ begin
         else
             high_period := unsigned(WIDTH);
         end if;
-       low_period <= full_period - high_period;
+        high_minus_one <= high_period - 1;
     end if;
 end process;
 
-timer_inst: entity work.timer_for_clock port map (
+-- The counter runs 0..reload, the output is high for high_period ticks from
+-- the start of each period. Expiring on enable makes the output rise on the
+-- tick after the block is enabled or a parameter is written.
+timer_inst: entity work.prescaled_timer generic map (
+    EXPIRE_ON_ENABLE => true
+) port map (
     clk_i => clk_i,
     enable_i => enable,
-    low_i => std_logic_vector(low_period),
-    auto_reload_i => std_logic_vector(reload),
+    prescaler_rollover_i => (others => '0'),
+    timer_rollover_i => std_logic_vector(reload),
+    low_i => std_logic_vector(high_minus_one),
+    expired_o => open,
     out_o => out_o
 );
 
