@@ -171,6 +171,7 @@ class TimestampQueueModel(TickModel):
         self.enable_i = inst.enable_i
         self.read_valid = inst.read_valid
         self.timestamp = inst.timestamp
+        self.timestamp_mask = _mask(self.timestamp)
         self.queue_pulse_ts = inst.queue_pulse_ts
         self.pulse_override_o = inst.pulse_override_o
         self.override_ends_ts = inst.override_ends_ts
@@ -180,13 +181,17 @@ class TimestampQueueModel(TickModel):
             return None
         timestamp = _unsigned(self.timestamp)
         pending = []
+        # The RTL compares a wrapping counter for equality, so a target below
+        # the current timestamp is due once the counter has wrapped round to
+        # it: the distance to every target is taken modulo the counter width.
         if self.read_valid.value == 1:
-            pending.append(_unsigned(self.queue_pulse_ts) - timestamp)
+            pending.append(
+                (_unsigned(self.queue_pulse_ts) - timestamp) &
+                    self.timestamp_mask)
         if self.pulse_override_o.value == 1:
-            pending.append(_unsigned(self.override_ends_ts) - timestamp)
-        # A target already in the past can never match again in the RTL
-        # (equality compare), so it is not a pending event.
-        pending = [p for p in pending if p >= 0]
+            pending.append(
+                (_unsigned(self.override_ends_ts) - timestamp) &
+                    self.timestamp_mask)
         if not pending:
             return None
         return min(pending)
@@ -195,7 +200,7 @@ class TimestampQueueModel(TickModel):
         if self.enable_i.value != 1:
             return
         self.timestamp.value = \
-            (_unsigned(self.timestamp) + n) & _mask(self.timestamp)
+            (_unsigned(self.timestamp) + n) & self.timestamp_mask
 
 
 class PcapTimestampModel(TickModel):
@@ -244,17 +249,19 @@ class PcapFrameModeModel(TickModel):
         self.gate_r1 = inst.gate_r1
         self.value_r1 = inst.value_r1
         self.sum_data = inst.sum_data
+        self.sum_data_mask = _mask(self.sum_data)
         self.sum_data_sq = inst.sum_data_sq
+        self.sum_data_sq_mask = _mask(self.sum_data_sq)
 
     def advance(self, n):
         if self.enable_r1.value != 1 or self.gate_r1.value != 1:
             return
         value = _signed(self.value_r1)
         self.sum_data.value = \
-            (_signed(self.sum_data) + n * value) & _mask(self.sum_data)
+            (_signed(self.sum_data) + n * value) & self.sum_data_mask
         self.sum_data_sq.value = \
             (_unsigned(self.sum_data_sq) + n * value * value) & \
-            _mask(self.sum_data_sq)
+                self.sum_data_sq_mask
 
 
 class FilterModel(TickModel):
@@ -269,7 +276,9 @@ class FilterModel(TickModel):
         self.enable_i_dly = inst.enable_i_dly
         self.inp_i = inst.inp_i
         self.sum_i = inst.sum_i
+        self.sum_i_mask = _mask(self.sum_i)
         self.sum_num = inst.sum_num
+        self.sum_num_mask = _mask(self.sum_num)
 
     def advance(self, n):
         if self.enable_i_dly.value != 1:
@@ -280,8 +289,8 @@ class FilterModel(TickModel):
         if not mode.is_resolvable or (mode.to_unsigned() & 1) != self.AVERAGE:
             return
         self.sum_i.value = \
-            (_signed(self.sum_i) + n * _signed(self.inp_i)) & _mask(self.sum_i)
-        self.sum_num.value = (_unsigned(self.sum_num) + n) & _mask(self.sum_num)
+            (_signed(self.sum_i) + n * _signed(self.inp_i)) & self.sum_i_mask
+        self.sum_num.value = (_unsigned(self.sum_num) + n) & self.sum_num_mask
 
 
 MODEL_CLASSES = {
@@ -373,7 +382,8 @@ class PandaTimeTravel:
         """Seconds the caller may block before the next clock edge matters.
 
         0 means every edge is needed, otherwise it is the time left until the
-        scheduled jump (or ``DEFAULT_TIMEOUT`` when nothing is pending).
+        scheduled jump, capped at ``DEFAULT_TIMEOUT`` (which is also what an
+        idle scheduler returns) so that the caller wakes up now and then.
         """
         if self.post_jump_cycles > 0 or self.state == TimeTravelState.BUSY:
             return 0
@@ -381,7 +391,7 @@ class PandaTimeTravel:
         if self.state == TimeTravelState.IDLE:
             return DEFAULT_TIMEOUT
 
-        return max(0, self.deadline - time.time())
+        return min(DEFAULT_TIMEOUT, max(0, self.deadline - time.time()))
 
     def tick_deadline(self, ticks_ahead):
         return self.origin + \
