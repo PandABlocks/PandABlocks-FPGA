@@ -264,7 +264,7 @@ class SimServer(object):
         if completed:
             # if command is enabling something, simulate a few cycles to make
             # sure the effects propagates.
-            self.test.time_travel.boost_timeout()
+            self.test.time_travel.delay_wait()
 
         return False
 

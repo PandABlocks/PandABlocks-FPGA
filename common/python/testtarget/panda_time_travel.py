@@ -363,7 +363,7 @@ class PandaTimeTravel:
         # FIFO - it needs every real clock edge processed
         return self.pcap_fifo_count.value.to_unsigned() != 0
 
-    def boost_timeout(self):
+    def delay_wait(self):
         self.post_jump_cycles = self.MIN_TICKS
 
     def compute_timeout(self):
@@ -416,7 +416,7 @@ class PandaTimeTravel:
             if last is None or remaining > last:
                 # a countdown started or restarted: an event has just
                 # happened, give it real cycles to propagate
-                self.boost_timeout()
+                self.delay_wait()
             pending.append(remaining)
 
         if not pending:
@@ -448,7 +448,7 @@ class PandaTimeTravel:
         self.extra_delay += now - self.deadline
         # don't accumulate lag: the next deadline is relative to this jump
         self.anchor(now)
-        self.boost_timeout()
+        self.delay_wait()
 
     async def timestamp_inc(self):
         while True:
