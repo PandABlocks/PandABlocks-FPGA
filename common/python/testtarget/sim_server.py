@@ -260,6 +260,11 @@ class SimServer(object):
             self.command.clear()
             return False
 
+        if timeout > 0:
+            # the simulated time stood still during the blocking wait: catch
+            # up with the wall clock before the command takes effect
+            await self.test.time_travel.catch_up()
+
         completed = await self.handle_command()
         if completed:
             # if command is enabling something, simulate a few cycles to make

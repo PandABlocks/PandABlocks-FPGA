@@ -7,7 +7,9 @@ in the design. When every pending event is far enough away, it moves *all* of
 them forward together by the number of ticks until the earliest event (a
 "jump"), paced so that the jump happens once the corresponding wall-clock time
 has elapsed. Between jumps the simulation runs real clock cycles so that the
-event and its effects propagate through the design.
+event and its effects propagate through the design. A command that interrupts
+the wait for a jump is applied only after the simulated time has been caught
+up with the wall clock (``catch_up``).
 
 Jumping every entity by the same amount in the same clock cycle is what keeps
 them consistent with each other: the timestamp counter of a PULSE block sees
@@ -330,6 +332,7 @@ class PandaTimeTravel:
         self.post_jump_cycles = 0
         self.state = TimeTravelState.IDLE
         self.deadline = None
+        self.catch_up_requested = False
         # wall-clock time corresponding to simulated tick 0: the simulated
         # tick ``t`` is due at ``origin + t / fpga_clock_freq``
         self.origin = time.time()
@@ -388,6 +391,24 @@ class PandaTimeTravel:
         # make the current simulated tick correspond to now
         self.origin = now - self.timestamp / self.fpga_clock_freq
 
+    async def catch_up(self):
+        """Bring the simulated time up to the wall clock after a blocking wait.
+
+        While the server blocks in ``select`` waiting for the next jump, no
+        clock edges run: the wall clock moves on but ``timestamp`` stands
+        still. A command arriving mid-wait would otherwise take effect at the
+        simulated time the wait began. A countdown it starts gets a deadline
+        that is already in the past and fires after only the propagation
+        cycles, and the re-anchoring after that jump delays every countdown
+        that was already running. The server calls this before handling the
+        command; it returns once ``step`` has moved every model to the tick
+        that is due now, which leaves the existing deadlines where they were.
+        """
+        self.catch_up_requested = True
+        edge = RisingEdge(self.dut.clk_i)
+        while self.catch_up_requested:
+            await edge
+
     async def run(self):
         edge = RisingEdge(self.dut.clk_i)
         # wait for the design to be stable
@@ -397,6 +418,8 @@ class PandaTimeTravel:
             self.step()
 
     def step(self):
+        catch_up = self.catch_up_requested
+        self.catch_up_requested = False
         if self.post_jump_cycles > 0:
             self.post_jump_cycles -= 1
 
@@ -436,10 +459,20 @@ class PandaTimeTravel:
 
         self.state = TimeTravelState.WAITING
         self.deadline = self.tick_deadline(ticks)
-        if self.post_jump_cycles == 0 and now >= self.deadline:
+        if self.post_jump_cycles > 0:
+            return
+        if now >= self.deadline:
             self.jump(ticks, now)
+        elif catch_up:
+            # the wall clock moved on during a blocking wait: move every
+            # model to the tick that is due now, short of the earliest
+            # event, so that whatever the command starts is timed from now
+            elapsed = int((now - self.origin) * self.fpga_clock_freq) - \
+                self.timestamp
+            if elapsed >= self.JUMP_THRES:
+                self.jump(min(elapsed, ticks), now, catch_up=True)
 
-    def jump(self, ticks, now):
+    def jump(self, ticks, now, catch_up=False):
         self.log.debug('Jumping %d ticks at timestamp %d', ticks, self.timestamp)
         for model in self.models:
             model.advance(ticks)
@@ -448,8 +481,11 @@ class PandaTimeTravel:
         self.was_advanced = True
         self.advanced_ticks += ticks
         self.njumps += 1
-        self.extra_delay += now - self.deadline
+        if not catch_up:
+            # the jump is late by however long it took to reach this edge
+            self.extra_delay += now - self.deadline
         # don't accumulate lag: the next deadline is relative to this jump
+        # (a catch-up jump lands on the tick due now, so this keeps origin)
         self.anchor(now)
         self.delay_wait()
 
