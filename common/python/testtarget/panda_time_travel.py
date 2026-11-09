@@ -291,11 +291,11 @@ MODEL_CLASSES = {
 
 class PandaTimeTravel:
     # we jump only if the jump is bigger than this value
-    JUMP_THRES = 512
+    JUMP_THRES = 128
     # after an event or a command, force this many real clock cycles before
     # another jump is allowed so that the event propagates through the design
     # (bit bus delays, pipelines, FIFOs)
-    MIN_TICKS = 38
+    MIN_TICKS = 32
 
     def __init__(self, dut, fpga_clock_freq=125000000):
         self.log = logging.getLogger(__class__.__name__)
