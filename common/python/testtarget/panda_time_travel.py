@@ -413,5 +413,8 @@ class PandaTimeTravel:
             # changes nothing observable, so it opens no window)
             self.extra_delay += (lag - ticks) / self.fpga_clock_freq
             self.delay_wait()
+        if self.next_event is not None:
+            # keep the distance ``compute_timeout`` sees in step with the models
+            self.next_event -= ticks
         # don't accumulate lateness: the next deadline is relative to this jump
         self.origin = now - self.timestamp / self.fpga_clock_freq
