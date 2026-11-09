@@ -230,13 +230,15 @@ class SimServer(object):
     async def process_client(self) -> bool:
         was_first = len(self.command) == 0
         timeout = self.test.time_travel.compute_timeout()
-        # If a time-travel jump is scheduled, block here until it's due (or
-        # until the client sends something, whichever comes first) instead of
-        # spinning through every clock edge in between with nothing useful to
-        # do. The timeout is 0 (poll every edge) while real clock edges are
-        # needed: right after a jump, a command or an event so that it can
-        # propagate, when the next event is too close to be worth a jump, or
-        # while PCAP is collecting samples/draining its DMA FIFO.
+        # Block here until the next time-travel event is due (or until the
+        # client sends something, whichever comes first) instead of spinning
+        # through every clock edge in between with nothing useful to do. The
+        # timeout is 0 (poll every edge) while real clock edges are needed:
+        # after an event or a command so that it can propagate, when the next
+        # event is too close to be worth a jump, or while PCAP is collecting
+        # samples/draining its DMA FIFO. A command that interrupts the wait is
+        # applied after the time travel has caught up with the wall clock,
+        # which it does on the first clock edge after the wait.
         if not select.select([self.client], [], [], timeout)[0]:
             return False
 
@@ -259,11 +261,6 @@ class SimServer(object):
             self.log.error('Discarding message %s', repr(self.command))
             self.command.clear()
             return False
-
-        if timeout > 0:
-            # the simulated time stood still during the blocking wait: catch
-            # up with the wall clock before the command takes effect
-            await self.test.time_travel.catch_up()
 
         completed = await self.handle_command()
         if completed:

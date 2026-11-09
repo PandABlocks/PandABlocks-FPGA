@@ -3,9 +3,10 @@
 
 While sim_server blocks in ``select`` waiting for the next time-travel jump,
 no clock edges run, so the simulated time stands still while the wall clock
-moves on. The server catches the simulated time up before applying a command
-that interrupts the wait. Here CLOCK2 is enabled part way through CLOCK1's
-wait: CLOCK2 must be paced from its enable and CLOCK1 must keep its deadline.
+moves on. The time travel catches up with the wall clock on the first clock
+edge after the wait, before a command that interrupted it takes effect. Here
+CLOCK2 is enabled part way through CLOCK1's wait: CLOCK2 must be paced from
+its enable and CLOCK1 must keep its deadline.
 """
 import os
 from pathlib import Path
@@ -15,7 +16,6 @@ import panda_time_travel
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
 from panda_test_harness import PandaTestHarness
-from panda_time_travel import TimeTravelState
 from test_time_travel import CLOCK1_PERIOD, MAX_CYCLES, FakeClock, assert_close
 from util import get_top, run_testtarget
 
@@ -58,19 +58,20 @@ async def command_mid_wait_keeps_wall_clock_timing(dut):
     previous = {name: 0 for name in bits}
     command_due = False
     command_sent = False
+    # simulated tick at which the interrupted wait began
+    timestamp_at_wait = None
     edge = RisingEdge(dut.clk_i)
     for _ in range(MAX_CYCLES):
         await edge
         if command_due:
-            # the client command arrives mid-wait: sim_server catches the
-            # simulated time up with the wall clock before applying it
-            before = time_travel.timestamp
-            await time_travel.catch_up()
-            caught_up = time_travel.timestamp - before
-            assert abs(caught_up - COMMAND_OFFSET * freq) <= WALL_TOLERANCE, \
-                f'Caught up {caught_up} ticks for {COMMAND_OFFSET} s'
+            # the client command arrives mid-wait: the time travel catches
+            # the simulated time up with the wall clock on the first edge,
+            # before the command takes effect
             await test.reg_write('CLOCK2.PERIOD', LATE_CLOCK_PERIOD)
             await test.reg_write('CLOCK2.ENABLE', 0x81)
+            caught_up = time_travel.timestamp - timestamp_at_wait
+            assert abs(caught_up - COMMAND_OFFSET * freq) <= WALL_TOLERANCE, \
+                f'Caught up {caught_up} ticks for {COMMAND_OFFSET} s'
             time_travel.delay_wait()
             command_due = False
             command_sent = True
@@ -84,10 +85,11 @@ async def command_mid_wait_keeps_wall_clock_timing(dut):
             previous[name] = level
 
         # stand in for the blocking select() in sim_server, interrupted once
-        # by a command part way through a wait for CLOCK1
+        # by a command part way through a wait for CLOCK1 (the only countdown
+        # running, so a long enough timeout means we are waiting for it)
         timeout = time_travel.compute_timeout()
-        if not command_sent and time_travel.state == TimeTravelState.WAITING \
-                and timeout > COMMAND_OFFSET:
+        if not command_sent and timeout > COMMAND_OFFSET:
+            timestamp_at_wait = time_travel.timestamp
             fake_clock.now += COMMAND_OFFSET
             command_due = True
         else:

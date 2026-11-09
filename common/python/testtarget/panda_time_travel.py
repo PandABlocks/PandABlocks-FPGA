@@ -3,13 +3,17 @@
 The simulator runs orders of magnitude slower than the 125 MHz FPGA clock, so
 a CLOCK block with a one second period would take hours of wall-clock time to
 toggle. ``PandaTimeTravel`` keeps a Python model of every tick-counting entity
-in the design. When every pending event is far enough away, it moves *all* of
-them forward together by the number of ticks until the earliest event (a
-"jump"), paced so that the jump happens once the corresponding wall-clock time
-has elapsed. Between jumps the simulation runs real clock cycles so that the
-event and its effects propagate through the design. A command that interrupts
-the wait for a jump is applied only after the simulated time has been caught
-up with the wall clock (``catch_up``).
+in the design and makes the simulated tick count chase the wall clock. Each
+clock edge it works out the *lag*, the number of ticks the wall clock says are
+due that have not been simulated yet, and moves *all* the models forward
+together by that many ticks (a "jump"), never past the earliest pending event
+(a change that other blocks may observe). A jump that lands on an event is
+followed by real clock cycles so that the event and its effects propagate
+through the design before the next jump; a jump short of every event changes
+nothing observable and needs none. Between events the server blocks until the
+wall clock reaches the earliest one (``compute_timeout``), so a command that
+interrupts the wait is applied only once the models have been moved to the
+tick that is due then.
 
 Jumping every entity by the same amount in the same clock cycle is what keeps
 them consistent with each other: the timestamp counter of a PULSE block sees
@@ -24,11 +28,10 @@ by exactly ``n`` ticks, not ``n + 1``.
 """
 import logging
 import time
-from enum import Enum, auto
 
 import cocotb
 from cocotb.handle import HierarchyArrayObject, HierarchyObject
-from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
+from cocotb.triggers import ClockCycles, RisingEdge
 
 DEFAULT_TIMEOUT = 60  # seconds
 
@@ -286,22 +289,12 @@ MODEL_CLASSES = {
 }
 
 
-class TimeTravelState(Enum):
-    # nothing is counting down: nothing to wait for
-    IDLE = auto()
-    # some event is too close to be worth a jump, or PCAP is moving data:
-    # every real clock edge is needed
-    BUSY = auto()
-    # a jump is scheduled for ``deadline`` (wall-clock)
-    WAITING = auto()
-
-
 class PandaTimeTravel:
     # we jump only if the jump is bigger than this value
     JUMP_THRES = 512
-    # after a jump, a command, or any observed event, force this many real
-    # clock cycles before another jump is allowed so that the event
-    # propagates through the design (bit bus delays, pipelines, FIFOs)
+    # after an event or a command, force this many real clock cycles before
+    # another jump is allowed so that the event propagates through the design
+    # (bit bus delays, pipelines, FIFOs)
     MIN_TICKS = 38
 
     def __init__(self, dut, fpga_clock_freq=125000000):
@@ -313,21 +306,18 @@ class PandaTimeTravel:
         self.find_models()
         # simulated ticks elapsed, including the jumped ones
         self.timestamp = 0
-        self.was_advanced = False
+        # wall-clock time of simulated tick 0: tick ``t`` is due at
+        # ``origin + t / fpga_clock_freq``; moved only by ``jump``
+        self.origin = time.time()
+        # real clock cycles still to run before the next jump is allowed
+        self.post_jump_cycles = 0
+        # ticks to the earliest pending event as of the last ``step``, None
+        # when nothing is counting down
+        self.next_event = None
         # statistics
         self.advanced_ticks = 0
         self.extra_delay = 0
         self.njumps = 0
-        # scheduling state, refreshed every clock edge by ``step``
-        self.post_jump_cycles = 0
-        self.state = TimeTravelState.IDLE
-        self.deadline = None
-        self.catch_up_requested = False
-        # wall-clock time corresponding to simulated tick 0: the simulated
-        # tick ``t`` is due at ``origin + t / fpga_clock_freq``
-        self.origin = time.time()
-        self._last_remaining = {}
-        cocotb.start_soon(self.timestamp_inc())
         cocotb.start_soon(self.run())
 
     def find_models(self):
@@ -359,46 +349,26 @@ class PandaTimeTravel:
     def delay_wait(self):
         self.post_jump_cycles = self.MIN_TICKS
 
+    def lag(self, now):
+        """Ticks due by the wall clock that have not been simulated yet."""
+        return int((now - self.origin) * self.fpga_clock_freq) - self.timestamp
+
     def compute_timeout(self):
         """Seconds the caller may block before the next clock edge matters.
 
         0 means every edge is needed, otherwise it is the time left until the
-        scheduled jump, capped at ``DEFAULT_TIMEOUT`` (which is also what an
-        idle scheduler returns) so that the caller wakes up now and then.
+        earliest event is due, capped at ``DEFAULT_TIMEOUT`` (which is also
+        what an idle scheduler returns) so that the caller wakes up now and
+        then.
         """
-        if self.post_jump_cycles > 0 or self.state == TimeTravelState.BUSY:
+        if self.post_jump_cycles > 0 or self.pcap_busy() or \
+                (self.next_event is not None and
+                 self.next_event < self.JUMP_THRES):
             return 0
-
-        if self.state == TimeTravelState.IDLE:
+        if self.next_event is None:
             return DEFAULT_TIMEOUT
-
-        return min(DEFAULT_TIMEOUT, max(0, self.deadline - time.time()))
-
-    def tick_deadline(self, ticks_ahead):
-        return self.origin + \
-            (self.timestamp + ticks_ahead) / self.fpga_clock_freq
-
-    def anchor(self, now):
-        # make the current simulated tick correspond to now
-        self.origin = now - self.timestamp / self.fpga_clock_freq
-
-    async def catch_up(self):
-        """Bring the simulated time up to the wall clock after a blocking wait.
-
-        While the server blocks in ``select`` waiting for the next jump, no
-        clock edges run: the wall clock moves on but ``timestamp`` stands
-        still. A command arriving mid-wait would otherwise take effect at the
-        simulated time the wait began. A countdown it starts gets a deadline
-        that is already in the past and fires after only the propagation
-        cycles, and the re-anchoring after that jump delays every countdown
-        that was already running. The server calls this before handling the
-        command; it returns once ``step`` has moved every model to the tick
-        that is due now, which leaves the existing deadlines where they were.
-        """
-        self.catch_up_requested = True
-        edge = RisingEdge(self.dut.clk_i)
-        while self.catch_up_requested:
-            await edge
+        wait = (self.next_event - self.lag(time.time())) / self.fpga_clock_freq
+        return min(DEFAULT_TIMEOUT, max(0, wait))
 
     async def run(self):
         edge = RisingEdge(self.dut.clk_i)
@@ -409,82 +379,39 @@ class PandaTimeTravel:
             self.step()
 
     def step(self):
-        catch_up = self.catch_up_requested
-        self.catch_up_requested = False
         if self.post_jump_cycles > 0:
             self.post_jump_cycles -= 1
-
-        if self.pcap_busy():
-            self.state = TimeTravelState.BUSY
-            self.deadline = None
-            return
+        pending = [remaining for remaining in
+                   (model.remaining() for model in self.models)
+                   if remaining is not None]
+        self.next_event = min(pending, default=None)
+        if self.next_event is not None and self.next_event <= 0:
+            # an event fires on this edge: give it real cycles to propagate
+            self.delay_wait()
 
         now = time.time()
-        pending = []
-        for model in self.models:
-            remaining = model.remaining()
-            last = self._last_remaining.get(model)
-            self._last_remaining[model] = remaining
-            if remaining is None:
-                if last is not None:
-                    # an event just happened, give it real cycles to propagate
-                    self.delay_wait()
-                continue
-            if last is None or remaining > last:
-                # a countdown started or restarted: an event has just
-                # happened, give it real cycles to propagate
-                self.delay_wait()
-            pending.append(remaining)
+        lag = self.lag(now)
+        ticks = lag if self.next_event is None else min(lag, self.next_event)
+        if self.post_jump_cycles == 0 and not self.pcap_busy() \
+                and ticks >= self.JUMP_THRES:
+            self.jump(ticks, lag, now)
+        else:
+            # a plain edge (a jump absorbs its edge)
+            self.timestamp += 1
 
-        if not pending:
-            self.state = TimeTravelState.IDLE
-            self.deadline = None
-            self.anchor(now)
-            return
-
-        ticks = min(pending)
-        if ticks < self.JUMP_THRES:
-            self.state = TimeTravelState.BUSY
-            self.deadline = None
-            return
-
-        self.state = TimeTravelState.WAITING
-        self.deadline = self.tick_deadline(ticks)
-        if self.post_jump_cycles > 0:
-            return
-        if now >= self.deadline:
-            self.jump(ticks, now)
-        elif catch_up:
-            # the wall clock moved on during a blocking wait: move every
-            # model to the tick that is due now, short of the earliest
-            # event, so that whatever the command starts is timed from now
-            elapsed = int((now - self.origin) * self.fpga_clock_freq) - \
-                self.timestamp
-            if elapsed >= self.JUMP_THRES:
-                self.jump(min(elapsed, ticks), now, catch_up=True)
-
-    def jump(self, ticks, now, catch_up=False):
+    def jump(self, ticks, lag, now):
         self.log.debug('Jumping %d ticks at timestamp %d', ticks, self.timestamp)
         for model in self.models:
             model.advance(ticks)
 
         self.timestamp += ticks
-        self.was_advanced = True
         self.advanced_ticks += ticks
         self.njumps += 1
-        if not catch_up:
-            # the jump is late by however long it took to reach this edge
-            self.extra_delay += now - self.deadline
-        # don't accumulate lag: the next deadline is relative to this jump
-        # (a catch-up jump lands on the tick due now, so this keeps origin)
-        self.anchor(now)
-        self.delay_wait()
-
-    async def timestamp_inc(self):
-        while True:
-            await RisingEdge(self.dut.clk_i)
-            await ReadOnly()
-            if not self.was_advanced:
-                self.timestamp += 1
-
-            self.was_advanced = False
+        if ticks == self.next_event:
+            # landed on an event: it is late by the lag beyond it, and it
+            # needs real cycles to propagate (a jump short of every event
+            # changes nothing observable, so it opens no window)
+            self.extra_delay += (lag - ticks) / self.fpga_clock_freq
+            self.delay_wait()
+        # don't accumulate lateness: the next deadline is relative to this jump
+        self.origin = now - self.timestamp / self.fpga_clock_freq
