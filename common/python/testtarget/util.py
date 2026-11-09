@@ -56,8 +56,7 @@ def get_dependencies(fpga_path, autogen_path):
             fpga_path / 'common' / 'hdl' / name for name in
                 ('reg_top.vhd', 'reg.vhd', 'axi_lite_slave.vhd',
                  'axi_read_master.vhd', 'delay_line.vhd', 'bitmux.vhd',
-                 'posmux.vhd', 'spbram.vhd', 'fifo.vhd', 'timer_for_clock.vhd',
-                 'prescaled_timer.vhd')
+                 'posmux.vhd', 'spbram.vhd', 'fifo.vhd', 'prescaled_timer.vhd')
         ] + \
         list(fpga_path.glob('common/hdl/table_read_engine*.vhd')) + \
         list(autogen_path.glob('hdl/*.vhd')) + \

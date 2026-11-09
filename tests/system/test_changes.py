@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 import os
-import sys
 from pathlib import Path
 
 import cocotb
 from cocotb.clock import Clock
-
-sys.path.insert(1, str(Path(__file__).parent.resolve()))
 from panda_test_harness import PandaTestHarness
 from util import get_top, run_testtarget
 

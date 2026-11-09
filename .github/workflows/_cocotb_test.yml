@@ -29,6 +29,7 @@ jobs:
           echo APP_NAME=testtarget > CONFIG
           uv run --locked make cocotb_tests
           uv run --locked make cocotb_system_tests
+          uv run --locked make cocotb_unit_tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
