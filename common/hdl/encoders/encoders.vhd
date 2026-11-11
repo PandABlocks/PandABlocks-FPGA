@@ -13,6 +13,7 @@ entity encoders is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    clk_200_i           : in  std_logic;
     reset_i             : in  std_logic;
     -- Encoder inputs from Bitbus
     a_ext_i             : in  std_logic;
@@ -84,9 +85,11 @@ signal health_biss_slave    : std_logic_vector(31 downto 0);
 
 signal clk_out_encoder_ssi  : std_logic;
 signal clk_out_encoder_biss : std_logic;
+signal clk_out_encoder_zmi  : std_logic;
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_biss            : std_logic_vector(31 downto 0);
+signal posn_zmi             : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
@@ -104,6 +107,8 @@ signal linkup_biss_sniffer  : std_logic;
 signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
+signal posn_valid_zmi       : std_logic;
+signal health_zmi           : std_logic_vector(31 downto 0);
 
 signal inenc_dir            : std_logic;
 signal outenc_dir           : std_logic;
@@ -111,6 +116,7 @@ signal inenc_ctrl           : std_logic_vector(2 downto 0);
 signal outenc_ctrl          : std_logic_vector(2 downto 0);
 
 signal Am0_ipad, Am0_opad   : std_logic;
+signal Am0_ipad_ub          : std_logic;
 signal Bm0_ipad, Bm0_opad   : std_logic;
 signal Zm0_ipad, Zm0_opad   : std_logic;
 
@@ -269,6 +275,7 @@ end process ps_select;
 -- Loopbacks
 CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
               clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+              clk_out_encoder_zmi when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "100") else
               clk_out_encoder_ssi;
 
 
@@ -376,6 +383,23 @@ port map (
 );
 
 --------------------------------------------------------------------------
+-- ZMI Encoder Instantiation :
+--------------------------------------------------------------------------
+zmi_master_inst : entity work.zmi_master
+port map (
+    -- Global system and reset interface
+    clk_i           => clk_i,
+    clk_200_i       => clk_200_i,
+    reset_i         => reset_i,
+    -- Block Inputs and Outputs
+    zmi_sck_o       => clk_out_encoder_zmi,
+    zmi_dat_i       => Am0_ipad_ub,     -- A pad, before the glitch filter
+    posn_o          => posn_zmi,
+    posn_valid_o    => posn_valid_zmi,
+    posn_status_o   => health_zmi
+);
+
+--------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
 --  Link status information is valid only for loopback configuration
@@ -423,6 +447,21 @@ begin
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
 
+                when "100"  =>              -- ZMI
+                    posn <= posn_zmi;
+                    STATUS_o(0) <= posn_valid_zmi;
+                    -- Map zmi_master status to HEALTH enum
+                    if (health_zmi(2) = '1') then       -- Hamming error
+                        INENC_HEALTH_o <= TO_SVECTOR(3,32);
+                    elsif (health_zmi(0) = '0') then    -- no frame / timeout
+                        INENC_HEALTH_o <= TO_SVECTOR(1,32);
+                    elsif (health_zmi(4) = '1') then    -- Zmi_err bit
+                        INENC_HEALTH_o <= TO_SVECTOR(4,32);
+                    else
+                        INENC_HEALTH_o <= (others => '0');
+                    end if;
+                    HOMED_o <= TO_SVECTOR(1,32);
+
                 when others =>
                     INENC_HEALTH_o <= TO_SVECTOR(5,32);
                     posn <= (others => '0');
@@ -450,6 +489,8 @@ begin
                     inenc_ctrl <= inenc_dir & "00";
                 when "011"  =>                              -- EnDat
                     inenc_ctrl <= inenc_dir & "00";
+                when "100"  =>                              -- ZMI
+                    inenc_ctrl <= "100";
                 when others =>
                     inenc_ctrl <= "111";
             end case;
@@ -462,6 +503,7 @@ IOBUF_Am0 : entity work.iobuf_registered port map (
     clock   => clk_i,
     I       => Am0_opad,
     O       => Am0_ipad,
+    OUB     => Am0_ipad_ub,
     T       => inenc_ctrl(2),
     IO      => Am0_pad_io
 );

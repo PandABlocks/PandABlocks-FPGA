@@ -590,6 +590,7 @@ generic map (
 port map (
     -- Clock and Reset
     clk_i                   => FCLK_CLK0,
+    clk_200_i               => FCLK_CLK1_PS,    -- 200 MHz PS clock for ZMI UART
     reset_i                 => FCLK_RESET0,
     -- Memory Bus Interface
     OUTENC_read_strobe_i    =>read_strobe(OUTENC_CS),
