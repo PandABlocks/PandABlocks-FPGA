@@ -4,7 +4,6 @@
 {# block is a BlockConfig object #}
 {# insert its name and block base address #}
 {{ pad(block.name) }} {{ block.block_address }}
-
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# ask it for its register addresses within the block base address #}

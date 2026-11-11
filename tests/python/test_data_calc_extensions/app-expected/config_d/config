@@ -14,17 +14,17 @@
     LABEL_FMC_IN1       string
     LABEL_FMC_OUT1      string
 
-DUMMY[5]
+DUMMY[5] dummy
     DUMMY_R             read
     DUMMY_W             write
     POLY_R              read
     POLY_W              write
 
-INTERVAL[3]
+INTERVAL[3] interval
     CENTRE              param
     RANGE               param = 0
 
-FMC_IN[1]
+FMC_IN[1] fmc_acq427
     GAIN1               param enum
         0   10V
         1   5V
@@ -78,7 +78,7 @@ FMC_IN[1]
         0   ADC B input fitted
         1   Not fitted
 
-FMC_OUT[1]
+FMC_OUT[1] fmc_acq427
     VAL1                pos_mux
     VAL2                pos_mux
     VAL3                pos_mux
