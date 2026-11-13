@@ -90,17 +90,17 @@ BLOCKS_COMPAT_VERSION = 0
     # register must match DRIVER_COMPAT_VERSION.
     COMPAT_VERSION          7
 
-DUMMY               2 dummy
+DUMMY               2
     DUMMY_R             0 1 2 3 X dummy
     DUMMY_W             0 1 2 3 W 4 X dummy
     POLY_R              0 1 2 3 X poly
     POLY_W              0 1 2 3 W 0 1 2 3 4 X poly
 
-INTERVAL            3 interval
+INTERVAL            3
     CENTRE              W 0 1 X centre
     RANGE               W 0 1 X range
 
-FMC_IN              S4 fmc_acq427
+FMC_IN              S4
     GAIN1               W 0 X adc1_gain
     GAIN2               W 1 X adc2_gain
     GAIN3               W 2 X adc3_gain
@@ -120,7 +120,7 @@ FMC_IN              S4 fmc_acq427
     TTL                 0
     ADC_B_FITTED        X adc_ribbon
 
-FMC_OUT             S4 fmc_acq427
+FMC_OUT             S4
     VAL1                8
     VAL2                9
     VAL3                10

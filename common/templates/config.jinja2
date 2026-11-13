@@ -12,8 +12,8 @@
 
 {% for block in server_blocks %}
 {# block is a BlockConfig object #}
-{# insert its name and the number of block instances in this app #}
-{{ block.name }}[{{ block.number }}]
+{# insert its name, the number of block instances and the extension name if any in this app #}
+{{ block.name ~ "[" ~ block.number ~ "]" ~ (" " ~ block.extension if block.extension else "") }}
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
