@@ -12,7 +12,7 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 # Build defaults that can be overwritten by the CONFIG file if required
 PYTHON = python3
 # Version of mystmd used to build the docs with `make docs` (run on demand via npx).
-MYSTMD_VERSION = 1.10.1
+MYSTMD_VERSION = 1.11.0
 MAKE_FPGA_IPK = $(TOP)/packaging/make-fpga-ipk.sh
 MAKE_BOOT_IPK = $(TOP)/packaging/make-fpga-boot-ipk.sh
 
