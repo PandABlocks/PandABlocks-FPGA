@@ -22,6 +22,7 @@ port (
     clock   : in    std_logic;
     I       : in    std_logic;
     O       : out   std_logic;
+    OUB     : out   std_logic;
     T       : in    std_logic;
     IO      : inout std_logic
 );
@@ -33,6 +34,8 @@ signal ipad     : std_logic;
 signal opad     : std_logic;
 
 begin
+
+OUB <= opad;
 
 --------------------------------------------------------------------------
 -- Register and pack into IOBs
