@@ -34,7 +34,6 @@ import struct
 #   0x139 RNG #0 CH #3 User Offset
 #   0x13D RNG #1 CH #3 User Offset
 
-
 lookup_write_bit_map = {
     'magic3' : 0x11D,
     'rng0chn0useroffset' : 0x121,
@@ -47,12 +46,6 @@ lookup_write_bit_map = {
     'rng1chn3useroffset' : 0x13D,
 }
 
-lookup_read_bit_map = {
-    'chn0' : [0xD5,0xD9],
-    'chn1' : [0xDD,0xE1],
-    'chn2' : [0xE5, 0xE9],
-    'chn3' : [0xED,0xF1]
-}
 lookup_read_bit_map = {
     'chn0_gain' : 0xD5,
     'chn0_offset' : 0xD9,
@@ -85,6 +78,6 @@ class Extension:
     def __init__(self, count):
         pass
 
-    def parse_read(self, request):
-        gain, offset = lookup_read_bit_map[request]
-        return lambda x,value: (x+gpio_helper.read_bit(gain)) + gpio_helper.read_bit(offset)
+    def get_double(self, _instance_id, request):
+        address = lookup_read_bit_map[request]
+        return gpio_helper.read_bit(address)
