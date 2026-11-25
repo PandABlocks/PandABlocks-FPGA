@@ -1,0 +1,46 @@
+# Example configuration file for building PandA firmware, and for simulation
+#
+# Copy this file to a file named CONFIG and edit as appropriate.  Lines that are
+# commented out can be left as they are, the default value is shown.  Uncommented
+# lines must be assigned values.
+
+# Default build location.  Default is to build in build subdirectory.
+#BUILD_DIR = /build
+
+# Development Tool Version
+# VIVADO_VER = 2023.2
+
+# Definitions needed for FPGA build
+export VIVADO = /tools/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
+# Path to external IP repository (if required)
+#export EXT_IP_REPO = /xilinxworks/pandabox/PICXO_FRACXO_v40_rev6
+export EXT_IP_REPO = "{ /xilinxworks/pandabox/PICXO_FRACXO_v40_rev6 /xilinxworks/pandabox/Panda-PID/ip /xilinxworks/pandabox/Panda-singen/ip }"
+
+# Specifiy licence server, if required
+# export LM_LICENSE_FILE =
+
+# Location of rootfs builder.  This needs to be at least version 1.13 and can be
+# downloaded from https://github.com/araneidae/rootfs
+export ROOTFS_TOP = /xilinxworks/pandabox/diamond-rootfs-builder-master
+
+# Where to find source files
+export TAR_FILES = /xilinxworks/pandabox/diamond-rootfs-builder-master/tar-files
+
+# Path to root filesystem
+PANDA_ROOTFS = /xilinxworks/pandabox/PandABlocks-rootfs
+# MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+
+# Python interpreter for running scripts
+#
+# PYTHON = python3
+
+# Sphinx build for documentation.
+# SPHINX_BUILD = sphinx-build
+
+# List of default targets to build when running make
+# DEFAULT_TARGETS = zpkg
+
+# FPGA Application Name
+APP_NAME = PandABox-maxiv-test-fmc_acq427
+
+# vim: set filetype=make:
