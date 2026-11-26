@@ -12,11 +12,16 @@
 --                clock. The mode bits are read on the falling edges, then the
 --                slave takes the data line over (endat_dat_oe_o) on the next
 --                rising edge, holds it low for TCAL_CLOCKS clock periods and
---                sends the start bit, the error bit F1 (GENERATOR_ERROR),
+--                sends the start bit, the error bit F1 (at F1_ERROR_VALUE
+--                when GENERATOR_ERROR is set, the other level otherwise),
 --                BITS position bits LSB first and the CRC-5 MSB first,
 --                changing the data after each rising edge. After the last
 --                CRC bit the line is held high for the recovery time and
---                then released.
+--                then driven low again: like an encoder the slave holds the
+--                data line low while idle, so a master waiting for the line
+--                to go low before a frame sees a ready encoder, and only
+--                releases it from the first falling edge of the clock for
+--                the master's mode command.
 --                The clock period is measured at the start of each frame so
 --                the end of an ignored frame, or a master stopping its clock
 --                part way through an answer, is detected after two periods
@@ -34,6 +39,9 @@ entity endat_slave is
 generic (
     -- Clock periods the data line is held low before the start bit
     TCAL_CLOCKS     : natural := 2;
+    -- Level of the error bit F1 meaning an error, low for Heidenhain
+    -- encoders
+    F1_ERROR_VALUE  : std_logic := '0';
     -- Recovery time tm the data line is held high after a frame, in clk_i
     -- cycles
     RECOVERY        : natural := 1250       -- 10us
@@ -68,7 +76,7 @@ constant HEALTH_TIMEOUT : std_logic_vector(31 downto 0) := to_svector(2, 32);
 
 --MA ````\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/``\__/```````
 --DA _________| M2  M1  M0 !M2 !M1 !M0 |              | S | F1 | POS 0..N |  CRC  |```tm```\__
---             <- master drives data -> <-  tcal   ->  <---- slave drives data ---->
+--   <-slave-> <- master drives data -> <-  tcal   ->  <---- slave drives data ---------------->
 
 type state_t is (STATE_IDLE, STATE_LATCH, STATE_MODE, STATE_SKIP,
                  STATE_TURNAROUND, STATE_TCAL, STATE_ERRBIT, STATE_POSN,
@@ -97,6 +105,7 @@ signal posn_lat : std_logic_vector(31 downto 0);
 
 signal bit_cnt : unsigned(7 downto 0);
 signal mode_sr : std_logic_vector(5 downto 0);
+signal f1 : std_logic;
 signal dat : std_logic;
 signal dat_oe : std_logic;
 
@@ -109,6 +118,9 @@ begin
 
 endat_dat_o <= dat;
 endat_dat_oe_o <= dat_oe;
+
+-- Error bit F1
+f1 <= F1_ERROR_VALUE when GENERATOR_ERROR = '1' else not F1_ERROR_VALUE;
 
 --------------------------------------------------------------------------
 -- Register the encoder lines, the mode bits are sampled on the falling edge
@@ -163,12 +175,14 @@ begin
             crc_strb <= '0';
 
             case state is
-                -- The first falling edge of the clock starts a frame and
-                -- latches the position
+                -- The line is held low while idle. The first falling edge
+                -- of the clock starts a frame, latches the position and
+                -- releases the line for the master's mode command.
                 when STATE_IDLE =>
                     dat <= '0';
-                    dat_oe <= '0';
+                    dat_oe <= (or BITS);
                     if sck_fall and (or BITS) then
+                        dat_oe <= '0';
                         period_valid <= '0';
                         crc_reset <= '1';
                         bit_cnt <= (others => '0');
@@ -231,8 +245,8 @@ begin
                 -- Error bit F1
                 when STATE_ERRBIT =>
                     if sck_rise then
-                        dat <= GENERATOR_ERROR;
-                        crc_bit <= GENERATOR_ERROR;
+                        dat <= f1;
+                        crc_bit <= f1;
                         crc_strb <= '1';
                         state <= STATE_POSN;
                     end if;
@@ -270,21 +284,22 @@ begin
                         end if;
                     end if;
 
-                -- Recovery time tm, then release the line
+                -- Recovery time tm, then the line goes low until the next
+                -- frame
                 when STATE_RECOVERY =>
                     recovery_cnt <= recovery_cnt + 1;
                     if recovery_cnt = RECOVERY - 1 then
                         dat <= '0';
-                        dat_oe <= '0';
                         state <= STATE_IDLE;
                     end if;
             end case;
 
-            -- The master stopped its clock before the end of the frame
+            -- The master stopped its clock before the end of the frame,
+            -- back to holding the line low
             if clock_stopped = '1' and state /= STATE_IDLE
                     and state /= STATE_SKIP and state /= STATE_RECOVERY then
                 dat <= '0';
-                dat_oe <= '0';
+                dat_oe <= '1';
                 health_o <= HEALTH_TIMEOUT;
                 state <= STATE_IDLE;
             end if;

@@ -1,4 +1,5 @@
 import cocotb
+import pytest
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, FallingEdge, RisingEdge, Timer
 from cocotb.utils import get_sim_time
@@ -32,7 +33,9 @@ class EndatSlave:
     Data is changed on rising edges of the clock and the mode command is read
     on the falling edges. delay_ns models the cable round trip, it delays the
     data seen by the master, including its own mode bits which are looped
-    back onto the data line while it drives it."""
+    back onto the data line while it drives it. The error bit F1 is sent at
+    the level the master was built to take as an error (its F1_ERROR_VALUE
+    generic) when error is set, and at the other level otherwise."""
 
     def __init__(self, dut, bits, position=0, tcal=3, tm_ns=1000, delay_ns=0):
         self.dut = dut
@@ -41,6 +44,7 @@ class EndatSlave:
         self.tcal = tcal
         self.tm_ns = tm_ns
         self.delay_ns = delay_ns
+        self.f1_error_value = int(dut.F1_ERROR_VALUE.value)
         self.error = False
         self.bad_crc = False
         self.modes = []
@@ -96,7 +100,8 @@ class EndatSlave:
             assert mode == MODE_COMMAND, f'Unexpected mode {mode}'
             for _ in range(self.tcal):
                 await RisingEdge(sck)
-            payload = [int(self.error)] + [
+            f1 = self.f1_error_value if self.error else 1 - self.f1_error_value
+            payload = [f1] + [
                 (self.position >> i) & 1 for i in range(self.bits)]
             crc = endat_crc(payload) ^ (1 if self.bad_crc else 0)
             frame = [1] + payload + [(crc >> i) & 1 for i in range(4, -1, -1)]
@@ -311,7 +316,10 @@ async def endat_delay_compensation(dut):
         await read_positions(dut, 25, delay_ns=delay_ns, delay_comp=delay_comp)
 
 
-def test_endat_master(build_dir):
+# The level of the error bit F1 that means an error. Heidenhain encoders
+# transmit F1 low active, other encoders may use the opposite convention.
+@pytest.mark.parametrize('f1_error_value', ['0', '1'])
+def test_endat_master(build_dir, f1_error_value):
     run_entity_test(
         'test_endat_master', 'endat_master',
         ['common/hdl/encoders/endat_master.vhd',
@@ -319,4 +327,5 @@ def test_endat_master(build_dir):
          'common/hdl/prescaler.vhd',
          'common/hdl/defines/support.vhd'],
         build_dir,
-        parameters={'TCAL_TIMEOUT': TCAL_TIMEOUT, 'START_DELAY': START_DELAY})
+        parameters={'TCAL_TIMEOUT': TCAL_TIMEOUT, 'START_DELAY': START_DELAY,
+                    'F1_ERROR_VALUE': f"'{f1_error_value}'"})

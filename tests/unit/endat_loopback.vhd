@@ -21,6 +21,8 @@ generic (
     START_DELAY     : natural := 250;
     TCAL_CLOCKS     : natural := 2;
     RECOVERY        : natural := 1250;
+    -- Level of the error bit F1 meaning an error at both ends
+    F1_ERROR_VALUE  : std_logic := '0';
     -- Propagation delay of the line in clk_i cycles, each way
     CABLE_DELAY     : natural := 0
 );
@@ -118,7 +120,8 @@ s_sck <= sck_dly;
 master_inst : entity work.endat_master
 generic map (
     TCAL_TIMEOUT    => TCAL_TIMEOUT,
-    START_DELAY     => START_DELAY
+    START_DELAY     => START_DELAY,
+    F1_ERROR_VALUE  => F1_ERROR_VALUE
 )
 port map (
     clk_i           => clk_i,
@@ -140,7 +143,8 @@ port map (
 slave_inst : entity work.endat_slave
 generic map (
     TCAL_CLOCKS     => TCAL_CLOCKS,
-    RECOVERY        => RECOVERY
+    RECOVERY        => RECOVERY,
+    F1_ERROR_VALUE  => F1_ERROR_VALUE
 )
 port map (
     clk_i           => clk_i,

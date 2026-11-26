@@ -1,4 +1,5 @@
 import cocotb
+import pytest
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
 from entity_runner import run_entity_test
@@ -128,12 +129,15 @@ async def loopback_slave_absent(dut):
     check_health(dut, HEALTH_OK)
 
 
-def test_endat_loopback(build_dir):
+# Both ends built for the same level of the error bit F1 meaning an error
+@pytest.mark.parametrize('f1_error_value', ['0', '1'])
+def test_endat_loopback(build_dir, f1_error_value):
     run_entity_test(
         'test_endat_loopback', 'endat_loopback', SOURCES, build_dir,
         parameters={'TCAL_TIMEOUT': TCAL_TIMEOUT, 'START_DELAY': START_DELAY,
                     'TCAL_CLOCKS': TCAL_CLOCKS, 'RECOVERY': RECOVERY,
-                    'CABLE_DELAY': 0})
+                    'CABLE_DELAY': 0,
+                    'F1_ERROR_VALUE': f"'{f1_error_value}'"})
 
 
 def test_endat_loopback_cable(build_dir):

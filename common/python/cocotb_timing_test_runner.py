@@ -40,7 +40,10 @@ def get_module_build_args(module: str, panda_build_dir: str | Path) -> list[str]
 
 
 def order_hdl_files(
-    hdl_files: list[Path], build_dir: str | Path, top_level: str
+    hdl_files: list[Path],
+    build_dir: str | Path,
+    top_level: str,
+    libraries: dict[str, list[Path]] | None = None,
 ) -> list[Path]:
     """Put vhdl source files in compilation order. This is neccessary for the
     nvc simulator as it does not order the files iself before compilation.
@@ -49,6 +52,9 @@ def order_hdl_files(
         hdl_files: List of vhdl source files.
         build_dir: Build directory for simulation.
         top_level: Name of the top-level entity.
+        libraries: Source files of other libraries the files depend on, by
+            library name. They take part in the dependency analysis but are
+            left out of the returned order.
     """
     command: list[str] = [
         "vhdeps",
@@ -59,13 +65,18 @@ def order_hdl_files(
     ]
     for file in hdl_files:
         command.append(f"--include={str(file)}")
+    for library, files in (libraries or {}).items():
+        for file in files:
+            command.append(f"--include={library}:{str(file)}")
     command_str = " ".join(command)
     Path(WORKING_DIR / build_dir).mkdir(exist_ok=True)
     subprocess.run(["/usr/bin/env"] + command)
     try:
         with open(WORKING_DIR / build_dir / "order") as order:
             ordered_hdl_files = [
-                Path(line.strip().split(" ")[-1]) for line in order.readlines()
+                Path(line.strip().split(" ")[-1])
+                for line in order.readlines()
+                if line.split()[1] == "work"
             ]
         return ordered_hdl_files
     except FileNotFoundError as error:

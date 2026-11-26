@@ -95,6 +95,7 @@ signal CLK_PERIOD               : std_logic_vector(31 downto 0);
 signal CLK_PERIOD_WSTB          : std_logic;
 signal FRAME_PERIOD             : std_logic_vector(31 downto 0);
 signal FRAME_PERIOD_WSTB        : std_logic;
+signal DELAY_COMP               : std_logic_vector(31 downto 0);
 signal INENC_BITS               : std_logic_vector(31 downto 0);
 signal INENC_BITS_WSTB          : std_logic;
 signal SETP                     : std_logic_vector(31 downto 0);
@@ -201,6 +202,8 @@ port map (
     CLK_PERIOD_WSTB     => CLK_PERIOD_WSTB,
     FRAME_PERIOD        => FRAME_PERIOD,
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
+    DELAY_COMP          => DELAY_COMP,
+    DELAY_COMP_WSTB     => open,
     BITS                => INENC_BITS,
     BITS_WSTB           => INENC_BITS_WSTB,
     LSB_DISCARD         => LSB_DISCARD,
@@ -265,6 +268,7 @@ port map(
     CLK_SRC_i           => CLK_SRC(0),
     CLK_PERIOD_i        => CLK_PERIOD,
     FRAME_PERIOD_i      => FRAME_PERIOD,
+    DELAY_COMP_i        => DELAY_COMP(15 downto 0),
     INENC_BITS_i        => INENC_BITS(7 downto 0),
     LSB_DISCARD_i       => LSB_DISCARD(4 downto 0),
     MSB_DISCARD_i       => MSB_DISCARD(4 downto 0),

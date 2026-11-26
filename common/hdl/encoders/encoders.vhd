@@ -54,6 +54,7 @@ port (
     CLK_SRC_i           : in  std_logic;
     CLK_PERIOD_i        : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD_i      : in  std_logic_vector(31 downto 0);
+    DELAY_COMP_i        : in  std_logic_vector(15 downto 0);
     INENC_BITS_i        : in  std_logic_vector(7 downto 0);
     LSB_DISCARD_i       : in  std_logic_vector(4 downto 0);
     MSB_DISCARD_i       : in  std_logic_vector(4 downto 0);
@@ -71,24 +72,31 @@ end entity;
 
 architecture rtl of encoders is
 
-constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
-constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
-constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
-constant c_enDat            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
+-- Protocol codes, literals so they can be used as case choices
+constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := "100";
+constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := "101";
+constant c_BISS             : std_logic_vector(2 downto 0) := "010";
+constant c_enDat            : std_logic_vector(2 downto 0) := "011";
 
 signal quad_a               : std_logic;
 signal quad_b               : std_logic;
 signal sdat                 : std_logic;
 signal bdat                 : std_logic;
+signal edat                 : std_logic;
+signal edat_oe              : std_logic;
 signal health_biss_slave    : std_logic_vector(31 downto 0);
+signal health_endat_slave   : std_logic_vector(31 downto 0);
 
 signal clk_out_encoder_ssi  : std_logic;
 signal clk_out_encoder_biss : std_logic;
+signal clk_out_encoder_endat: std_logic;
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_biss            : std_logic_vector(31 downto 0);
+signal posn_endat           : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
+signal posn_endat_sniffer   : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
 signal bits_not_used        : unsigned(4 downto 0);
@@ -104,6 +112,15 @@ signal linkup_biss_sniffer  : std_logic;
 signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
+signal linkup_endat_master  : std_logic;
+signal health_endat_master  : std_logic_vector(31 downto 0);
+signal linkup_endat_sniffer : std_logic;
+signal health_endat_sniffer : std_logic_vector(31 downto 0);
+signal endat_mdat           : std_logic;
+signal endat_mdat_oe        : std_logic;
+signal endat_master_oe      : std_logic;
+signal endat_slave_oe       : std_logic;
+signal monitor_card         : std_logic;
 
 signal inenc_dir            : std_logic;
 signal outenc_dir           : std_logic;
@@ -122,6 +139,7 @@ signal A_IN                 : std_logic;
 signal B_IN                 : std_logic;
 signal Z_IN                 : std_logic;
 signal DATA_IN              : std_logic;
+signal SDAT_IN              : std_logic;
 
 signal A_OUT                : std_logic;
 signal B_OUT                : std_logic;
@@ -140,7 +158,20 @@ begin
 -- Unused Nets.
 inenc_dir <= '1';
 outenc_dir <= '0';
-Am0_opad <= '0';
+
+monitor_card <= '1' when DCARD_MODE_i(3 downto 1) = DCARD_MONITOR else '0';
+
+--------------------------------------------------------------------------
+-- EnDat uses a half duplex data line. On the daughter card the data
+-- transceivers are driven from the A pins and the Z pins switch them
+-- between transmit (Z high) and receive, so the master owns the INENC line
+-- and the slave the OUTENC line only while their output enables are high.
+-- Neither drives the pads on a monitor card, which only listens.
+--------------------------------------------------------------------------
+endat_master_oe <= endat_mdat_oe when (INENC_PROTOCOL_i = c_enDat
+                                       and monitor_card = '0') else '0';
+endat_slave_oe <= edat_oe when (OUTENC_PROTOCOL = c_enDat
+                                and monitor_card = '0') else '0';
 
 -----------------------------OUTENC---------------------------------------------
 --------------------------------------------------------------------------------
@@ -155,8 +186,9 @@ OUTENC_PROTOCOL <=
 A_OUT <= a_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT <= b_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL = c_BISS) else sdat;
+DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else
+            bdat when (OUTENC_PROTOCOL = c_BISS) else
+            edat when (OUTENC_PROTOCOL = c_enDat) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -205,6 +237,23 @@ port map (
     biss_dat_o        => bdat
 );
 
+--
+-- ENDAT SLAVE
+--
+endat_slave_inst : entity work.endat_slave
+port map (
+    clk_i             => clk_i,
+    reset_i           => reset_i,
+    BITS              => OUTENC_BITS_i(5 downto 0),
+    GENERATOR_ERROR   => GENERATOR_ERROR_i,
+    health_o          => health_endat_slave,
+    posn_i            => posn_i,
+    endat_sck_i       => CLK_IN,
+    endat_dat_i       => SDAT_IN,
+    endat_dat_o       => edat,
+    endat_dat_oe_o    => edat_oe
+);
+
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
@@ -228,8 +277,8 @@ begin
                     OUTENC_HEALTH_o <= (others=>'0');
                 when "010"  =>              -- BISS & Loopback
                     OUTENC_HEALTH_o <= health_biss_slave;
-                when c_enDat =>             -- enDat 
-                    OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
+                when c_enDat =>             -- enDat & Loopback
+                    OUTENC_HEALTH_o <= health_endat_slave;
                 when others =>
                     OUTENC_HEALTH_o <= (others=>'0');
             end case;
@@ -268,7 +317,8 @@ end process ps_select;
 
 -- Loopbacks
 CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
-              clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+              clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = c_BISS) else
+              clk_out_encoder_endat when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = c_enDat) else
               clk_out_encoder_ssi;
 
 
@@ -376,6 +426,44 @@ port map (
 );
 
 --------------------------------------------------------------------------
+-- EnDat Instantiations
+--------------------------------------------------------------------------
+-- EnDat Master
+endat_master_inst : entity work.endat_master generic map (
+    F1_IGNORED      => true
+) port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => INENC_BITS_i(5 downto 0),
+    CLK_PERIOD      => CLK_PERIOD_i,
+    FRAME_PERIOD    => FRAME_PERIOD_i,
+    DELAY_COMP      => DELAY_COMP_i,
+    link_up_o       => linkup_endat_master,
+    health_o        => health_endat_master,
+    endat_sck_o     => clk_out_encoder_endat,
+    endat_dat_i     => DATA_IN,
+    endat_dat_o     => endat_mdat,
+    endat_dat_oe_o  => endat_mdat_oe,
+    posn_o          => posn_endat,
+    posn_valid_o    => open
+);
+
+-- EnDat Sniffer
+endat_sniffer_inst : entity work.endat_sniffer generic map (
+    F1_IGNORED      => true
+) port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => INENC_BITS_i(5 downto 0),
+    link_up_o       => linkup_endat_sniffer,
+    health_o        => health_endat_sniffer,
+    endat_sck_i     => CLK_IN,
+    endat_dat_i     => DATA_IN,
+    posn_o          => posn_endat_sniffer,
+    posn_valid_o    => open
+);
+
+--------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
 --  Link status information is valid only for loopback configuration
@@ -423,6 +511,18 @@ begin
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
 
+                when c_enDat =>             -- ENDAT & Loopback
+                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                        posn <= posn_endat_sniffer;
+                        STATUS_o(0) <= linkup_endat_sniffer;
+                        INENC_HEALTH_o <= health_endat_sniffer;
+                    else  -- DCARD_CONTROL
+                        posn <= posn_endat;
+                        STATUS_o(0) <= linkup_endat_master;
+                        INENC_HEALTH_o <= health_endat_master;
+                    end if;
+                    HOMED_o <= TO_SVECTOR(1,32);
+
                 when others =>
                     INENC_HEALTH_o <= TO_SVECTOR(5,32);
                     posn <= (others => '0');
@@ -449,7 +549,9 @@ begin
                 when "010"  =>                              -- BiSS-C
                     inenc_ctrl <= inenc_dir & "00";
                 when "011"  =>                              -- EnDat
-                    inenc_ctrl <= inenc_dir & "00";
+                    -- The A pin drives the data line while the master
+                    -- sends its mode command
+                    inenc_ctrl <= (not endat_master_oe) & "00";
                 when others =>
                     inenc_ctrl <= "111";
             end case;
@@ -482,8 +584,10 @@ IOBUF_Zm0 : entity work.iobuf_registered port map (
     IO      => Zm0_pad_io
 );
 
+Am0_opad <= endat_mdat;
 Bm0_opad <= CLK_OUT;
-Zm0_opad <= not inenc_dir;
+-- Data transceiver direction, transmit while the EnDat master drives
+Zm0_opad <= endat_master_oe when (INENC_PROTOCOL_i = c_enDat) else not inenc_dir;
 
 a_filt : entity work.delay_filter port map(
     clk_i   => clk_i,
@@ -530,7 +634,9 @@ begin
                 when "010"  =>                        -- BiSS
                     outenc_ctrl <= outenc_dir & "10";
                 when "011"  =>                        -- EnDat
-                    outenc_ctrl <= outenc_dir & "10";
+                    -- The A pin drives the data line while the slave
+                    -- answers or holds the idle line low
+                    outenc_ctrl <= (not endat_slave_oe) & "10";
                 when "101" =>
                     outenc_ctrl <= "010";          -- DATA PassThrough
                 when others =>
@@ -567,7 +673,11 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
 -- A output is shared between incremental and absolute data lines.
 As0_opad <= A_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else DATA_OUT;
 Bs0_opad <= B_OUT;
-Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else not outenc_dir;
+-- Z output is the data transceiver direction for absolute protocols,
+-- transmit while the EnDat slave drives
+Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else
+            endat_slave_oe when (OUTENC_PROTOCOL = c_enDat) else
+            not outenc_dir;
 
 INENC_A_o <= A_IN;
 INENC_B_o <= B_IN;
@@ -581,6 +691,14 @@ clkin_filt : entity work.delay_filter port map (
     reset_i => reset_i,
     pulse_i => Bs0_ipad,
     filt_o  => CLK_IN
+);
+
+-- Data from the master on the OUTENC data line, for the EnDat slave
+sdatin_filt : entity work.delay_filter port map (
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => As0_ipad,
+    filt_o  => SDAT_IN
 );
 end rtl;
 

@@ -1,4 +1,5 @@
 import cocotb
+import pytest
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, Timer
 from entity_runner import run_entity_test
@@ -102,15 +103,15 @@ class EndatMaster:
 
     async def recovery(self):
         """After the last CRC bit the slave holds the line high for the
-        recovery time and then releases it. Returns (high, released)."""
+        recovery time and then low until the next frame. Returns
+        (high, low)."""
         await ClockCycles(self.dut.clk_i, 8)
         high = (int(self.dut.endat_dat_o.value),
                 int(self.dut.endat_dat_oe_o.value)) == (1, 1)
         await ClockCycles(self.dut.clk_i, RECOVERY + 8)
-        released = (int(self.dut.endat_dat_o.value),
-                    int(self.dut.endat_dat_oe_o.value)) == (0, 0)
+        low = line_held_low(self.dut)
         await Timer(self.gap_ns, 'ns')
-        return high, released
+        return high, low
 
 
 def start_clock(dut):
@@ -133,11 +134,19 @@ def check_health(dut, health):
     assert dut.health_o.value.to_unsigned() == health
 
 
-def check_answer(result, position, bits, error=0):
+def line_held_low(dut):
+    """The slave is driving the data line low"""
+    return (int(dut.endat_dat_o.value), int(dut.endat_dat_oe_o.value)) == (0, 1)
+
+
+def check_answer(dut, result, position, bits, error=0):
     assert all(oe == 0 for oe in result['oe_request']), \
         'Slave drove the line during the request'
     assert result['tcal'] == TCAL_CLOCKS
-    assert result['error'] == error
+    # F1 is sent at the level the slave was built to mean an error when
+    # GENERATOR_ERROR is set
+    f1_error_value = int(dut.F1_ERROR_VALUE.value)
+    assert result['error'] == (f1_error_value if error else 1 - f1_error_value)
     # Bits above 32 are sent as zero
     assert result['posn'] == position & ((1 << bits) - 1) & 0xFFFFFFFF
     assert result['crc_ok']
@@ -150,11 +159,14 @@ async def endat_position_answered(dut):
         await setup(dut, bits)
         master = EndatMaster(dut, bits)
         check_health(dut, HEALTH_TIMEOUT)
+        # An idle slave holds the line low
+        await ClockCycles(dut.clk_i, 4)
+        assert line_held_low(dut)
         mask = (1 << bits) - 1
         for position in [0, 1, 1 << (bits - 1), mask, 0x5A5A5A5A & mask]:
             dut.posn_i.value = position & 0xFFFFFFFF
             result = await master.read_position()
-            check_answer(result, position, bits)
+            check_answer(dut, result, position, bits)
             check_health(dut, HEALTH_OK)
             assert await master.recovery() == (True, True)
 
@@ -165,7 +177,7 @@ async def endat_error_bit(dut):
     await setup(dut, 25, position=1234, error=1)
     master = EndatMaster(dut, 25)
     result = await master.read_position()
-    check_answer(result, 1234, 25, error=1)
+    check_answer(dut, result, 1234, 25, error=1)
     await master.recovery()
 
 
@@ -180,10 +192,10 @@ async def endat_position_latched_at_frame_start(dut):
     await Timer(PERIOD * 3, 'ns')
     dut.posn_i.value = 4321
     result = await task
-    check_answer(result, 1234, 25)
+    check_answer(dut, result, 1234, 25)
     await master.recovery()
     result = await master.read_position()
-    check_answer(result, 4321, 25)
+    check_answer(dut, result, 4321, 25)
     await master.recovery()
 
 
@@ -195,10 +207,11 @@ async def endat_other_commands_ignored(dut):
     for data in [[0] * 24, [1] * 24, [i % 2 for i in range(24)], None]:
         oes = await master.other_frame(data=data)
         assert all(oe == 0 for oe in oes), 'Slave drove the line'
-        assert dut.endat_dat_oe_o.value == 0
+        # Back to holding the line low once the frame is over
+        assert line_held_low(dut)
         # The next position request is answered
         result = await master.read_position()
-        check_answer(result, 1234, 25)
+        check_answer(dut, result, 1234, 25)
         await master.recovery()
 
 
@@ -208,21 +221,21 @@ async def endat_master_stops_clock(dut):
     await setup(dut, 25, position=1234)
     master = EndatMaster(dut, 25)
     result = await master.read_position()
-    check_answer(result, 1234, 25)
+    check_answer(dut, result, 1234, 25)
     await master.recovery()
     check_health(dut, HEALTH_OK)
     # The master gives up part way through the position bits, the slave
-    # releases the line once the clock has been idle for two periods
+    # goes back to holding the line low once the clock has been idle for
+    # two periods
     await master.request(MODE_COMMAND)
     for _ in range(TCAL_CLOCKS + 10):
         _, oe = await master.clock()
         assert oe == 1
     await Timer(PERIOD * 3, 'ns')
-    assert dut.endat_dat_oe_o.value == 0
-    assert dut.endat_dat_o.value == 0
+    assert line_held_low(dut)
     check_health(dut, HEALTH_TIMEOUT)
     result = await master.read_position()
-    check_answer(result, 1234, 25)
+    check_answer(dut, result, 1234, 25)
     check_health(dut, HEALTH_OK)
     await master.recovery()
 
@@ -232,6 +245,9 @@ async def endat_no_answer_when_bits_zero(dut):
     start_clock(dut)
     await setup(dut, 0, position=1234)
     master = EndatMaster(dut, 25)
+    # An unconfigured slave leaves the line alone
+    await ClockCycles(dut.clk_i, 4)
+    assert dut.endat_dat_oe_o.value == 0
     for _ in range(3):
         oes = await master.request(MODE_COMMAND)
         for _ in range(40):
@@ -242,11 +258,15 @@ async def endat_no_answer_when_bits_zero(dut):
     check_health(dut, HEALTH_TIMEOUT)
 
 
-def test_endat_slave(build_dir):
+# The level of the error bit F1 that means an error. Heidenhain encoders
+# transmit F1 low active, other encoders may use the opposite convention.
+@pytest.mark.parametrize('f1_error_value', ['0', '1'])
+def test_endat_slave(build_dir, f1_error_value):
     run_entity_test(
         'test_endat_slave', 'endat_slave',
         ['common/hdl/encoders/endat_slave.vhd',
          'common/hdl/encoders/endat_crc.vhd',
          'common/hdl/defines/support.vhd'],
         build_dir,
-        parameters={'TCAL_CLOCKS': TCAL_CLOCKS, 'RECOVERY': RECOVERY})
+        parameters={'TCAL_CLOCKS': TCAL_CLOCKS, 'RECOVERY': RECOVERY,
+                    'F1_ERROR_VALUE': f"'{f1_error_value}'"})

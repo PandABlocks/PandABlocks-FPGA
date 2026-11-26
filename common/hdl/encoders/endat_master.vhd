@@ -33,6 +33,8 @@ entity endat_master is
 generic (
     -- Maximum calculation time (tcal) before the start bit, in clk_i cycles
     TCAL_TIMEOUT    : natural := 125000;    -- 1ms
+    F1_IGNORED : boolean := false;  -- ignore the F1 error bit
+    F1_ERROR_VALUE : std_logic := '0';
     -- Low time of the clock after the first falling edge of a frame (t_ST),
     -- in clk_i cycles, must be at least 1
     START_DELAY     : natural := 250        -- 2us
@@ -335,7 +337,7 @@ begin
                     if crc_rx /= crc_calc then
                         link_up_o <= '0';
                         health_o <= HEALTH_CRC;
-                    elsif err_bit then
+                    elsif (not F1_IGNORED) and err_bit = F1_ERROR_VALUE then
                         link_up_o <= '0';
                         health_o <= HEALTH_ERROR_BIT;
                     else
